@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Seolia — Sites web & SEO local pour artisans à Liège</title>
+  <meta name="description" content="Seolia crée des sites web professionnels et optimisés Google pour les artisans et PME de Liège. Plus de visibilité, plus d'appels, plus de clients. Dès 49€/mois."/>
+  <meta name="keywords" content="site web artisan liège, SEO local liège, référencement google liège, site web plombier liège, agence web liège"/>
+  <meta name="author" content="Seolia"/>
+  <meta property="og:title" content="Seolia — Sites web & SEO local pour artisans à Liège"/>
+  <meta property="og:description" content="Plus de visibilité. Plus d'appels. Plus de clients. Seolia transforme votre présence en ligne en machine à appels."/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://seolia.be"/>
+  <link rel="canonical" href="https://seolia.be"/>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Seolia",
+    "description": "Agence web spécialisée en sites internet et SEO local pour artisans et PME à Liège",
+    "url": "https://seolia.be",
+    "telephone": "+32470922188",
+    "address": { "@type": "PostalAddress", "addressLocality": "Liège", "addressCountry": "BE" },
+    "areaServed": "Liège",
+    "priceRange": "€€"
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    /* ---- HERO ---- */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 120px 40px 80px;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(0,214,143,0.08) 0%, transparent 60%),
+                  radial-gradient(ellipse 60% 80% at 20% 80%, rgba(99,102,241,0.08) 0%, transparent 60%);
+    }
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+    .hero-blob1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0,214,143,0.12), transparent 70%);
+      top: -100px; right: -100px;
+    }
+    .hero-blob2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(99,102,241,0.1), transparent 70%);
+      bottom: -50px; left: -100px;
+    }
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--green-glow);
+      color: var(--green);
+      border: 1px solid rgba(0,214,143,0.3);
+      padding: 8px 18px;
+      border-radius: 50px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .hero-tag .dot {
+      width: 8px; height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    .hero-title { margin-bottom: 24px; }
+    .hero-title .typed-wrapper {
+      color: var(--green);
+      display: block;
+      min-height: 1.3em;
+    }
+    .typed-cursor {
+      display: inline-block;
+      width: 3px;
+      height: 1em;
+      background: var(--green);
+      margin-left: 4px;
+      vertical-align: middle;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+    .hero-subtitle { font-size: 1.1rem; margin-bottom: 36px; max-width: 480px; }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 48px; }
+    .hero-social-proof {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .hero-avatars {
+      display: flex;
+    }
+    .hero-avatars span {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      border: 2px solid var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin-left: -10px;
+    }
+    .hero-avatars span:first-child { margin-left: 0; background: #2d3a5e; }
+    .hero-avatars span:nth-child(2) { background: #1e3a5f; }
+    .hero-avatars span:nth-child(3) { background: #1a4a3a; }
+    .hero-sp-text { font-size: 0.82rem; color: var(--grey); }
+    .hero-sp-text strong { color: var(--white); }
+    .hero-sp-stars { color: var(--gold); font-size: 0.9rem; }
+
+    /* Hero phone mockup */
+    .hero-visual { position: relative; }
+    .phone-mockup {
+      width: 260px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .phone-frame {
+      background: var(--navy-card);
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 40px;
+      padding: 16px 12px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+      position: relative;
+    }
+    .phone-notch {
+      width: 100px; height: 28px;
+      background: var(--navy);
+      border-radius: 0 0 20px 20px;
+      margin: 0 auto 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .phone-notch::after {
+      content: '';
+      width: 60px; height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+    }
+    .phone-screen { background: #f1f3f4; border-radius: 20px; overflow: hidden; }
+    .google-bar {
+      background: white;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .google-logo { font-size: 1.1rem; font-weight: 900; }
+    .google-logo .G { color: #4285f4; }
+    .google-logo .o1 { color: #ea4335; }
+    .google-logo .o2 { color: #fbbc05; }
+    .google-logo .g { color: #4285f4; }
+    .google-logo .l { color: #34a853; }
+    .google-logo .e { color: #ea4335; }
+    .search-bar {
+      flex: 1;
+      background: #f1f3f4;
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 0.6rem;
+      color: #333;
+      border: 1px solid #ddd;
+    }
+    .google-results { padding: 8px; }
+    .g-result {
+      background: white;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      position: relative;
+    }
+    .g-result.highlighted { border: 2px solid var(--green); }
+    .g-result.highlighted::before {
+      content: '#1';
+      position: absolute;
+      top: -8px; right: 8px;
+      background: var(--green);
+      color: var(--navy);
+      font-size: 0.55rem;
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: 10px;
+    }
+    .g-result .r-url { font-size: 0.5rem; color: #1a0dab; margin-bottom: 2px; }
+    .g-result .r-title { font-size: 0.6rem; color: #1a0dab; font-weight: 600; margin-bottom: 2px; }
+    .g-result .r-desc { font-size: 0.5rem; color: #545454; line-height: 1.4; }
+    .g-result .stars { color: var(--gold); font-size: 0.6rem; }
+    .call-badge {
+      position: absolute;
+      right: -20px; top: 30%;
+      background: var(--green);
+      color: var(--navy);
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      box-shadow: 0 8px 24px rgba(0,214,143,0.4);
+      white-space: nowrap;
+      animation: float 3s ease-in-out infinite;
+    }
+    .call-badge::before { content: '📞 '; }
+    .rival-badge {
+      position: absolute;
+      left: -20px; bottom: 20%;
+      background: rgba(239,68,68,0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239,68,68,0.3);
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      white-space: nowrap;
+      animation: float 3s ease-in-out infinite 1.5s;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* ---- PROBLEM ---- */
+    .problem-section { background: var(--navy-light); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .problem-scenarios { display: flex; flex-direction: column; gap: 16px; }
+    .scenario {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      transition: var(--transition);
+    }
+    .scenario:hover { border-color: rgba(239,68,68,0.3); }
+    .scenario.win { border-color: rgba(0,214,143,0.2); }
+    .scenario.win:hover { border-color: rgba(0,214,143,0.4); }
+    .scenario-icon {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .scenario-icon.red { background: rgba(239,68,68,0.15); }
+    .scenario-icon.green { background: rgba(0,214,143,0.15); }
+    .scenario h4 { font-size: 0.9rem; margin-bottom: 4px; }
+    .scenario p { font-size: 0.82rem; color: var(--grey); margin: 0; }
+
+    /* ---- HOW IT WORKS ---- */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+    .step {
+      text-align: center;
+      position: relative;
+    }
+    .step::after {
+      content: '';
+      position: absolute;
+      top: 28px; right: -16px;
+      width: 32px; height: 2px;
+      background: linear-gradient(90deg, var(--border), transparent);
+    }
+    .step:last-child::after { display: none; }
+    .step-number {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      border: 2px solid var(--green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--green);
+      margin: 0 auto 20px;
+      background: var(--green-glow);
+    }
+    .step h3 { margin-bottom: 10px; font-size: 1rem; }
+    .step p { font-size: 0.85rem; }
+
+    /* ---- FORMULES ---- */
+    .formules-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    .formule-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .formule-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+    }
+    .formule-card.essentiel::before { background: var(--grey); }
+    .formule-card.business::before { background: linear-gradient(90deg, var(--green), #00b4d8); }
+    .formule-card.premium::before { background: linear-gradient(90deg, var(--gold), #f97316); }
+    .formule-card.business {
+      border-color: rgba(0,214,143,0.3);
+      transform: translateY(-8px);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.3), var(--shadow-green);
+    }
+    .formule-card:hover { transform: translateY(-12px); box-shadow: 0 40px 70px rgba(0,0,0,0.35); }
+    .formule-card.business:hover { transform: translateY(-16px); }
+    .formule-badge {
+      display: inline-block;
+      background: var(--green);
+      color: var(--navy);
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 50px;
+      margin-bottom: 20px;
+      align-self: flex-start;
+    }
+    .formule-name {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .formule-desc { font-size: 0.85rem; color: var(--grey); margin-bottom: 24px; }
+    .formule-price { margin-bottom: 24px; }
+    .formule-setup {
+      font-size: 0.8rem;
+      color: var(--grey);
+      text-decoration: line-through;
+      margin-bottom: 4px;
+    }
+    .formule-setup.free { text-decoration: none; color: var(--green); font-weight: 700; }
+    .formule-monthly {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .formule-monthly .amount {
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: var(--white);
+    }
+    .formule-monthly .currency {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--green);
+    }
+    .formule-monthly .period { font-size: 0.8rem; color: var(--grey); }
+    .formule-features {
+      list-style: none;
+      flex: 1;
+      margin-bottom: 28px;
+    }
+    .formule-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--grey-light);
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .formule-features li:last-child { border-bottom: none; }
+    .formule-features li::before {
+      content: '✓';
+      color: var(--green);
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .formule-cta {
+      display: block;
+      text-align: center;
+      padding: 14px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+    .essentiel .formule-cta {
+      border: 2px solid var(--border);
+      color: var(--white);
+    }
+    .essentiel .formule-cta:hover { border-color: var(--green); color: var(--green); }
+    .business .formule-cta {
+      background: var(--green);
+      color: var(--navy);
+    }
+    .business .formule-cta:hover {
+      background: var(--green-dark);
+      box-shadow: 0 8px 25px rgba(0,214,143,0.35);
+    }
+    .premium .formule-cta {
+      background: linear-gradient(135deg, var(--gold), #f97316);
+      color: var(--white);
+    }
+    .premium .formule-cta:hover {
+      box-shadow: 0 8px 25px rgba(245,166,35,0.35);
+    }
+    .formules-note {
+      text-align: center;
+      background: var(--green-glow);
+      border: 1px solid rgba(0,214,143,0.2);
+      border-radius: var(--radius);
+      padding: 20px 32px;
+      font-size: 0.9rem;
+      color: var(--green);
+    }
+    .formules-note strong { color: var(--white); }
+
+    /* ---- STATS ---- */
+    .big-stats {
+      background: linear-gradient(135deg, var(--navy-light), var(--navy-card));
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 80px 40px;
+    }
+    .big-stats-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      text-align: center;
+    }
+    .big-stat h2 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--green), #00b4d8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    .big-stat p { font-size: 0.9rem; color: var(--grey); }
+
+    /* ---- PORTFOLIO ---- */
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+    }
+    .portfolio-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .portfolio-card:hover { border-color: rgba(0,214,143,0.3); transform: translateY(-6px); box-shadow: var(--shadow-green); }
+    .portfolio-browser {
+      background: #1e2a3a;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .browser-dots { display: flex; gap: 5px; }
+    .browser-dots span {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .browser-dots span:nth-child(1) { background: #ef4444; }
+    .browser-dots span:nth-child(2) { background: var(--gold); }
+    .browser-dots span:nth-child(3) { background: #22c55e; }
+    .browser-url {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 0.72rem;
+      color: var(--grey);
+    }
+    .portfolio-preview {
+      height: 200px;
+      overflow: hidden;
+      position: relative;
+    }
+    .portfolio-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .portfolio-preview .preview-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 50%, rgba(10,14,26,0.9) 100%);
+    }
+    .portfolio-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+    }
+    .portfolio-content { padding: 24px; }
+    .portfolio-content h3 { margin-bottom: 8px; font-size: 1.1rem; }
+    .portfolio-content p { font-size: 0.85rem; color: var(--grey); margin-bottom: 16px; }
+    .portfolio-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .portfolio-tag {
+      background: var(--green-glow);
+      color: var(--green);
+      border: 1px solid rgba(0,214,143,0.2);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    /* ---- GUARANTEE ---- */
+    .guarantee-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 24px;
+    }
+    .guarantee-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      text-align: center;
+    }
+    .guarantee-icon { font-size: 2.5rem; margin-bottom: 16px; }
+    .guarantee-card h3 { font-size: 1rem; margin-bottom: 8px; }
+    .guarantee-card p { font-size: 0.83rem; }
+
+    /* ---- FAQ ---- */
+    .faq-list { max-width: 800px; margin: 0 auto; }
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .faq-item.open { border-color: rgba(0,214,143,0.3); }
+    .faq-question {
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      gap: 16px;
+    }
+    .faq-question:hover { color: var(--green); }
+    .faq-arrow {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.8rem;
+      transition: var(--transition);
+    }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); background: var(--green-glow); color: var(--green); }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+    }
+    .faq-item.open .faq-answer { max-height: 300px; }
+    .faq-answer-inner {
+      padding: 0 24px 20px;
+      font-size: 0.88rem;
+      color: var(--grey-light);
+      line-height: 1.8;
+    }
+
+    /* ---- CTA FINAL ---- */
+    .cta-section {
+      text-align: center;
+      background: linear-gradient(135deg, rgba(0,214,143,0.08), rgba(99,102,241,0.05));
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 100px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-section h2 { margin-bottom: 20px; }
+    .cta-section p { font-size: 1.1rem; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; }
+    .cta-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .cta-phone {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--green);
+      margin-top: 24px;
+      justify-content: center;
+    }
+
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 50px; }
+      .hero-visual { display: none; }
+      .problem-grid { grid-template-columns: 1fr; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .step::after { display: none; }
+      .formules-grid { grid-template-columns: 1fr; }
+      .formule-card.business { transform: none; }
+      .big-stats-inner { grid-template-columns: repeat(2, 1fr); }
+      .portfolio-grid { grid-template-columns: 1fr; }
+      .guarantee-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .hero { padding: 100px 20px 60px; }
+      .big-stats { padding: 60px 20px; }
+      .big-stats-inner { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+      .cta-section { padding: 70px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV OVERLAY MOBILE -->
+<div class="nav-overlay">
+  <span class="close-btn">&#x2715;</span>
+  <a href="index.html">Accueil</a>
+  <a href="formules.html">Formules</a>
+  <a href="portfolio.html">Portfolio</a>
+  <a href="blog/index.html">Blog</a>
+  <a href="contact.html">Contact</a>
+  <a href="contact.html" style="color:var(--green);border:2px solid var(--green);padding:12px 32px;border-radius:50px;margin-top:8px;">Appel gratuit</a>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">Seo<span>lia</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="formules.html">Formules</a></li>
+    <li><a href="portfolio.html">Portfolio</a></li>
+    <li><a href="blog/index.html">Blog</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="contact.html" class="nav-cta">Appel gratuit</a></li>
+  </ul>
+  <div class="burger"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- ====== HERO ====== -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="bg-blob hero-blob1"></div>
+  <div class="bg-blob hero-blob2"></div>
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-tag"><span class="dot"></span>Agence web #1 pour artisans à Liège</div>
+      <h1 class="hero-title">
+        Votre prochain client cherche un
+        <span class="typed-wrapper">
+          <span data-typed data-words='["plombier à Liège","électricien à Seraing","chauffagiste à Herstal","serrurier à Ans","carreleur à Flémalle","plombier à Grâce-Hollogne","électricien à Liège","chauffagiste à Saint-Nicolas","serrurier à Seraing","détailer à Liège"]'></span><span class="typed-cursor"></span>
+        </span>
+        sur Google.
+      </h1>
+      <p class="hero-subtitle">Est-ce qu'il vous trouve — ou il appelle votre concurrent ? Seolia transforme votre présence en ligne en machine à générer des appels.</p>
+      <div class="hero-actions">
+        <a href="contact.html" class="btn btn-primary">Obtenir mon audit gratuit</a>
+        <a href="formules.html" class="btn btn-secondary">Voir les formules</a>
+      </div>
+      <div class="hero-social-proof">
+        <div class="hero-avatars">
+          <span>&#128295;</span>
+          <span>&#128268;</span>
+          <span>&#128296;</span>
+        </div>
+        <div>
+          <div class="hero-sp-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <div class="hero-sp-text"><strong>Des artisans liégeois</strong> recoivent plus d'appels chaque semaine</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="phone-mockup">
+        <div class="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="google-bar">
+              <div class="google-logo">
+                <span class="G">G</span><span class="o1">o</span><span class="o2">o</span><span class="g">g</span><span class="l">l</span><span class="e">e</span>
+              </div>
+              <div class="search-bar">plombier liège urgence</div>
+            </div>
+            <div class="google-results">
+              <div class="g-result highlighted">
+                <div class="r-url">seolia.be/client/plombier-liege</div>
+                <div class="r-title">Plombier Liège — Urgence 24h/7j</div>
+                <div class="stars">★★★★★</div>
+                <div class="r-desc">Intervention rapide à Liège. Devis gratuit. Appelez maintenant !</div>
+              </div>
+              <div class="g-result">
+                <div class="r-url">trustup.be/plombiers/liege</div>
+                <div class="r-title">Plombiers Liège — TrustUp.be</div>
+                <div class="r-desc">Comparez 12 plombiers. Demandez des devis...</div>
+              </div>
+              <div class="g-result">
+                <div class="r-url">pages-or.be/plombier/liege</div>
+                <div class="r-title">Plombier à Liège — Pages d'Or</div>
+                <div class="r-desc">Trouvez un plombier certifié dans votre région...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="call-badge">+3 appels aujourd'hui</div>
+        <div class="rival-badge">Concurrent introuvable</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== STATS BAR ====== -->
+<div class="big-stats">
+  <div class="big-stats-inner">
+    <div class="big-stat" data-aos>
+      <h2><span data-target="97" data-suffix="%">0%</span></h2>
+      <p>des recherches locales se font sur Google</p>
+    </div>
+    <div class="big-stat" data-aos data-aos-delay="100">
+      <h2><span data-target="500" data-suffix="+">0+</span></h2>
+      <p>artisans sans site web en province de Liège</p>
+    </div>
+    <div class="big-stat" data-aos data-aos-delay="200">
+      <h2><span data-target="76" data-suffix="%">0%</span></h2>
+      <p>cliquent sur les 3 premiers résultats Google</p>
+    </div>
+    <div class="big-stat" data-aos data-aos-delay="300">
+      <h2><span data-target="4" data-suffix="x">0x</span></h2>
+      <p>plus d'appels avec un site optimisé vs sans</p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== PROBLEM ====== -->
+<section style="background: var(--navy-light); border-bottom: 1px solid var(--border);">
+  <div class="section">
+    <div class="problem-grid">
+      <div data-aos="fade-right">
+        <div class="section-tag">Le problème</div>
+        <h2 class="section-title">Pendant que vous travaillez,<br/><span class="highlight">vos concurrents prennent vos clients.</span></h2>
+        <p style="margin-bottom: 32px;">À 22h, quelqu'un cherche un plombier à Liège. Si vous n'apparaissez pas sur Google, il appelle quelqu'un d'autre. Simple. Brutal. Évitable.</p>
+        <a href="formules.html" class="btn btn-primary">Voir comment on résout ça</a>
+      </div>
+      <div data-aos="fade-left">
+        <div class="problem-scenarios">
+          <div class="scenario" data-aos data-aos-delay="100">
+            <div class="scenario-icon red">&#128683;</div>
+            <div>
+              <h4>Vous êtes invisible sur Google</h4>
+              <p>Recherche "plombier Liège" — vous n'apparaissez pas. Le client appelle le premier résultat.</p>
+            </div>
+          </div>
+          <div class="scenario" data-aos data-aos-delay="200">
+            <div class="scenario-icon red">&#128683;</div>
+            <div>
+              <h4>Vous payez des leads partagés</h4>
+              <p>TrustUp, Bobex... 50-200€/mois pour des leads que vous partagez avec 3 concurrents.</p>
+            </div>
+          </div>
+          <div class="scenario" data-aos data-aos-delay="300">
+            <div class="scenario-icon red">&#128683;</div>
+            <div>
+              <h4>Votre site date de 2010</h4>
+              <p>Lent, non-mobile, invisible sur Google. Vos clients potentiels repartent en 3 secondes.</p>
+            </div>
+          </div>
+          <div class="scenario win" data-aos data-aos-delay="400">
+            <div class="scenario-icon green">&#9989;</div>
+            <div>
+              <h4>La solution Seolia</h4>
+              <p>Un site optimisé + Google Business Profile = appels directs sans payer d'intermédiaire.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== HOW IT WORKS ====== -->
+<section>
+  <div class="section" style="text-align:center;">
+    <div class="section-tag" data-aos>Comment ça marche</div>
+    <h2 class="section-title" data-aos data-aos-delay="100">En place en <span class="highlight">7 jours.</span><br/>Des résultats en 30 jours.</h2>
+    <p class="section-subtitle" style="margin: 0 auto 60px;" data-aos data-aos-delay="200">Pas de complication technique. On s'occupe de tout, vous continuez à travailler.</p>
+    <div class="steps-grid">
+      <div class="step card" data-aos data-aos-delay="100">
+        <div class="step-number">1</div>
+        <h3>Audit gratuit</h3>
+        <p>On analyse votre situation Google actuelle (site, Google Business, concurrents) et on vous présente un plan d'action concret. Sans engagement.</p>
+      </div>
+      <div class="step card" data-aos data-aos-delay="200">
+        <div class="step-number">2</div>
+        <h3>Création en 7 jours</h3>
+        <p>Votre site professionnel multi-pages est créé et mis en ligne. Google Business optimisé. Analytics installé. Vous n'avez rien à faire.</p>
+      </div>
+      <div class="step card" data-aos data-aos-delay="300">
+        <div class="step-number">3</div>
+        <h3>Les appels arrivent</h3>
+        <p>Chaque mois on publie un article SEO, on gère vos avis Google, on met à jour votre site. Votre visibilité grandit. Les appels augmentent.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FORMULES ====== -->
+<section style="background: var(--navy-light); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="section">
+    <div style="text-align:center; margin-bottom: 60px;">
+      <div class="section-tag" data-aos>Tarifs transparents</div>
+      <h2 class="section-title" data-aos data-aos-delay="100">Choisissez votre <span class="highlight">formule</span></h2>
+      <p class="section-subtitle" style="margin: 0 auto;" data-aos data-aos-delay="200">Sans contrat. Sans surprise. Résiliable à tout moment.</p>
+    </div>
+    <div class="formules-grid">
+      <!-- Essentiel -->
+      <div class="formule-card essentiel" data-aos data-aos-delay="100">
+        <div class="formule-name">Essentiel</div>
+        <div class="formule-desc">Pour démarrer et être visible sur Google rapidement.</div>
+        <div class="formule-price">
+          <div class="formule-setup">199€ de mise en place</div>
+          <div class="formule-monthly">
+            <span class="currency">€</span><span class="amount">49</span><span class="period">/mois</span>
+          </div>
+        </div>
+        <ul class="formule-features">
+          <li>Site web 1 page professionnel</li>
+          <li>Google Business Profile optimisé</li>
+          <li>Hébergement + domaine inclus</li>
+          <li>Design mobile-first</li>
+          <li>Mises à jour mensuelles</li>
+          <li>Support par WhatsApp</li>
+        </ul>
+        <a href="contact.html" class="formule-cta">Choisir Essentiel</a>
+      </div>
+      <!-- Business -->
+      <div class="formule-card business" data-aos data-aos-delay="200">
+        <div class="formule-badge">Recommandé</div>
+        <div class="formule-name">Business</div>
+        <div class="formule-desc">Pour dominer Google dans votre ville et votre secteur.</div>
+        <div class="formule-price">
+          <div class="formule-setup">349€ de mise en place</div>
+          <div class="formule-monthly">
+            <span class="currency">€</span><span class="amount">89</span><span class="period">/mois</span>
+          </div>
+        </div>
+        <ul class="formule-features">
+          <li>Site web 5 pages (1 par service)</li>
+          <li>Pages par commune de Liège</li>
+          <li>Google Business Premium</li>
+          <li>1 article SEO/mois</li>
+          <li>Gestion des avis Google</li>
+          <li>Rapport mensuel de visibilité</li>
+          <li>Analytics + Search Console</li>
+        </ul>
+        <a href="contact.html" class="formule-cta">Choisir Business</a>
+      </div>
+      <!-- Premium -->
+      <div class="formule-card premium" data-aos data-aos-delay="300">
+        <div class="formule-name">Premium</div>
+        <div class="formule-desc">Le package complet pour les leaders de leur secteur.</div>
+        <div class="formule-price">
+          <div class="formule-setup">499€ de mise en place</div>
+          <div class="formule-monthly">
+            <span class="currency">€</span><span class="amount">149</span><span class="period">/mois</span>
+          </div>
+        </div>
+        <ul class="formule-features">
+          <li>Site web 8 pages premium</li>
+          <li>Séance photo professionelle</li>
+          <li>Landing pages par commune</li>
+          <li>2 articles SEO/mois</li>
+          <li>Gestion avis + réseaux sociaux</li>
+          <li>Rapport + appel mensuel</li>
+          <li>Priorité absolue au support</li>
+          <li>Positionnement garanti top 3</li>
+        </ul>
+        <a href="contact.html" class="formule-cta">Choisir Premium</a>
+      </div>
+    </div>
+    <div class="formules-note" data-aos>
+      <strong>Offre de lancement — 3 clients uniquement :</strong> Les frais de mise en place sont offerts. Vous ne payez que le mensuel, dès le premier mois.
+    </div>
+  </div>
+</section>
+
+<!-- ====== PORTFOLIO PREVIEW ====== -->
+<section>
+  <div class="section">
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 50px; flex-wrap: wrap; gap: 20px;">
+      <div>
+        <div class="section-tag" data-aos>Réalisations</div>
+        <h2 class="section-title" data-aos data-aos-delay="100">Sites qui <span class="highlight">génèrent des appels</span></h2>
+      </div>
+      <a href="portfolio.html" class="btn btn-outline" data-aos>Voir tout le portfolio</a>
+    </div>
+    <div class="portfolio-grid">
+      <div class="portfolio-card" data-aos data-aos-delay="100">
+        <div class="portfolio-browser">
+          <div class="browser-dots"><span></span><span></span><span></span></div>
+          <div class="browser-url">ml-detailing.be</div>
+        </div>
+        <div class="portfolio-preview" style="background: linear-gradient(135deg, #0a0a0a, #1a2035);">
+          <div class="portfolio-placeholder">&#128663;</div>
+        </div>
+        <div class="portfolio-content">
+          <h3>ML Detailing — Liège</h3>
+          <p>Site premium 9 pages pour service de detailing automobile. Galerie avant/après, tarifs, réservation en ligne.</p>
+          <div class="portfolio-tags">
+            <span class="portfolio-tag">Premium</span>
+            <span class="portfolio-tag">9 pages</span>
+            <span class="portfolio-tag">Detailing auto</span>
+          </div>
+        </div>
+      </div>
+      <div class="portfolio-card" data-aos data-aos-delay="200">
+        <div class="portfolio-browser">
+          <div class="browser-dots"><span></span><span></span><span></span></div>
+          <div class="browser-url">chauffagiste-lambert.be</div>
+        </div>
+        <div class="portfolio-preview" style="background: linear-gradient(135deg, #1a1000, #2a2000);">
+          <div class="portfolio-placeholder">&#128293;</div>
+        </div>
+        <div class="portfolio-content">
+          <h3>Chauffagiste Lambert — Liège</h3>
+          <p>Site SEO-optimisé pour chauffagiste. 1ère position Google sur "chauffagiste Liège". +60% d'appels en 3 mois.</p>
+          <div class="portfolio-tags">
+            <span class="portfolio-tag">Business</span>
+            <span class="portfolio-tag">5 pages</span>
+            <span class="portfolio-tag">Chauffage</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== GUARANTEE ====== -->
+<section style="background: var(--navy-light); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="section">
+    <div style="text-align:center; margin-bottom: 50px;">
+      <div class="section-tag" data-aos>Nos garanties</div>
+      <h2 class="section-title" data-aos data-aos-delay="100">Zéro risque.<br/><span class="highlight">100% transparent.</span></h2>
+    </div>
+    <div class="guarantee-grid">
+      <div class="guarantee-card" data-aos data-aos-delay="100">
+        <div class="guarantee-icon">&#128220;</div>
+        <h3>Sans contrat</h3>
+        <p>Résiliable à tout moment, sans frais, sans préavis. On garde vos clients grâce aux résultats, pas aux contrats.</p>
+      </div>
+      <div class="guarantee-card" data-aos data-aos-delay="200">
+        <div class="guarantee-icon">&#128200;</div>
+        <h3>Résultats mesurables</h3>
+        <p>Rapport mensuel avec vos positions Google, le nombre de clics, les appels générés. Vous voyez exactement ce que vous payez.</p>
+      </div>
+      <div class="guarantee-card" data-aos data-aos-delay="300">
+        <div class="guarantee-icon">&#128222;</div>
+        <h3>Support réactif</h3>
+        <p>Joignable par WhatsApp, réponse en moins de 4h. Une urgence sur votre site ? On est là.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FAQ ====== -->
+<section>
+  <div class="section">
+    <div style="text-align:center; margin-bottom: 50px;">
+      <div class="section-tag" data-aos>Questions fréquentes</div>
+      <h2 class="section-title" data-aos data-aos-delay="100">On répond à <span class="highlight">tout.</span></h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item" data-aos>
+        <div class="faq-question">Est-ce que ça fonctionne vraiment pour les artisans à Liège ? <span class="faq-arrow">&#9660;</span></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Oui. La recherche locale est extrêmement ciblée — quelqu'un qui tape "plombier Liège" est prêt à appeler maintenant. Un site bien optimisé avec un Google Business Profile actif peut générer 5 à 20 appels supplémentaires par mois selon le secteur. On vous montre les données réelles de nos clients dès l'audit gratuit.</div></div>
+      </div>
+      <div class="faq-item" data-aos data-aos-delay="50">
+        <div class="faq-question">Combien de temps pour apparaître sur Google ? <span class="faq-arrow">&#9660;</span></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Le site est en ligne en 7 jours. Les premiers résultats Google apparaissent généralement entre 3 et 8 semaines selon la concurrence dans votre secteur. Google Business Profile peut générer des appels dès la première semaine. On vous donne un calendrier précis lors de l'audit.</div></div>
+      </div>
+      <div class="faq-item" data-aos data-aos-delay="100">
+        <div class="faq-question">Et si je veux arrêter ? Je perds mon site ? <span class="faq-arrow">&#9660;</span></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Si vous arrêtez, vous gardez votre site. On vous remet tous les fichiers. Ce que vous perdez, c'est les mises à jour mensuelles, les nouveaux articles SEO, et la gestion de votre Google Business. Le travail déjà fait reste acquis — les articles publiés continuent de fonctionner.</div></div>
+      </div>
+      <div class="faq-item" data-aos data-aos-delay="150">
+        <div class="faq-question">J'ai déjà un site web, vous pouvez l'améliorer ? <span class="faq-arrow">&#9660;</span></div>
+        <div class="faq-answer"><div class="faq-answer-inner">On analyse votre site actuel lors de l'audit gratuit. Selon les cas, on peut soit l'optimiser, soit le recréer entièrement. Dans 90% des cas pour les artisans, repartir d'une base propre et optimisée donne de bien meilleurs résultats. On vous conseille honnêtement.</div></div>
+      </div>
+      <div class="faq-item" data-aos data-aos-delay="200">
+        <div class="faq-question">Comment fonctionne le paiement mensuel ? <span class="faq-arrow">&#9660;</span></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Paiement par prélèvement SEPA automatique le 1er de chaque mois. Vous signez un mandat SEPA une seule fois, ensuite c'est automatique — comme un abonnement. On émet une facture électronique conforme (Peppol) à chaque paiement pour votre comptabilité.</div></div>
+      </div>
+      <div class="faq-item" data-aos data-aos-delay="250">
+        <div class="faq-question">Les Chèques-entreprises Wallonie s'appliquent ? <span class="faq-arrow">&#9660;</span></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Oui ! Le programme Chèques-entreprises de la Région wallonne rembourse jusqu'à 75% des frais de conseil et de digitalisation pour les PME. Votre site Seolia peut être éligible — on vous aide à constituer le dossier. Concrètement, une formule Business à 349€ peut ne vous coûter que 87€.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== CTA FINAL ====== -->
+<section class="cta-section">
+  <div class="bg-blob" style="width:500px;height:500px;background:radial-gradient(circle,rgba(0,214,143,0.1),transparent 70%);top:-100px;left:50%;transform:translateX(-50%);"></div>
+  <div style="position:relative; z-index:1;">
+    <div class="section-tag" data-aos>Prêt à démarrer ?</div>
+    <h2 data-aos data-aos-delay="100">Votre audit gratuit,<br/><span class="highlight">sans engagement.</span></h2>
+    <p data-aos data-aos-delay="200">En 30 minutes, on analyse votre situation Google, on identifie les opportunités concrètes, et on vous explique exactement ce qu'on peut faire pour vous. Gratuit. Sans pression.</p>
+    <div class="cta-actions" data-aos data-aos-delay="300">
+      <a href="contact.html" class="btn btn-primary" style="font-size:1rem; padding:16px 40px;">Réserver mon audit gratuit</a>
+      <a href="formules.html" class="btn btn-secondary">Voir les formules</a>
+    </div>
+    <div class="cta-phone" data-aos data-aos-delay="400">
+      <span>&#128222;</span> <a href="tel:+32470922188" style="color:var(--green);">+32 470 92 21 88</a>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FOOTER ====== -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <h3>Seo<span style="color:var(--green)">lia</span></h3>
+        <p>Agence web spécialisée en SEO local pour artisans et PME en province de Liège. On ne vend pas des sites web — on vend de la visibilité Google et des appels clients.</p>
+        <p class="tagline">"Parce que votre société mérite d'être trouvée."</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="index.html">Accueil</a></li>
+          <li><a href="formules.html">Formules & tarifs</a></li>
+          <li><a href="portfolio.html">Portfolio</a></li>
+          <li><a href="blog/index.html">Blog SEO</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="tel:+32470922188">+32 470 92 21 88</a></li>
+          <li><a href="mailto:hello@seolia.be">hello@seolia.be</a></li>
+          <li><a href="#">Liège, Belgique</a></li>
+          <li><a href="contact.html">Audit gratuit</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Seolia — Tous droits réservés</p>
+      <p>TVA : BE XXXX.XXX.XXX</p>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

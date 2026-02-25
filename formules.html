@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Formules & Tarifs — Seolia | Sites web pour artisans à Liège</title>
+  <meta name="description" content="Découvrez les formules Seolia : Essentiel 49€/mois, Business 89€/mois, Premium 149€/mois. Sites web SEO pour artisans à Liège. Sans contrat, résiliable à tout moment."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .compare-table { width: 100%; border-collapse: collapse; margin-top: 60px; }
+    .compare-table th, .compare-table td {
+      padding: 16px 20px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem;
+    }
+    .compare-table th { font-size: 0.8rem; color: var(--grey); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 20px; }
+    .compare-table td:first-child { text-align: left; color: var(--grey-light); }
+    .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .compare-table .check { color: var(--green); font-size: 1.1rem; font-weight: 900; }
+    .compare-table .cross { color: var(--grey); opacity: 0.4; }
+    .compare-table .col-business { background: rgba(0,214,143,0.04); }
+    .compare-table th.col-business { color: var(--green); }
+    .compare-table .section-row td {
+      background: var(--navy-light);
+      color: var(--grey);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 10px 20px;
+    }
+    .price-header .price {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--white);
+    }
+    .price-header .price .currency { color: var(--green); font-size: 1rem; vertical-align: super; }
+    .price-header .period { font-size: 0.75rem; color: var(--grey); }
+    .price-header .setup { font-size: 0.75rem; color: var(--grey); text-decoration: line-through; margin-bottom: 4px; }
+
+    .included-section {
+      background: var(--navy-light);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 80px 40px;
+    }
+    .included-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .included-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+    .included-icon { font-size: 2rem; margin-bottom: 14px; }
+    .included-card h3 { font-size: 1rem; margin-bottom: 8px; }
+    .included-card p { font-size: 0.83rem; }
+
+    @media (max-width: 768px) {
+      .compare-table { display: none; }
+      .included-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="nav-overlay">
+  <span class="close-btn">&#x2715;</span>
+  <a href="index.html">Accueil</a>
+  <a href="formules.html">Formules</a>
+  <a href="portfolio.html">Portfolio</a>
+  <a href="blog/index.html">Blog</a>
+  <a href="contact.html">Contact</a>
+  <a href="contact.html" style="color:var(--green);border:2px solid var(--green);padding:12px 32px;border-radius:50px;margin-top:8px;">Appel gratuit</a>
+</div>
+
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">Seo<span>lia</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="formules.html">Formules</a></li>
+    <li><a href="portfolio.html">Portfolio</a></li>
+    <li><a href="blog/index.html">Blog</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="contact.html" class="nav-cta">Appel gratuit</a></li>
+  </ul>
+  <div class="burger"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="page-header">
+  <div class="bg-blob" style="width:600px;height:600px;background:radial-gradient(circle,rgba(0,214,143,0.07),transparent 70%);top:-200px;left:50%;transform:translateX(-50%);pointer-events:none;position:absolute;"></div>
+  <div style="position:relative;z-index:1;">
+    <div class="section-tag" data-aos>Tarifs transparents</div>
+    <h1 data-aos data-aos-delay="100">Formules & <span class="highlight">Tarifs</span></h1>
+    <p data-aos data-aos-delay="200">Sans contrat. Sans surprise. Résiliable à tout moment. Vous choisissez, on s'occupe du reste.</p>
+  </div>
+</div>
+
+<!-- FORMULES -->
+<section style="background: var(--navy-light); border-top: 1px solid var(--border);">
+  <div class="section">
+    <div style="display:grid; grid-template-columns: repeat(3,1fr); gap: 24px;">
+
+      <!-- Essentiel -->
+      <div style="background:var(--navy-card);border:1px solid var(--border);border-radius:var(--radius);padding:36px 28px;display:flex;flex-direction:column;position:relative;overflow:hidden;" data-aos data-aos-delay="100">
+        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:var(--grey);"></div>
+        <div style="font-size:1.3rem;font-weight:800;margin-bottom:8px;">Essentiel</div>
+        <div style="font-size:0.85rem;color:var(--grey);margin-bottom:24px;">Idéal pour démarrer et exister sur Google.</div>
+        <div style="margin-bottom:28px;">
+          <div style="font-size:0.8rem;color:var(--grey);text-decoration:line-through;margin-bottom:4px;">199€ de mise en place</div>
+          <div style="display:flex;align-items:baseline;gap:6px;">
+            <span style="color:var(--green);font-size:1.2rem;font-weight:700;">€</span>
+            <span style="font-size:2.4rem;font-weight:900;">49</span>
+            <span style="font-size:0.8rem;color:var(--grey);">/mois</span>
+          </div>
+        </div>
+        <ul style="list-style:none;flex:1;margin-bottom:28px;">
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Site web 1 page professionnel</li>
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Google Business Profile créé et optimisé</li>
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Hébergement + nom de domaine inclus</li>
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Design mobile-first responsive</li>
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Formulaire de contact + bouton appel</li>
+          <li style="padding:9px 0;font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Support WhatsApp</li>
+        </ul>
+        <a href="contact.html" style="display:block;text-align:center;padding:14px;border-radius:50px;font-weight:700;border:2px solid var(--border);color:var(--white);transition:all 0.3s;" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--white)'">Choisir Essentiel</a>
+      </div>
+
+      <!-- Business -->
+      <div style="background:var(--navy-card);border:2px solid rgba(0,214,143,0.35);border-radius:var(--radius);padding:36px 28px;display:flex;flex-direction:column;position:relative;overflow:hidden;transform:translateY(-8px);box-shadow:0 30px 60px rgba(0,0,0,0.3),0 0 40px rgba(0,214,143,0.15);" data-aos data-aos-delay="200">
+        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--green),#00b4d8);"></div>
+        <div style="display:inline-block;background:var(--green);color:var(--navy);font-size:0.7rem;font-weight:800;padding:4px 12px;border-radius:50px;margin-bottom:18px;align-self:flex-start;">Recommandé</div>
+        <div style="font-size:1.3rem;font-weight:800;margin-bottom:8px;">Business</div>
+        <div style="font-size:0.85rem;color:var(--grey);margin-bottom:24px;">Dominez Google dans votre ville et votre secteur.</div>
+        <div style="margin-bottom:28px;">
+          <div style="font-size:0.8rem;color:var(--grey);text-decoration:line-through;margin-bottom:4px;">349€ de mise en place</div>
+          <div style="display:flex;align-items:baseline;gap:6px;">
+            <span style="color:var(--green);font-size:1.2rem;font-weight:700;">€</span>
+            <span style="font-size:2.4rem;font-weight:900;">89</span>
+            <span style="font-size:0.8rem;color:var(--grey);">/mois</span>
+          </div>
+        </div>
+        <ul style="list-style:none;flex:1;margin-bottom:28px;">
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Site web 5 pages (1 par service)</li>
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Pages locales par commune de Liège</li>
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Google Business Premium (photos, posts, avis)</li>
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> 1 article SEO publié chaque mois</li>
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Gestion active des avis Google</li>
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Rapport mensuel de visibilité détaillé</li>
+          <li style="padding:9px 0;font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Google Analytics + Search Console</li>
+        </ul>
+        <a href="contact.html" style="display:block;text-align:center;padding:14px;border-radius:50px;font-weight:700;background:var(--green);color:var(--navy);transition:all 0.3s;" onmouseover="this.style.background='var(--green-dark)';this.style.boxShadow='0 8px 25px rgba(0,214,143,0.35)'" onmouseout="this.style.background='var(--green)';this.style.boxShadow='none'">Choisir Business</a>
+      </div>
+
+      <!-- Premium -->
+      <div style="background:var(--navy-card);border:1px solid var(--border);border-radius:var(--radius);padding:36px 28px;display:flex;flex-direction:column;position:relative;overflow:hidden;" data-aos data-aos-delay="300">
+        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),#f97316);"></div>
+        <div style="font-size:1.3rem;font-weight:800;margin-bottom:8px;">Premium</div>
+        <div style="font-size:0.85rem;color:var(--grey);margin-bottom:24px;">Le package leader pour ceux qui veulent tout dominer.</div>
+        <div style="margin-bottom:28px;">
+          <div style="font-size:0.8rem;color:var(--grey);text-decoration:line-through;margin-bottom:4px;">499€ de mise en place</div>
+          <div style="display:flex;align-items:baseline;gap:6px;">
+            <span style="color:var(--gold);font-size:1.2rem;font-weight:700;">€</span>
+            <span style="font-size:2.4rem;font-weight:900;">149</span>
+            <span style="font-size:0.8rem;color:var(--grey);">/mois</span>
+          </div>
+        </div>
+        <ul style="list-style:none;flex:1;margin-bottom:28px;">
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--gold);font-weight:800;">✓</span> Site web 8 pages ultra-premium</li>
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--gold);font-weight:800;">✓</span> Séance photo professionnelle chez vous</li>
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--gold);font-weight:800;">✓</span> Landing pages par commune (illimitées)</li>
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--gold);font-weight:800;">✓</span> 2 articles SEO publiés chaque mois</li>
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--gold);font-weight:800;">✓</span> Gestion avis + Google Posts hebdomadaires</li>
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--gold);font-weight:800;">✓</span> Rapport + appel stratégique mensuel</li>
+          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--gold);font-weight:800;">✓</span> Priorité absolue au support (1h max)</li>
+          <li style="padding:9px 0;font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--gold);font-weight:800;">✓</span> Positionnement top 3 Google garanti</li>
+        </ul>
+        <a href="contact.html" style="display:block;text-align:center;padding:14px;border-radius:50px;font-weight:700;background:linear-gradient(135deg,var(--gold),#f97316);color:white;transition:all 0.3s;" onmouseover="this.style.boxShadow='0 8px 25px rgba(245,166,35,0.35)'" onmouseout="this.style.boxShadow='none'">Choisir Premium</a>
+      </div>
+
+    </div>
+
+    <!-- Comparison table -->
+    <table class="compare-table" data-aos>
+      <thead>
+        <tr>
+          <th style="text-align:left;">Ce qui est inclus</th>
+          <th>Essentiel<br/><div class="price-header"><div class="setup">199€ setup</div><div class="price"><span class="currency">€</span>49/mois</div></div></th>
+          <th class="col-business">Business<br/><div class="price-header"><div class="setup">349€ setup</div><div class="price" style="color:var(--green)"><span class="currency">€</span>89/mois</div></div></th>
+          <th>Premium<br/><div class="price-header"><div class="setup">499€ setup</div><div class="price"><span class="currency" style="color:var(--gold)">€</span>149/mois</div></div></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="section-row"><td colspan="4">Site web</td></tr>
+        <tr><td>Nombre de pages</td><td>1</td><td class="col-business">5</td><td>8</td></tr>
+        <tr><td>Design mobile-first</td><td class="check">✓</td><td class="col-business check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Pages par commune</td><td class="cross">—</td><td class="col-business check">✓</td><td class="check">✓ illimitées</td></tr>
+        <tr><td>Séance photo pro</td><td class="cross">—</td><td class="col-business cross">—</td><td class="check">✓</td></tr>
+        <tr class="section-row"><td colspan="4">SEO & Google</td></tr>
+        <tr><td>Google Business Profile</td><td class="check">Basique</td><td class="col-business check">Premium</td><td class="check">Premium</td></tr>
+        <tr><td>Articles SEO/mois</td><td class="cross">—</td><td class="col-business check">1</td><td class="check">2</td></tr>
+        <tr><td>Gestion des avis Google</td><td class="cross">—</td><td class="col-business check">✓</td><td class="check">✓</td></tr>
+        <tr><td>Google Analytics + Search Console</td><td class="cross">—</td><td class="col-business check">✓</td><td class="check">✓</td></tr>
+        <tr class="section-row"><td colspan="4">Suivi & support</td></tr>
+        <tr><td>Rapport mensuel</td><td class="cross">—</td><td class="col-business check">✓</td><td class="check">Appel inclus</td></tr>
+        <tr><td>Support</td><td>WhatsApp</td><td class="col-business">WhatsApp prioritaire</td><td>1h garantie</td></tr>
+        <tr><td>Mises à jour du site</td><td class="check">✓</td><td class="col-business check">✓</td><td class="check">✓</td></tr>
+        <tr class="section-row"><td colspan="4">Conditions</td></tr>
+        <tr><td>Contrat</td><td>Sans engagement</td><td class="col-business">Sans engagement</td><td>Sans engagement</td></tr>
+        <tr><td>Hébergement + domaine</td><td class="check">Inclus</td><td class="col-business check">Inclus</td><td class="check">Inclus</td></tr>
+      </tbody>
+    </table>
+
+    <div style="text-align:center;background:var(--green-glow);border:1px solid rgba(0,214,143,0.2);border-radius:var(--radius);padding:20px 32px;font-size:0.9rem;color:var(--green);margin-top:40px;" data-aos>
+      <strong style="color:white;">Offre de lancement — 3 clients uniquement :</strong> Les frais de mise en place sont offerts pour les 3 premiers clients. Vous ne payez que le mensuel, dès le premier mois.
+    </div>
+  </div>
+</section>
+
+<!-- INCLUDED -->
+<div class="included-section">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div style="text-align:center;margin-bottom:50px;">
+      <div class="section-tag" data-aos>Toujours inclus</div>
+      <h2 data-aos data-aos-delay="100">Dans chaque formule</h2>
+    </div>
+    <div class="included-grid">
+      <div class="included-card" data-aos data-aos-delay="100">
+        <div class="included-icon">&#127758;</div>
+        <h3>Hébergement & domaine</h3>
+        <p>Votre site est hébergé et votre nom de domaine (.be ou .com) est inclus. Aucun frais caché.</p>
+      </div>
+      <div class="included-card" data-aos data-aos-delay="150">
+        <div class="included-icon">&#128241;</div>
+        <h3>Design 100% mobile</h3>
+        <p>70% des recherches locales se font sur téléphone. Votre site est parfait sur tous les écrans.</p>
+      </div>
+      <div class="included-card" data-aos data-aos-delay="200">
+        <div class="included-icon">&#128274;</div>
+        <h3>HTTPS & sécurité</h3>
+        <p>Certificat SSL, protection contre les attaques, sauvegardes automatiques. Votre site est sécurisé.</p>
+      </div>
+      <div class="included-card" data-aos data-aos-delay="250">
+        <div class="included-icon">&#128200;</div>
+        <h3>Sans contrat</h3>
+        <p>Résiliable à tout moment, sans frais de sortie. On garde vos clients grâce aux résultats.</p>
+      </div>
+      <div class="included-card" data-aos data-aos-delay="300">
+        <div class="included-icon">&#128221;</div>
+        <h3>Facturation conforme</h3>
+        <p>Prélèvement SEPA automatique + e-factures Peppol. Conforme aux exigences belgiques 2026.</p>
+      </div>
+      <div class="included-card" data-aos data-aos-delay="350">
+        <div class="included-icon">&#127891;</div>
+        <h3>Chèques-entreprises</h3>
+        <p>Jusqu'à 75% de remboursement via la Région wallonne. On vous aide à monter le dossier.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<section style="text-align:center;padding:100px 40px;">
+  <div class="section-tag" data-aos>Première étape</div>
+  <h2 data-aos data-aos-delay="100" style="margin-bottom:16px;">Commencez par un <span class="highlight">audit gratuit</span></h2>
+  <p data-aos data-aos-delay="200" style="max-width:560px;margin:0 auto 36px;font-size:1rem;">30 minutes pour analyser votre visibilité Google actuelle et vous expliquer exactement ce qu'on peut faire pour vous. Gratuit. Sans engagement.</p>
+  <div data-aos data-aos-delay="300" style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+    <a href="contact.html" class="btn btn-primary" style="font-size:1rem;padding:16px 40px;">Réserver mon audit gratuit</a>
+    <a href="tel:+32470922188" class="btn btn-secondary">+32 470 92 21 88</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <h3>Seo<span style="color:var(--green)">lia</span></h3>
+        <p>Agence web spécialisée en SEO local pour artisans et PME en province de Liège.</p>
+        <p class="tagline">"Parce que votre société mérite d'être trouvée."</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="index.html">Accueil</a></li>
+          <li><a href="formules.html">Formules & tarifs</a></li>
+          <li><a href="portfolio.html">Portfolio</a></li>
+          <li><a href="blog/index.html">Blog SEO</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="tel:+32470922188">+32 470 92 21 88</a></li>
+          <li><a href="mailto:hello@seolia.be">hello@seolia.be</a></li>
+          <li><a href="contact.html">Audit gratuit</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Seolia — Tous droits réservés</p>
+      <p>TVA : BE XXXX.XXX.XXX</p>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

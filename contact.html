@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact — Seolia | Audit SEO gratuit pour artisans à Liège</title>
+  <meta name="description" content="Contactez Seolia pour un audit SEO gratuit. Nous analysons votre visibilité Google en 30 minutes, sans engagement. +32 470 92 21 88"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 60px;
+      align-items: start;
+    }
+    .contact-info h2 { margin-bottom: 16px; }
+    .contact-info p { margin-bottom: 32px; }
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .contact-icon {
+      width: 46px; height: 46px;
+      border-radius: 12px;
+      background: var(--green-glow);
+      border: 1px solid rgba(0,214,143,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .contact-item-text .lbl { font-size: 0.75rem; color: var(--grey); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+    .contact-item-text .val { font-size: 0.95rem; font-weight: 600; color: var(--white); }
+    .contact-item-text a { color: var(--white); transition: var(--transition); }
+    .contact-item-text a:hover { color: var(--green); }
+
+    .contact-form {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+    }
+    .contact-form h3 { margin-bottom: 8px; }
+    .contact-form > p { font-size: 0.88rem; margin-bottom: 32px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--grey-light);
+      margin-bottom: 8px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      color: var(--white);
+      font-family: var(--font);
+      font-size: 0.9rem;
+      transition: var(--transition);
+      outline: none;
+      appearance: none;
+    }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: var(--grey); }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--green);
+      background: rgba(0,214,143,0.03);
+      box-shadow: 0 0 0 3px rgba(0,214,143,0.1);
+    }
+    .form-group select option { background: var(--navy-card); }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    .form-submit {
+      width: 100%;
+      padding: 16px;
+      border-radius: 50px;
+      background: var(--green);
+      color: var(--navy);
+      font-weight: 800;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .form-submit:hover { background: var(--green-dark); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,214,143,0.3); }
+    .form-note { font-size: 0.78rem; color: var(--grey); text-align: center; margin-top: 12px; }
+
+    .trust-badges {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 32px;
+    }
+    .trust-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.78rem;
+      color: var(--grey-light);
+    }
+    .trust-badge span:first-child { color: var(--green); }
+
+    @media (max-width: 768px) {
+      .contact-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .contact-form { padding: 28px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="nav-overlay">
+  <span class="close-btn">&#x2715;</span>
+  <a href="index.html">Accueil</a>
+  <a href="formules.html">Formules</a>
+  <a href="portfolio.html">Portfolio</a>
+  <a href="blog/index.html">Blog</a>
+  <a href="contact.html">Contact</a>
+  <a href="contact.html" style="color:var(--green);border:2px solid var(--green);padding:12px 32px;border-radius:50px;margin-top:8px;">Appel gratuit</a>
+</div>
+
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">Seo<span>lia</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="formules.html">Formules</a></li>
+    <li><a href="portfolio.html">Portfolio</a></li>
+    <li><a href="blog/index.html">Blog</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="contact.html" class="nav-cta">Appel gratuit</a></li>
+  </ul>
+  <div class="burger"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="page-header">
+  <div class="bg-blob" style="width:600px;height:600px;background:radial-gradient(circle,rgba(0,214,143,0.07),transparent 70%);top:-200px;left:50%;transform:translateX(-50%);pointer-events:none;position:absolute;"></div>
+  <div style="position:relative;z-index:1;">
+    <div class="section-tag" data-aos>Gratuit & sans engagement</div>
+    <h1 data-aos data-aos-delay="100">Votre audit <span class="highlight">SEO gratuit</span></h1>
+    <p data-aos data-aos-delay="200">30 minutes pour analyser votre visibilité Google et vous expliquer exactement ce qu'on peut faire pour vous.</p>
+  </div>
+</div>
+
+<section style="background:var(--navy-light);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+  <div class="section">
+    <div class="contact-grid">
+
+      <!-- Info -->
+      <div data-aos="fade-right">
+        <div class="section-tag">On vous répond vite</div>
+        <h2 class="section-title">Parlons de<br/><span class="highlight">votre projet</span></h2>
+        <p>Remplissez le formulaire ou appelez directement. On répond en moins de 4h en journée.</p>
+
+        <div class="contact-item">
+          <div class="contact-icon">&#128222;</div>
+          <div class="contact-item-text">
+            <div class="lbl">Téléphone</div>
+            <div class="val"><a href="tel:+32470922188">+32 470 92 21 88</a></div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">&#128140;</div>
+          <div class="contact-item-text">
+            <div class="lbl">Email</div>
+            <div class="val"><a href="mailto:hello@seolia.be">hello@seolia.be</a></div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">&#128205;</div>
+          <div class="contact-item-text">
+            <div class="lbl">Zone d'intervention</div>
+            <div class="val">Province de Liège</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">&#128337;</div>
+          <div class="contact-item-text">
+            <div class="lbl">Délai de réponse</div>
+            <div class="val">Moins de 4h en journée</div>
+          </div>
+        </div>
+
+        <div class="trust-badges" style="margin-top:32px;">
+          <div class="trust-badge"><span>&#10003;</span> Audit 100% gratuit</div>
+          <div class="trust-badge"><span>&#10003;</span> Sans engagement</div>
+          <div class="trust-badge"><span>&#10003;</span> Réponse sous 4h</div>
+          <div class="trust-badge"><span>&#10003;</span> Offre lancement</div>
+        </div>
+
+        <!-- What happens next -->
+        <div style="margin-top:40px;background:var(--navy-card);border:1px solid var(--border);border-radius:var(--radius);padding:28px;">
+          <h3 style="font-size:1rem;margin-bottom:20px;">Ce qui se passe après</h3>
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div style="display:flex;gap:14px;align-items:flex-start;">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--green-glow);border:1px solid rgba(0,214,143,0.3);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:var(--green);flex-shrink:0;">1</div>
+              <div><div style="font-size:0.88rem;font-weight:600;margin-bottom:3px;">On vous rappelle</div><div style="font-size:0.8rem;color:var(--grey);">Dans les 4h, on prend 5 minutes pour fixer un créneau d'audit.</div></div>
+            </div>
+            <div style="display:flex;gap:14px;align-items:flex-start;">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--green-glow);border:1px solid rgba(0,214,143,0.3);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:var(--green);flex-shrink:0;">2</div>
+              <div><div style="font-size:0.88rem;font-weight:600;margin-bottom:3px;">Audit Google (30 min)</div><div style="font-size:0.8rem;color:var(--grey);">On analyse votre visibilité actuelle, vos concurrents, vos opportunités.</div></div>
+            </div>
+            <div style="display:flex;gap:14px;align-items:flex-start;">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--green-glow);border:1px solid rgba(0,214,143,0.3);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:var(--green);flex-shrink:0;">3</div>
+              <div><div style="font-size:0.88rem;font-weight:600;margin-bottom:3px;">Proposition sur mesure</div><div style="font-size:0.8rem;color:var(--grey);">On vous présente la formule adaptée, le plan d'action et les résultats attendus.</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="contact-form" data-aos="fade-left">
+        <h3>Demandez votre audit gratuit</h3>
+        <p>Remplissez ce formulaire et on vous répond dans les 4h.</p>
+
+        <form action="#" method="post" onsubmit="handleSubmit(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="prenom">Prénom *</label>
+              <input type="text" id="prenom" name="prenom" placeholder="Jean" required/>
+            </div>
+            <div class="form-group">
+              <label for="nom">Nom *</label>
+              <input type="text" id="nom" name="nom" placeholder="Dupont" required/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="entreprise">Nom de votre société *</label>
+            <input type="text" id="entreprise" name="entreprise" placeholder="Plomberie Dupont" required/>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="tel">Téléphone *</label>
+              <input type="tel" id="tel" name="tel" placeholder="+32 4XX XX XX XX" required/>
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" placeholder="jean@example.be"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="secteur">Votre secteur *</label>
+            <select id="secteur" name="secteur" required>
+              <option value="" disabled selected>Choisissez votre métier</option>
+              <option>Plombier</option>
+              <option>Électricien</option>
+              <option>Chauffagiste / HVAC</option>
+              <option>Serrurier</option>
+              <option>Carreleur</option>
+              <option>Peintre</option>
+              <option>Maçon</option>
+              <option>Menuisier</option>
+              <option>Détailing automobile</option>
+              <option>Autre artisan</option>
+              <option>PME / Commerce</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="situation">Votre situation actuelle</label>
+            <select id="situation" name="situation">
+              <option value="" disabled selected>Sélectionnez...</option>
+              <option>Je n'ai pas de site web</option>
+              <option>J'ai un vieux site qui ne convertit pas</option>
+              <option>Je veux améliorer mon référencement Google</option>
+              <option>Je veux arrêter de payer TrustUp / Bobex</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="message">Message (optionnel)</label>
+            <textarea id="message" name="message" placeholder="Dites-nous ce que vous recherchez, vos problèmes actuels, vos objectifs..."></textarea>
+          </div>
+          <button type="submit" class="form-submit">Envoyer ma demande d'audit gratuit &#8594;</button>
+          <p class="form-note">Aucun engagement. Aucune carte bancaire. On vous rappelle sous 4h.</p>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CTA Phone -->
+<section style="text-align:center;padding:80px 40px;">
+  <h2 data-aos style="margin-bottom:16px;">Ou appelez directement</h2>
+  <p data-aos data-aos-delay="100" style="max-width:500px;margin:0 auto 32px;">Vous préférez parler ? On est disponibles du lundi au vendredi de 9h à 18h.</p>
+  <a href="tel:+32470922188" class="btn btn-primary" style="font-size:1.3rem;padding:20px 50px;" data-aos data-aos-delay="200">
+    &#128222; +32 470 92 21 88
+  </a>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <h3>Seo<span style="color:var(--green)">lia</span></h3>
+        <p>Agence web spécialisée en SEO local pour artisans et PME en province de Liège.</p>
+        <p class="tagline">"Parce que votre société mérite d'être trouvée."</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="index.html">Accueil</a></li>
+          <li><a href="formules.html">Formules & tarifs</a></li>
+          <li><a href="portfolio.html">Portfolio</a></li>
+          <li><a href="blog/index.html">Blog SEO</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="tel:+32470922188">+32 470 92 21 88</a></li>
+          <li><a href="mailto:hello@seolia.be">hello@seolia.be</a></li>
+          <li><a href="contact.html">Audit gratuit</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Seolia — Tous droits réservés</p>
+      <p>TVA : BE XXXX.XXX.XXX</p>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+function handleSubmit(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('.form-submit');
+  btn.textContent = 'Message envoyé ! On vous rappelle bientôt.';
+  btn.style.background = 'var(--green-dark)';
+  btn.disabled = true;
+}
+</script>
+</body>
+</html>

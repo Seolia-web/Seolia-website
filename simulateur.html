@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulateur Revenus — Seolia</title>
+  <meta name="robots" content="noindex, nofollow">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --primary: #0a1628;
+      --accent: #00d68f;
+      --gold: #f5a623;
+      --bg: #0d1b2e;
+      --card: #111f35;
+      --border: #1e3a5f;
+      --text: #e8f4f8;
+      --muted: #7a9bb5;
+      --essentiel: #7a9bb5;
+      --business: #00d68f;
+      --premium: #f5a623;
+      --danger: #ff6b6b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      background: rgba(10,22,40,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo { font-size: 1.4rem; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
+    .nav-badge {
+      background: rgba(0,214,143,0.1);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* LAYOUT */
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .header { margin-bottom: 2rem; }
+    .header h1 { font-size: 1.8rem; font-weight: 800; color: var(--text); }
+    .header p { color: var(--muted); margin-top: 0.4rem; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .tab-btn {
+      padding: 8px 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0a1628;
+    }
+    .tab-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+    /* KPI CARDS */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .kpi-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+    .kpi-card.accent { border-color: var(--accent); }
+    .kpi-card.gold { border-color: var(--gold); }
+    .kpi-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+    .kpi-value { font-size: 1.75rem; font-weight: 800; color: var(--text); }
+    .kpi-value.accent { color: var(--accent); }
+    .kpi-value.gold { color: var(--gold); }
+    .kpi-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }
+
+    /* CARDS */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card-title .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .dot-accent { background: var(--accent); }
+    .dot-gold { background: var(--gold); }
+    .dot-muted { background: var(--muted); }
+
+    /* CHART */
+    .chart-wrap { position: relative; height: 300px; }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    thead th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr { border-bottom: 1px solid rgba(30,58,95,0.4); transition: background 0.15s; }
+    tbody tr:hover { background: rgba(255,255,255,0.03); }
+    tbody td { padding: 0.75rem 1rem; }
+    .td-right { text-align: right; }
+    .td-accent { color: var(--accent); font-weight: 700; }
+    .td-gold { color: var(--gold); font-weight: 700; }
+    .td-muted { color: var(--muted); }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .badge-q { background: rgba(0,214,143,0.1); color: var(--accent); border: 1px solid rgba(0,214,143,0.3); }
+
+    /* MILESTONES */
+    .milestones { display: flex; flex-direction: column; gap: 0.75rem; }
+    .milestone {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .milestone-label { font-size: 0.875rem; color: var(--text); }
+    .milestone-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .mb-success { background: rgba(0,214,143,0.15); color: var(--accent); border: 1px solid rgba(0,214,143,0.3); }
+    .mb-primary { background: rgba(90,130,252,0.15); color: #7aa6ff; border: 1px solid rgba(90,130,252,0.3); }
+    .mb-gold { background: rgba(245,166,35,0.15); color: var(--gold); border: 1px solid rgba(245,166,35,0.3); }
+    .mb-none { background: rgba(255,255,255,0.05); color: var(--muted); }
+
+    /* PARAMS */
+    .params-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; }
+
+    .slider-row { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+    .slider-row:last-child { margin-bottom: 0; }
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+    }
+    .slider-label span:first-child { color: var(--muted); }
+    .slider-label span:last-child { color: var(--accent); font-weight: 700; }
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid var(--bg);
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid var(--bg);
+    }
+
+    .section-icon { font-size: 1rem; }
+
+    .mix-warning {
+      background: rgba(255,107,107,0.1);
+      border: 1px solid rgba(255,107,107,0.3);
+      color: var(--danger);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    /* TABS CONTENT */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .header h1 { font-size: 1.4rem; }
+      .kpi-value { font-size: 1.4rem; }
+      .params-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Seolia</div>
+  <span class="nav-badge">🔒 Usage interne</span>
+</nav>
+
+<div class="container">
+  <div class="header">
+    <h1>Simulateur de revenus</h1>
+    <p>Projection sur 24 mois — Ajuste les paramètres pour explorer différents scénarios</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Projections</button>
+    <button class="tab-btn" onclick="switchTab('params')">⚙️ Paramètres</button>
+  </div>
+
+  <!-- DASHBOARD TAB -->
+  <div id="tab-dashboard" class="tab-content active">
+    <!-- KPI Cards -->
+    <div class="kpi-grid" id="kpi-grid"></div>
+
+    <!-- Chart -->
+    <div class="card">
+      <div class="card-title"><span class="dot dot-accent"></span> Évolution des revenus sur 24 mois</div>
+      <div class="chart-wrap">
+        <canvas id="revenue-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Milestones -->
+    <div class="card">
+      <div class="card-title"><span class="dot dot-gold"></span> Jalons clés</div>
+      <div class="milestones" id="milestones"></div>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+      <div class="card-title"><span class="dot dot-muted"></span> Détail trimestriel</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Période</th>
+              <th class="td-right">Clients</th>
+              <th class="td-right">MRR</th>
+              <th class="td-right">Revenue setup</th>
+              <th class="td-right">Total mois</th>
+              <th class="td-right">Cumulé</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARAMS TAB -->
+  <div id="tab-params" class="tab-content">
+    <div class="params-grid">
+      <!-- Acquisition -->
+      <div class="card">
+        <div class="card-title"><span class="section-icon">👥</span> Acquisition clients/mois</div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Mois 1-3 (lancement)</span><span id="lbl-p1">2</span></div>
+          <input type="range" id="phase1" min="0" max="10" value="2" oninput="updateParam('phase1Clients', this.value, 'lbl-p1')">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Mois 4-6 (traction)</span><span id="lbl-p2">3</span></div>
+          <input type="range" id="phase2" min="0" max="15" value="3" oninput="updateParam('phase2Clients', this.value, 'lbl-p2')">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Mois 7-12 (croissance)</span><span id="lbl-p3">5</span></div>
+          <input type="range" id="phase3" min="0" max="20" value="5" oninput="updateParam('phase3Clients', this.value, 'lbl-p3')">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Mois 13-18 (accélération)</span><span id="lbl-p4">6</span></div>
+          <input type="range" id="phase4" min="0" max="25" value="6" oninput="updateParam('phase4Clients', this.value, 'lbl-p4')">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Mois 19-24 (maturité)</span><span id="lbl-p5">7</span></div>
+          <input type="range" id="phase5" min="0" max="30" value="7" oninput="updateParam('phase5Clients', this.value, 'lbl-p5')">
+        </div>
+      </div>
+
+      <!-- Mix formules -->
+      <div class="card">
+        <div class="card-title"><span class="section-icon">⚖️</span> Mix formules (%)</div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Essentiel (49€/mois)</span><span id="lbl-me">30%</span></div>
+          <input type="range" id="mixE" min="0" max="100" value="30" oninput="updateParam('mixEssentiel', this.value, 'lbl-me', '%')">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Business (89€/mois)</span><span id="lbl-mb">50%</span></div>
+          <input type="range" id="mixB" min="0" max="100" value="50" oninput="updateParam('mixBusiness', this.value, 'lbl-mb', '%')">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Premium (149€/mois)</span><span id="lbl-mp">20%</span></div>
+          <input type="range" id="mixP" min="0" max="100" value="20" oninput="updateParam('mixPremium', this.value, 'lbl-mp', '%')">
+        </div>
+        <div id="mix-warning" class="mix-warning" style="display:none"></div>
+      </div>
+
+      <!-- Churn & Offre -->
+      <div class="card">
+        <div class="card-title"><span class="section-icon">📉</span> Churn mensuel</div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Taux de départ</span><span id="lbl-churn">3%</span></div>
+          <input type="range" id="churn" min="0" max="15" value="3" oninput="updateParam('monthlyChurnPercent', this.value, 'lbl-churn', '%')">
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="section-icon">🎁</span> Offre lancement</div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Clients avec setup gratuit</span><span id="lbl-free">3</span></div>
+          <input type="range" id="freeSetup" min="0" max="20" value="3" oninput="updateParam('freeSetupClients', this.value, 'lbl-free')">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── PRICING ───────────────────────────────────────────────────────────────
+const PRICING = {
+  essentiel: { setup: 199, monthly: 49, cost: 6 },
+  business:  { setup: 349, monthly: 89, cost: 7 },
+  premium:   { setup: 499, monthly: 149, cost: 8 },
+};
+
+// ─── PARAMS ────────────────────────────────────────────────────────────────
+const params = {
+  phase1Clients: 2,
+  phase2Clients: 3,
+  phase3Clients: 5,
+  phase4Clients: 6,
+  phase5Clients: 7,
+  mixEssentiel: 30,
+  mixBusiness: 50,
+  mixPremium: 20,
+  monthlyChurnPercent: 3,
+  freeSetupClients: 3,
+};
+
+// ─── ENGINE ────────────────────────────────────────────────────────────────
+function getNewClients(month) {
+  if (month <= 3)  return params.phase1Clients;
+  if (month <= 6)  return params.phase2Clients;
+  if (month <= 12) return params.phase3Clients;
+  if (month <= 18) return params.phase4Clients;
+  return params.phase5Clients;
+}
+
+function simulate() {
+  const avgMonthly = (PRICING.essentiel.monthly * params.mixEssentiel +
+    PRICING.business.monthly * params.mixBusiness +
+    PRICING.premium.monthly * params.mixPremium) / 100;
+
+  const avgSetup = (PRICING.essentiel.setup * params.mixEssentiel +
+    PRICING.business.setup * params.mixBusiness +
+    PRICING.premium.setup * params.mixPremium) / 100;
+
+  const avgCost = (PRICING.essentiel.cost * params.mixEssentiel +
+    PRICING.business.cost * params.mixBusiness +
+    PRICING.premium.cost * params.mixPremium) / 100;
+
+  let months = [];
+  let totalClients = 1;
+  let cumulativeNew = 1;
+  let cumulativeRevenue = 0;
+
+  for (let m = 1; m <= 24; m++) {
+    const newClients = getNewClients(m);
+    const churned = m > 6 ? Math.round(totalClients * (params.monthlyChurnPercent / 100)) : 0;
+    totalClients = totalClients + newClients - churned;
+
+    let paidSetup = 0;
+    for (let i = 0; i < newClients; i++) {
+      cumulativeNew++;
+      if (cumulativeNew > params.freeSetupClients + 1) paidSetup++;
+    }
+
+    const mrr = Math.round(totalClients * avgMonthly);
+    const setupRevenue = Math.round(paidSetup * avgSetup);
+    const total = mrr + setupRevenue;
+    cumulativeRevenue += total;
+
+    months.push({ month: m, newClients, churned, totalClients, mrr, setupRevenue, total, cumRev: Math.round(cumulativeRevenue) });
+  }
+  return months;
+}
+
+// ─── RENDER ────────────────────────────────────────────────────────────────
+let chart = null;
+
+function fmt(n) {
+  return n.toLocaleString('fr-BE') + ' €';
+}
+
+function render() {
+  const data = simulate();
+  const last = data[23];
+  const m12 = data[11];
+
+  const avgMonthly = Math.round(
+    (PRICING.essentiel.monthly * params.mixEssentiel +
+     PRICING.business.monthly * params.mixBusiness +
+     PRICING.premium.monthly * params.mixPremium) / 100
+  );
+
+  // ── KPI CARDS
+  document.getElementById('kpi-grid').innerHTML = `
+    <div class="kpi-card accent">
+      <div class="kpi-label">MRR fin mois 12</div>
+      <div class="kpi-value accent">${fmt(m12.mrr)}</div>
+      <div class="kpi-sub">${m12.totalClients} clients actifs</div>
+    </div>
+    <div class="kpi-card gold">
+      <div class="kpi-label">MRR fin mois 24</div>
+      <div class="kpi-value gold">${fmt(last.mrr)}</div>
+      <div class="kpi-sub">${last.totalClients} clients actifs</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Revenu cumulé an 1</div>
+      <div class="kpi-value">${fmt(m12.cumRev)}</div>
+      <div class="kpi-sub">Setup + abonnements</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Revenu cumulé an 2</div>
+      <div class="kpi-value">${fmt(last.cumRev)}</div>
+      <div class="kpi-sub">Setup + abonnements</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Panier moyen</div>
+      <div class="kpi-value">${avgMonthly} €</div>
+      <div class="kpi-sub">Par client / mois</div>
+    </div>
+  `;
+
+  // ── CHART
+  const labels = data.map(d => `M${d.month}`);
+  const mrrData = data.map(d => d.mrr);
+  const totalData = data.map(d => d.total);
+  const cumData = data.map(d => d.cumRev);
+
+  if (chart) chart.destroy();
+  chart = new Chart(document.getElementById('revenue-chart'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'MRR',
+          data: mrrData,
+          borderColor: '#00d68f',
+          backgroundColor: 'rgba(0,214,143,0.08)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 2,
+        },
+        {
+          label: 'Total (MRR + setup)',
+          data: totalData,
+          borderColor: '#7aa6ff',
+          backgroundColor: 'transparent',
+          borderDash: [4,2],
+          tension: 0.4,
+          pointRadius: 2,
+        },
+        {
+          label: 'Cumulé',
+          data: cumData,
+          borderColor: '#f5a623',
+          backgroundColor: 'transparent',
+          tension: 0.4,
+          pointRadius: 2,
+          yAxisID: 'y2',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: '#7a9bb5', font: { size: 11 } } },
+        tooltip: {
+          backgroundColor: '#111f35',
+          borderColor: '#1e3a5f',
+          borderWidth: 1,
+          titleColor: '#e8f4f8',
+          bodyColor: '#7a9bb5',
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('fr-BE')} €`
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#7a9bb5', font: { size: 10 } }, grid: { color: 'rgba(30,58,95,0.4)' } },
+        y: {
+          ticks: { color: '#7a9bb5', font: { size: 10 }, callback: v => v.toLocaleString('fr-BE') + ' €' },
+          grid: { color: 'rgba(30,58,95,0.4)' }
+        },
+        y2: {
+          position: 'right',
+          ticks: { color: '#f5a623', font: { size: 10 }, callback: v => v.toLocaleString('fr-BE') + ' €' },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+
+  // ── MILESTONES
+  const breakEven = data.find(d => d.mrr >= 400);
+  const sideincome = data.find(d => d.mrr >= 1500);
+  const salary = data.find(d => d.mrr >= 3000);
+  const freedom = data.find(d => d.mrr >= 5000);
+
+  document.getElementById('milestones').innerHTML = `
+    ${breakEven
+      ? `<div class="milestone"><span class="milestone-label">Break-even (4 clients)</span><span class="milestone-badge mb-success">Mois ${breakEven.month}</span></div>`
+      : `<div class="milestone"><span class="milestone-label">Break-even (4 clients)</span><span class="milestone-badge mb-none">Non atteint</span></div>`}
+    ${sideincome
+      ? `<div class="milestone"><span class="milestone-label">Side income (1 500 €/mois)</span><span class="milestone-badge mb-primary">Mois ${sideincome.month}</span></div>`
+      : `<div class="milestone"><span class="milestone-label">Side income (1 500 €/mois)</span><span class="milestone-badge mb-none">Non atteint</span></div>`}
+    ${salary
+      ? `<div class="milestone"><span class="milestone-label">Salaire (3 000 €/mois)</span><span class="milestone-badge mb-primary">Mois ${salary.month}</span></div>`
+      : `<div class="milestone"><span class="milestone-label">Salaire (3 000 €/mois)</span><span class="milestone-badge mb-none">Non atteint</span></div>`}
+    ${freedom
+      ? `<div class="milestone"><span class="milestone-label">Liberté financière (5 000 €/mois)</span><span class="milestone-badge mb-gold">Mois ${freedom.month}</span></div>`
+      : `<div class="milestone"><span class="milestone-label">Liberté financière (5 000 €/mois)</span><span class="milestone-badge mb-none">Non atteint dans les 24 mois</span></div>`}
+  `;
+
+  // ── TABLE (trimestres)
+  const quarters = [3, 6, 9, 12, 15, 18, 21, 24];
+  let html = '';
+  quarters.forEach(q => {
+    const d = data[q - 1];
+    const qNum = q / 3;
+    const year = qNum <= 4 ? 'An 1' : 'An 2';
+    const qLabel = ((qNum - 1) % 4) + 1;
+    html += `
+      <tr>
+        <td><span class="badge badge-q">${year} Q${qLabel}</span></td>
+        <td class="td-right td-muted">${d.totalClients}</td>
+        <td class="td-right td-accent">${fmt(d.mrr)}</td>
+        <td class="td-right td-muted">${fmt(d.setupRevenue)}</td>
+        <td class="td-right">${fmt(d.total)}</td>
+        <td class="td-right td-gold">${fmt(d.cumRev)}</td>
+      </tr>
+    `;
+  });
+  document.getElementById('table-body').innerHTML = html;
+}
+
+// ─── PARAMS UPDATE ─────────────────────────────────────────────────────────
+function updateParam(key, val, labelId, suffix = '') {
+  params[key] = Number(val);
+  document.getElementById(labelId).textContent = val + suffix;
+
+  // Mix validation
+  const total = params.mixEssentiel + params.mixBusiness + params.mixPremium;
+  const warn = document.getElementById('mix-warning');
+  if (total !== 100) {
+    warn.style.display = 'block';
+    warn.textContent = `⚠ Total mix: ${total}% — doit faire 100% pour des projections correctes`;
+  } else {
+    warn.style.display = 'none';
+  }
+
+  render();
+}
+
+// ─── TAB SWITCH ────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>

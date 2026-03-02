@@ -1878,12 +1878,6 @@ if (typeof _origFilter === 'function') {
     // also update cards - we hook into the tbody update
     setTimeout(() => {
       const rows = document.querySelectorAll('#contacts-tbody tr');
-      // re-render from allContacts if available
-      if (window._filteredContacts) renderContactCards(window._filteredContacts);
-    }, 50);
-  };
-}
-</script>
 </body>
 </html>`;
 
@@ -2003,61 +1997,6 @@ function toggleEmailBody(el) {
   expand.style.display = expand.style.display === 'block' ? 'none' : 'block';
 }
 
-</script>
-<script>
-// ── MOBILE SIDEBAR TOGGLE ──
-function toggleSidebar() {
-  const s = document.querySelector('.sidebar');
-  const o = document.getElementById('sidebar-overlay');
-  const h = document.getElementById('hamburger-btn');
-  const open = s.classList.contains('open');
-  if (open) { closeSidebar(); } else {
-    s.classList.add('open');
-    o.classList.add('open');
-    h.classList.add('open');
-  }
-}
-function closeSidebar() {
-  document.querySelector('.sidebar').classList.remove('open');
-  document.getElementById('sidebar-overlay').classList.remove('open');
-  const h = document.getElementById('hamburger-btn');
-  if (h) h.classList.remove('open');
-}
-
-// ── BOTTOM NAV SYNC ──
-function setBottomActive(el) {
-  document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
-  if (el) el.classList.add('active');
-}
-
-// ── SYNC BOTTOM NAV WITH SIDEBAR CLICKS ──
-document.querySelectorAll('.nav-item[data-view]').forEach(item => {
-  const origClick = item.getAttribute('onclick');
-  item.addEventListener('click', function() {
-    closeSidebar();
-    const view = this.getAttribute('data-view');
-    if (view) {
-      const bottomBtn = document.querySelector(`.bottom-nav-item[data-view="${view}"]`);
-      setBottomActive(bottomBtn);
-    }
-  });
-});
-
-// ── CONTACTS: SWITCH TABLE/CARDS ON RESIZE ──
-function updateContactsLayout() {
-  const isMobile = window.innerWidth <= 768;
-  const tableWrap = document.querySelector('.contacts-table-wrap');
-  const cardsWrap = document.getElementById('contacts-cards');
-  if (!tableWrap || !cardsWrap) return;
-  if (isMobile) {
-    tableWrap.style.display = 'none';
-    cardsWrap.style.display = 'flex';
-  } else {
-    tableWrap.style.display = '';
-    cardsWrap.style.display = 'none';
-  }
-}
-window.addEventListener('resize', updateContactsLayout);
 </script>
 </body>
 </html>

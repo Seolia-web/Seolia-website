@@ -309,18 +309,180 @@
     .toast.success { background:var(--green-dark); }
     .toast.error { background:var(--red); }
 
+
+    /* ─── MOBILE HEADER ─── */
+    .mobile-header {
+      display:none; position:fixed; top:0; left:0; right:0; height:56px;
+      background:var(--navy); z-index:200; align-items:center;
+      padding:0 16px; gap:14px;
+    }
+    .hamburger {
+      background:none; border:none; cursor:pointer; padding:6px; color:var(--white);
+      display:flex; flex-direction:column; gap:5px;
+    }
+    .hamburger span {
+      display:block; width:22px; height:2px; background:var(--white);
+      border-radius:2px; transition:.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity:0; }
+    .hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+    .mobile-title { color:var(--white); font-size:16px; font-weight:800; flex:1; }
+    .mobile-title span { color:var(--green); }
+
+    /* ─── SIDEBAR OVERLAY ─── */
+    .sidebar-overlay {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,.5);
+      z-index:99; opacity:0; transition:opacity .3s;
+    }
+    .sidebar-overlay.open { opacity:1; }
+
+    /* ─── BOTTOM NAV (mobile only) ─── */
+    .bottom-nav {
+      display:none; position:fixed; bottom:0; left:0; right:0;
+      background:var(--white); border-top:1px solid var(--border);
+      z-index:200; padding:6px 4px env(safe-area-inset-bottom, 6px);
+      justify-content:space-around;
+    }
+    .bottom-nav-item {
+      display:flex; flex-direction:column; align-items:center; gap:2px;
+      padding:6px 10px; border-radius:10px; cursor:pointer;
+      color:var(--text-light); font-size:10px; font-weight:600;
+      background:none; border:none; min-width:50px; transition:.15s;
+    }
+    .bottom-nav-item .bn-ico { font-size:20px; line-height:1; }
+    .bottom-nav-item.active { color:var(--green); }
+    .bottom-nav-item.active .bn-ico { transform:scale(1.1); }
+
+    /* ─── MOBILE RESPONSIVE ─── */
     @media (max-width:768px) {
-      .sidebar { transform:translateX(-100%); }
-      .main { margin-left:0; padding:16px; }
-      .stats-grid { grid-template-columns:1fr 1fr; }
-      .pipeline-cols { grid-template-columns:1fr; }
-      .dash-grid { grid-template-columns:1fr; }
+      .mobile-header { display:flex; }
+      .bottom-nav { display:flex; }
+
+      body { padding-top:56px; padding-bottom:72px; }
+
+      .sidebar {
+        transform:translateX(-100%); transition:transform .3s cubic-bezier(.4,0,.2,1);
+        top:0; height:100vh; z-index:150;
+      }
+      .sidebar.open { transform:translateX(0); }
+      .sidebar-overlay { display:block; }
+
+      .main { margin-left:0; padding:12px; min-height:unset; }
+      .page-header { margin-bottom:16px; }
+      .page-header h1 { font-size:18px; }
+      .page-header .btn { font-size:13px; padding:8px 14px; }
+
+      /* Stats: 2 colonnes serrées */
+      .stats-grid { grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+      .stat-card { padding:14px; }
+      .stat-value { font-size:22px; }
+      .stat-label { font-size:10px; }
+
+      /* Dashboard */
+      .dash-grid { grid-template-columns:1fr; gap:14px; }
+
+      /* Pipeline: scroll horizontal */
+      .pipeline-cols {
+        display:flex; overflow-x:auto; gap:12px;
+        padding-bottom:8px; scroll-snap-type:x mandatory;
+      }
+      .pipeline-col {
+        min-width:260px; flex-shrink:0; scroll-snap-align:start;
+      }
+
+      /* Forms */
       .form-grid { grid-template-columns:1fr; }
+      .form-full { grid-column:1; }
       .info-grid { grid-template-columns:1fr; }
+
+      /* Modal: plein écran sur mobile */
+      .modal-overlay { padding:0; align-items:flex-end; }
+      .modal {
+        max-width:100%; max-height:93vh; border-radius:20px 20px 0 0;
+        border-bottom:none;
+      }
+
+      /* Contacts: cards au lieu de tableau */
+      .contacts-table-wrap { display:none; }
+      .contacts-cards { display:flex; flex-direction:column; gap:10px; }
+      .contact-card-mobile {
+        background:var(--white); border-radius:var(--radius);
+        box-shadow:var(--shadow); padding:14px 16px;
+        cursor:pointer; transition:.15s; border:1px solid var(--border);
+        display:flex; align-items:center; gap:12px;
+      }
+      .contact-card-mobile:hover { border-color:var(--green); }
+      .ccm-avatar {
+        width:42px; height:42px; border-radius:10px; background:var(--navy);
+        color:var(--white); display:flex; align-items:center; justify-content:center;
+        font-size:16px; font-weight:700; flex-shrink:0;
+      }
+      .ccm-body { flex:1; min-width:0; }
+      .ccm-name { font-size:14px; font-weight:700; color:var(--navy); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .ccm-sub { font-size:12px; color:var(--text-light); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .ccm-right { display:flex; flex-direction:column; align-items:flex-end; gap:5px; flex-shrink:0; }
+
+      /* Table toolbar: stack */
+      .table-toolbar { flex-direction:column; }
+      .search-box { min-width:unset; width:100%; }
+      .filter-select { width:100%; }
+
+      /* Relances: plus de place */
+      .relance-item { flex-wrap:wrap; gap:8px; }
+      .relance-date { min-width:unset; }
+
+      /* Detail contact: onglets scroll */
+      .detail-tabs { overflow-x:auto; }
+      .tab-btn { white-space:nowrap; padding:9px 14px; }
+
+      /* Email preview */
+      .email-preview { max-width:200px; }
+
+      /* Planning */
+      #planning-body .card { padding:12px; }
+
+      /* Toast: bas centre */
+      .toast { right:50%; transform:translateX(50%); bottom:80px; white-space:nowrap; }
+    }
+
+    @media (max-width:400px) {
+      .stats-grid { grid-template-columns:1fr; }
+      .stat-card { padding:12px; }
     }
   </style>
 </head>
 <body>
+
+<!-- MOBILE HEADER -->
+<div class="mobile-header">
+  <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="mobile-title">Seo<span>lia</span> CRM</div>
+</div>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="bottom-nav-item active" data-view="dashboard" onclick="showView('dashboard');setBottomActive(this)">
+    <span class="bn-ico">📊</span>Tableau
+  </button>
+  <button class="bottom-nav-item" data-view="pipeline" onclick="showView('pipeline');setBottomActive(this)">
+    <span class="bn-ico">🔄</span>Pipeline
+  </button>
+  <button class="bottom-nav-item" data-view="contacts" onclick="showView('contacts');setBottomActive(this)">
+    <span class="bn-ico">👥</span>Contacts
+  </button>
+  <button class="bottom-nav-item" data-view="relances" onclick="showView('relances');setBottomActive(this)">
+    <span class="bn-ico">🔔</span>Relances
+  </button>
+  <button class="bottom-nav-item" data-view="emails" onclick="showView('emails');setBottomActive(this)">
+    <span class="bn-ico">✉️</span>Emails
+  </button>
+</nav>
 
 <!-- ══════════ LOGIN ══════════ -->
 <div id="login-screen">
@@ -455,7 +617,7 @@
             <option value="">Tous les secteurs</option>
           </select>
         </div>
-        <div style="overflow-x:auto;">
+        <div class="contacts-table-wrap" style="overflow-x:auto;">
           <table>
             <thead>
               <tr>
@@ -472,6 +634,7 @@
             <tbody id="contacts-tbody"></tbody>
           </table>
         </div>
+        <div class="contacts-cards" id="contacts-cards" style="display:none;"></div>
       </div>
     </div>
 
@@ -909,6 +1072,7 @@ function filterContacts() {
 
 function renderContacts(list) {
   document.getElementById('contacts-count').textContent = `${list.length} contact${list.length !== 1 ? 's' : ''}`;
+  window._filteredContacts = list; renderContactCards(list); updateContactsLayout();
   const tbody = document.getElementById('contacts-tbody');
   if (!list.length) {
     tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="ico">👥</div><p>Aucun contact trouvé</p></div></td></tr>`;
@@ -1045,7 +1209,8 @@ async function deleteContact() {
 // ═══════════════════════════════════════
 // CONTACT DETAIL
 // ═══════════════════════════════════════
-async function openDetail(id) {
+async function openContact(id) { openDetail(id); }
+function openDetail(id) {
   currentContactId = id;
   const { data: c } = await sb.from('contacts').select('*').eq('id', id).single();
   const { data: notes } = await sb.from('notes').select('*').eq('contact_id', id).order('created_at', {ascending:false});
@@ -1623,6 +1788,102 @@ async function renderDevis(contactId) {
   <span>${devisNum} · ${dateStr}</span>
 </div>
 
+<script>
+// ── MOBILE SIDEBAR TOGGLE ──
+function toggleSidebar() {
+  const s = document.querySelector('.sidebar');
+  const o = document.getElementById('sidebar-overlay');
+  const h = document.getElementById('hamburger-btn');
+  const open = s.classList.contains('open');
+  if (open) { closeSidebar(); } else {
+    s.classList.add('open');
+    o.classList.add('open');
+    h.classList.add('open');
+  }
+}
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+  const h = document.getElementById('hamburger-btn');
+  if (h) h.classList.remove('open');
+}
+
+// ── BOTTOM NAV SYNC ──
+function setBottomActive(el) {
+  document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+// ── SYNC BOTTOM NAV WITH SIDEBAR CLICKS ──
+document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+  const origClick = item.getAttribute('onclick');
+  item.addEventListener('click', function() {
+    closeSidebar();
+    const view = this.getAttribute('data-view');
+    if (view) {
+      const bottomBtn = document.querySelector(`.bottom-nav-item[data-view="${view}"]`);
+      setBottomActive(bottomBtn);
+    }
+  });
+});
+
+// ── CONTACTS: SWITCH TABLE/CARDS ON RESIZE ──
+function updateContactsLayout() {
+  const isMobile = window.innerWidth <= 768;
+  const tableWrap = document.querySelector('.contacts-table-wrap');
+  const cardsWrap = document.getElementById('contacts-cards');
+  if (!tableWrap || !cardsWrap) return;
+  if (isMobile) {
+    tableWrap.style.display = 'none';
+    cardsWrap.style.display = 'flex';
+  } else {
+    tableWrap.style.display = '';
+    cardsWrap.style.display = 'none';
+  }
+}
+window.addEventListener('resize', updateContactsLayout);
+
+// ── RENDER MOBILE CONTACT CARDS ──
+function renderContactCards(contacts) {
+  updateContactsLayout();
+  const cardsWrap = document.getElementById('contacts-cards');
+  if (!cardsWrap) return;
+  if (!contacts || contacts.length === 0) {
+    cardsWrap.innerHTML = '<div class="empty-state"><div class="ico">👥</div><p>Aucun contact trouvé</p></div>';
+    return;
+  }
+  const statusLabel = { prospect:'Prospect', rdv_planifie:'RDV planifié', client:'Client', perdu:'Perdu', sans_suite:'Sans suite' };
+  const statusClass = { prospect:'s-prospect', rdv_planifie:'s-rdv_planifie', client:'s-client', perdu:'s-perdu', sans_suite:'s-sans_suite' };
+  cardsWrap.innerHTML = contacts.map(c => {
+    const initials = ((c.prenom||'').charAt(0) + (c.nom||'').charAt(0)).toUpperCase() || '?';
+    const badge = c.statut ? `<span class="status-badge ${statusClass[c.statut]||''}">${statusLabel[c.statut]||c.statut}</span>` : '';
+    const phone = c.telephone ? `📞 ${c.telephone}` : '';
+    const mrr = c.mrr_mensuel ? `<span style="font-size:12px;font-weight:700;color:var(--green);">${c.mrr_mensuel}€/m</span>` : '';
+    return `<div class="contact-card-mobile" onclick="openContact('${c.id}')">
+      <div class="ccm-avatar">${initials}</div>
+      <div class="ccm-body">
+        <div class="ccm-name">${c.prenom||''} ${c.nom||''} ${c.entreprise ? '· '+c.entreprise : ''}</div>
+        <div class="ccm-sub">${phone} ${c.ville ? '· '+c.ville : ''}</div>
+      </div>
+      <div class="ccm-right">${badge}${mrr}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── PATCH filterContacts to also render mobile cards ──
+const _origFilter = window.filterContacts;
+if (typeof _origFilter === 'function') {
+  window.filterContacts = function() {
+    _origFilter();
+    // also update cards - we hook into the tbody update
+    setTimeout(() => {
+      const rows = document.querySelectorAll('#contacts-tbody tr');
+      // re-render from allContacts if available
+      if (window._filteredContacts) renderContactCards(window._filteredContacts);
+    }, 50);
+  };
+}
+</script>
 </body>
 </html>`;
 
@@ -1742,6 +2003,67 @@ function toggleEmailBody(el) {
   expand.style.display = expand.style.display === 'block' ? 'none' : 'block';
 }
 
+</script>
+<script>
+// ── MOBILE SIDEBAR TOGGLE ──
+function toggleSidebar() {
+  const s = document.querySelector('.sidebar');
+  const o = document.getElementById('sidebar-overlay');
+  const h = document.getElementById('hamburger-btn');
+  const open = s.classList.contains('open');
+  if (open) { closeSidebar(); } else {
+    s.classList.add('open');
+    o.classList.add('open');
+    h.classList.add('open');
+  }
+}
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+  const h = document.getElementById('hamburger-btn');
+  if (h) h.classList.remove('open');
+}
+
+// ── BOTTOM NAV SYNC ──
+function setBottomActive(el) {
+  document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+// ── SYNC BOTTOM NAV WITH SIDEBAR CLICKS ──
+document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+  const origClick = item.getAttribute('onclick');
+  item.addEventListener('click', function() {
+    closeSidebar();
+    const view = this.getAttribute('data-view');
+    if (view) {
+      const bottomBtn = document.querySelector(`.bottom-nav-item[data-view="${view}"]`);
+      setBottomActive(bottomBtn);
+    }
+  });
+});
+
+// ── CONTACTS: SWITCH TABLE/CARDS ON RESIZE ──
+function updateContactsLayout() {
+  const isMobile = window.innerWidth <= 768;
+  const tableWrap = document.querySelector('.contacts-table-wrap');
+  const cardsWrap = document.getElementById('contacts-cards');
+  if (!tableWrap || !cardsWrap) return;
+  if (isMobile) {
+    tableWrap.style.display = 'none';
+    cardsWrap.style.display = 'flex';
+  } else {
+    tableWrap.style.display = '';
+    cardsWrap.style.display = 'none';
+  }
+}
+window.addEventListener('resize', updateContactsLayout);
+document.querySelectorAll('#contacts-tbody tr');
+      // re-render from allContacts if available
+      if (window._filteredContacts) renderContactCards(window._filteredContacts);
+    }, 50);
+  };
+}
 </script>
 </body>
 </html>

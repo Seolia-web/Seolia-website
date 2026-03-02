@@ -477,6 +477,8 @@
           <select class="filter-select" id="planning-assignee-filter" onchange="loadPlanning()">
             <option value="">Tous</option>
             <option value="Florian">Florian</option>
+            <option value="Ced">Ced</option>
+            <option value="Evan">Evan</option>
           </select>
           <select class="filter-select" id="planning-period" onchange="loadPlanning()">
             <option value="7">7 prochains jours</option>
@@ -583,6 +585,8 @@
             <select id="cf-assignee">
               <option value="">— Non assigné —</option>
               <option value="Florian">Florian</option>
+            <option value="Ced">Ced</option>
+            <option value="Evan">Evan</option>
             </select>
           </div>
 
@@ -1184,7 +1188,7 @@ async function loadPlanning() {
 }
 
 async function promptAssign(contactId) {
-  const assignees = ['Florian'];
+  const assignees = ['Florian', 'Ced', 'Evan'];
   const name = prompt('Assigner à :\n' + assignees.map((a,i)=>`${i+1}. ${a}`).join('\n') + '\n\nEntrez le nom :');
   if (!name) return;
   const { error } = await sb.from('contacts').update({ assignee: name, updated_at: new Date().toISOString() }).eq('id', contactId);

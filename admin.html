@@ -1175,11 +1175,11 @@ async function generateDevis() {
           <input type="date" id="dv-date" value="${todayISO}" style="width:100%;padding:10px 12px;border:2px solid #e1e8ef;border-radius:8px;font-size:14px;outline:none;">
         </div>
         <div>
-          <label style="font-size:12px;font-weight:600;color:#7f8c9b;display:block;margin-bottom:5px;">FRAIS DE MISE EN PLACE (€ HTVA)</label>
+          <label style="font-size:12px;font-weight:600;color:#7f8c9b;display:block;margin-bottom:5px;">FRAIS DE MISE EN PLACE (€ TVAC)</label>
           <input type="number" id="dv-setup" value="${defaultSetup}" min="0" style="width:100%;padding:10px 12px;border:2px solid #e1e8ef;border-radius:8px;font-size:14px;outline:none;">
         </div>
         <div>
-          <label style="font-size:12px;font-weight:600;color:#7f8c9b;display:block;margin-bottom:5px;">ABONNEMENT MENSUEL (€ HTVA)</label>
+          <label style="font-size:12px;font-weight:600;color:#7f8c9b;display:block;margin-bottom:5px;">ABONNEMENT MENSUEL (€ TVAC)</label>
           <input type="number" id="dv-mensuel" value="${defaultMensuel}" min="0" style="width:100%;padding:10px 12px;border:2px solid #e1e8ef;border-radius:8px;font-size:14px;outline:none;">
         </div>
       </div>
@@ -1192,8 +1192,10 @@ async function generateDevis() {
 }
 
 async function renderDevis(contactId) {
-  const setup   = parseFloat(document.getElementById('dv-setup').value) || 0;
-  const mensuel = parseFloat(document.getElementById('dv-mensuel').value) || 0;
+  const setupTVAC   = parseFloat(document.getElementById('dv-setup').value) || 0;
+  const mensuelTVAC = parseFloat(document.getElementById('dv-mensuel').value) || 0;
+  const setup   = setupTVAC / 1.21;
+  const mensuel = mensuelTVAC / 1.21;
   const dateVal = document.getElementById('dv-date').value;
   document.getElementById('modal-devis-config').remove();
 
@@ -1328,7 +1330,7 @@ async function renderDevis(contactId) {
       <td>Unique</td>
       <td>${setup.toLocaleString('fr-BE')} €</td>
       <td>${(setup*0.21).toFixed(2)} €</td>
-      <td>${(setup*1.21).toFixed(2)} €</td>
+      <td>${setupTVAC.toFixed(2)} €</td>
     </tr>` : ''}
     ${mensuel > 0 ? `
     <tr>

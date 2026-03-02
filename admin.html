@@ -1210,7 +1210,7 @@ async function deleteContact() {
 // CONTACT DETAIL
 // ═══════════════════════════════════════
 async function openContact(id) { openDetail(id); }
-function openDetail(id) {
+async function openDetail(id) {
   currentContactId = id;
   const { data: c } = await sb.from('contacts').select('*').eq('id', id).single();
   const { data: notes } = await sb.from('notes').select('*').eq('contact_id', id).order('created_at', {ascending:false});
@@ -2058,12 +2058,6 @@ function updateContactsLayout() {
   }
 }
 window.addEventListener('resize', updateContactsLayout);
-document.querySelectorAll('#contacts-tbody tr');
-      // re-render from allContacts if available
-      if (window._filteredContacts) renderContactCards(window._filteredContacts);
-    }, 50);
-  };
-}
 </script>
 </body>
 </html>

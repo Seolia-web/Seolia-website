@@ -223,6 +223,12 @@
     }
     .detail-name { font-size:20px; font-weight:800; color:var(--navy); }
     .detail-meta { font-size:13px; color:var(--text-light); margin-top:2px; }
+    .status-select { appearance:auto; }
+    .status-select.s-prospect { background:#fff3cd; color:#856404; }
+    .status-select.s-rdv_planifie { background:#cce5ff; color:#004085; }
+    .status-select.s-client { background:#d4edda; color:#155724; }
+    .status-select.s-perdu { background:#f8d7da; color:#721c24; }
+    .status-select.s-sans_suite { background:#e2e3e5; color:#383d41; }
     .detail-tabs { display:flex; gap:2px; border-bottom:2px solid var(--border); margin-bottom:20px; }
     .tab-btn {
       padding:9px 18px; border:none; background:none; font-size:14px; font-weight:600;
@@ -340,6 +346,9 @@
       </div>
       <div class="nav-item" onclick="showView('relances')" data-view="relances">
         <span class="ico">🔔</span> Relances
+      </div>
+      <div class="nav-item" onclick="showView('planning')" data-view="planning">
+        <span class="ico">📅</span> Planning
       </div>
     </div>
     <div class="sidebar-user">
@@ -460,6 +469,26 @@
       <div id="relances-list" class="relance-list"></div>
     </div>
 
+    <!-- ── PLANNING ── -->
+    <div class="view" id="view-planning">
+      <div class="page-header">
+        <div><h1>Planning</h1><p>RDVs et relances à venir</p></div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <select class="filter-select" id="planning-assignee-filter" onchange="loadPlanning()">
+            <option value="">Tous</option>
+            <option value="Florian">Florian</option>
+          </select>
+          <select class="filter-select" id="planning-period" onchange="loadPlanning()">
+            <option value="7">7 prochains jours</option>
+            <option value="14">14 prochains jours</option>
+            <option value="30">30 prochains jours</option>
+            <option value="0">Tout à venir</option>
+          </select>
+        </div>
+      </div>
+      <div id="planning-body"></div>
+    </div>
+
   </main>
 </div>
 
@@ -548,6 +577,13 @@
           <div class="form-field" id="rdv-date-field" style="display:none;">
             <label>Date du RDV</label>
             <input type="datetime-local" id="cf-rdv">
+          </div>
+          <div class="form-field">
+            <label>Assigné à</label>
+            <select id="cf-assignee">
+              <option value="">— Non assigné —</option>
+              <option value="Florian">Florian</option>
+            </select>
           </div>
 
           <div class="form-section">💼 Abonnement (clients)</div>
@@ -685,6 +721,7 @@ function showView(name) {
   if (name === 'pipeline') loadPipeline();
   if (name === 'contacts') loadContacts();
   if (name === 'relances') loadRelances();
+  if (name === 'planning') loadPlanning();
 }
 
 // ═══════════════════════════════════════
@@ -847,6 +884,7 @@ function clearForm() {
   document.getElementById('cf-statut').value = 'prospect';
   document.getElementById('cf-source').value = '';
   document.getElementById('cf-formule').value = '';
+  document.getElementById('cf-assignee').value = '';
 }
 
 function fillForm(c) {
@@ -867,6 +905,7 @@ function fillForm(c) {
   document.getElementById('cf-debut').value = c.date_debut || '';
   document.getElementById('cf-rdv').value = c.date_rdv ? c.date_rdv.slice(0,16) : '';
   document.getElementById('cf-notes').value = c.notes_generales || '';
+  document.getElementById('cf-assignee').value = c.assignee || '';
 }
 
 function toggleClientFields() {
@@ -895,6 +934,7 @@ async function saveContact(e) {
     date_debut: document.getElementById('cf-debut').value || null,
     date_rdv: document.getElementById('cf-rdv').value || null,
     notes_generales: document.getElementById('cf-notes').value.trim() || null,
+    assignee: document.getElementById('cf-assignee').value || null,
     updated_at: new Date().toISOString()
   };
   if (!data.nom) { showToast('Le nom est obligatoire', 'error'); return; }
@@ -944,9 +984,16 @@ async function openDetail(id) {
         <div class="detail-name">${escHtml(c.nom)}</div>
         <div class="detail-meta">
           ${c.entreprise ? escHtml(c.entreprise) + ' · ' : ''}
-          <span class="status-badge s-${c.statut}">${STATUT_LABELS[c.statut]}</span>
+          <select class="status-select s-${c.statut}" onchange="quickChangeStatus('${c.id}', this)" style="border:none;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;cursor:pointer;outline:none;">
+            <option value="prospect" ${c.statut==='prospect'?'selected':''}>🔍 Prospect</option>
+            <option value="rdv_planifie" ${c.statut==='rdv_planifie'?'selected':''}>📅 RDV planifié</option>
+            <option value="client" ${c.statut==='client'?'selected':''}>✅ Client</option>
+            <option value="perdu" ${c.statut==='perdu'?'selected':''}>❌ Perdu</option>
+            <option value="sans_suite" ${c.statut==='sans_suite'?'selected':''}>⏸ Sans suite</option>
+          </select>
           ${c.formule ? ' · <span class="kanban-formule f-' + c.formule + '">' + FORMULE_LABELS[c.formule] + '</span>' : ''}
           ${mrr ? ` · <strong style="color:var(--green)">${mrr} €/mois</strong>` : ''}
+          ${c.assignee ? ` · <span style="background:#e8f4fd;color:#2563eb;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:600;">👤 ${escHtml(c.assignee)}</span>` : ''}
         </div>
       </div>
     </div>
@@ -1067,6 +1114,98 @@ function editCurrentContact() {
 // ═══════════════════════════════════════
 // RELANCES VIEW
 // ═══════════════════════════════════════
+// ═══════════════════════════════════════
+// PLANNING
+// ═══════════════════════════════════════
+async function loadPlanning() {
+  const days = parseInt(document.getElementById('planning-period')?.value ?? '7');
+  const assigneeFilter = document.getElementById('planning-assignee-filter')?.value ?? '';
+  const now = new Date(); now.setHours(0,0,0,0);
+  const end = new Date(now);
+  if (days > 0) end.setDate(end.getDate() + days);
+
+  // Fetch RDVs planifiés
+  let qRdv = sb.from('contacts').select('*').eq('statut','rdv_planifie').not('date_rdv','is',null);
+  if (assigneeFilter) qRdv = qRdv.eq('assignee', assigneeFilter);
+  const { data: rdvs } = await qRdv;
+
+  // Fetch relances actives
+  let qRel = sb.from('relances').select('*, contacts(nom, entreprise, statut, assignee)').eq('done', false);
+  const { data: relances } = await qRel;
+
+  // Build unified event list
+  const events = [];
+  (rdvs||[]).forEach(c => {
+    if (!c.date_rdv) return;
+    const d = new Date(c.date_rdv);
+    if (d < now) return;
+    if (days > 0 && d > end) return;
+    events.push({ date: d, type: 'rdv', contact: c, label: 'RDV planifié', name: c.nom, entreprise: c.entreprise, assignee: c.assignee, id: c.id });
+  });
+  (relances||[]).forEach(r => {
+    if (!r.date_echeance) return;
+    const d = new Date(r.date_echeance + 'T09:00:00');
+    if (d < now) return;
+    if (days > 0 && d > end) return;
+    const c = r.contacts || {};
+    if (assigneeFilter && c.assignee !== assigneeFilter) return;
+    events.push({ date: d, type: 'relance', contact: c, label: r.description || 'Relance', name: c.nom, entreprise: c.entreprise, assignee: c.assignee, id: r.contact_id, relanceId: r.id });
+  });
+
+  events.sort((a,b) => a.date - b.date);
+
+  // Group by day
+  const groups = {};
+  events.forEach(ev => {
+    const key = ev.date.toLocaleDateString('fr-BE', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(ev);
+  });
+
+  const el = document.getElementById('planning-body');
+  if (!Object.keys(groups).length) {
+    el.innerHTML = `<div class="empty-state" style="margin-top:60px;"><div class="ico">📅</div><p>Aucun événement sur cette période</p></div>`;
+    return;
+  }
+
+  el.innerHTML = Object.entries(groups).map(([day, evts]) => `
+    <div style="margin-bottom:24px;">
+      <div style="font-size:13px;font-weight:800;color:var(--navy);text-transform:capitalize;padding:8px 0 6px;border-bottom:2px solid var(--border);margin-bottom:10px;">${day}</div>
+      ${evts.map(ev => `
+        <div onclick="openDetail('${ev.id}')" style="background:#fff;border:1px solid var(--border);border-left:4px solid ${ev.type==='rdv'?'var(--green)':'var(--gold, #f39c12)'};border-radius:8px;padding:12px 16px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:box-shadow .15s;" onmouseover="this.style.boxShadow='0 2px 12px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow='none'">
+          <div style="font-size:22px;">${ev.type==='rdv'?'📅':'🔔'}</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:15px;color:var(--navy);">${escHtml(ev.name||'—')} ${ev.entreprise?'<span style="color:#7f8c9b;font-weight:400;">· '+escHtml(ev.entreprise)+'</span>':''}</div>
+            <div style="font-size:13px;color:#7f8c9b;margin-top:2px;">${escHtml(ev.label)} · ${ev.date.toLocaleTimeString('fr-BE',{hour:'2-digit',minute:'2-digit'})}</div>
+          </div>
+          ${ev.assignee ? `<span style="background:#e8f4fd;color:#2563eb;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:600;">👤 ${escHtml(ev.assignee)}</span>` : `<span style="background:#f0f0f0;color:#aaa;border-radius:20px;padding:3px 12px;font-size:12px;cursor:pointer;" onclick="event.stopPropagation();promptAssign('${ev.id}')">+ Assigner</span>`}
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+async function promptAssign(contactId) {
+  const assignees = ['Florian'];
+  const name = prompt('Assigner à :\n' + assignees.map((a,i)=>`${i+1}. ${a}`).join('\n') + '\n\nEntrez le nom :');
+  if (!name) return;
+  const { error } = await sb.from('contacts').update({ assignee: name, updated_at: new Date().toISOString() }).eq('id', contactId);
+  if (error) { showToast('Erreur : ' + error.message, 'error'); return; }
+  showToast('Assigné à ' + name);
+  loadPlanning();
+}
+
+async function quickChangeStatus(id, selectEl) {
+  const newStatut = selectEl.value;
+  selectEl.className = 'status-select s-' + newStatut;
+  const { error } = await sb.from('contacts').update({ statut: newStatut, updated_at: new Date().toISOString() }).eq('id', id);
+  if (error) { showToast('Erreur : ' + error.message, 'error'); return; }
+  showToast('Statut mis à jour !');
+  const cur = document.querySelector('.nav-item.active')?.dataset?.view;
+  if (cur === 'pipeline') loadPipeline();
+  if (cur === 'contacts') loadContacts();
+  if (cur === 'dashboard') loadDashboard();
+  if (cur === 'planning') loadPlanning();
+}
+
 async function loadRelances() {
   const filter = document.getElementById('relance-filter').value;
   let query = sb.from('relances').select('*, contacts(nom,entreprise)').order('date_echeance');

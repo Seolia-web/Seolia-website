@@ -273,6 +273,24 @@
     }
     .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color:var(--green); }
     .form-field textarea { resize:vertical; min-height:80px; }
+
+    /* ── EMAIL STYLES ── */
+    .email-item { padding:12px 14px; border:1px solid var(--border); border-radius:8px; margin-bottom:8px; cursor:pointer; transition:background .15s; }
+    .email-item:hover { background:#f8fafc; }
+    .email-item.unread { border-left:3px solid var(--green); }
+    .email-item-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+    .email-direction { font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px; }
+    .email-direction.out { background:#e0f0ff; color:#2563eb; }
+    .email-direction.in { background:#e0fff4; color:var(--green-dark); }
+    .email-subject { font-size:14px; font-weight:600; color:var(--navy); margin-bottom:3px; }
+    .email-preview { font-size:12px; color:var(--text-light); overflow:hidden; white-space:nowrap; text-overflow:ellipsis; max-width:400px; }
+    .email-date { font-size:11px; color:var(--text-light); white-space:nowrap; }
+    .compose-area { background:#f8fafc; border-radius:10px; padding:16px; margin-top:14px; }
+    .compose-area .form-field { margin-bottom:10px; }
+    .compose-area textarea { min-height:120px; }
+    .email-expand { display:none; padding:12px; background:#fff; border:1px solid var(--border); border-radius:8px; margin-top:8px; font-size:13px; white-space:pre-wrap; line-height:1.6; }
+    .global-email-contact { font-size:11px; color:#2563eb; font-weight:600; }
+
     .form-section { font-size:13px; font-weight:700; color:var(--navy); padding:10px 0 6px; grid-column:1/-1; border-top:1px solid var(--border); margin-top:6px; }
 
     /* ─── EMPTY STATE ─── */
@@ -349,6 +367,9 @@
       </div>
       <div class="nav-item" onclick="showView('planning')" data-view="planning">
         <span class="ico">📅</span> Planning
+      </div>
+      <div class="nav-item" onclick="showView('emails')" data-view="emails">
+        <span class="ico">✉️</span> Emails
       </div>
     </div>
     <div class="sidebar-user">
@@ -491,7 +512,56 @@
       <div id="planning-body"></div>
     </div>
 
+
+    <!-- ── EMAILS ── -->
+    <div class="view" id="view-emails">
+      <div class="page-header">
+        <div><h1>Emails</h1><p>Historique des échanges email</p></div>
+        <button class="btn btn-green" onclick="openComposeModal(null,'','')">✉️ Nouvel email</button>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+        <select class="filter-select" id="email-filter-dir" onchange="loadAllEmails()">
+          <option value="">Tous</option>
+          <option value="out">Envoyés</option>
+          <option value="in">Reçus</option>
+        </select>
+        <input class="search-input" id="email-search" placeholder="Rechercher..." oninput="loadAllEmails()" style="max-width:220px;">
+      </div>
+      <div id="emails-global-list"></div>
+    </div>
+
   </main>
+</div>
+
+<!-- ══════════ MODAL COMPOSE EMAIL ══════════ -->
+<div class="modal-overlay" id="modal-compose">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <h3>✉️ Nouveau message</h3>
+      <button class="modal-close" onclick="closeModal('modal-compose')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid" style="gap:12px;">
+        <div class="form-field" style="grid-column:1/-1;">
+          <label>Destinataire</label>
+          <input type="email" id="compose-to" placeholder="email@exemple.com">
+        </div>
+        <div class="form-field" style="grid-column:1/-1;">
+          <label>Objet</label>
+          <input type="text" id="compose-subject" placeholder="Objet de l'email...">
+        </div>
+        <div class="form-field" style="grid-column:1/-1;">
+          <label>Message</label>
+          <textarea id="compose-body" style="min-height:180px;" placeholder="Votre message..."></textarea>
+        </div>
+      </div>
+      <div id="compose-status" style="margin-top:8px;font-size:13px;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-compose')">Annuler</button>
+      <button class="btn btn-green" id="send-email-btn" onclick="sendEmail()">✉️ Envoyer</button>
+    </div>
+  </div>
 </div>
 
 <!-- ══════════ MODAL CONTACT FORM ══════════ -->
@@ -726,6 +796,7 @@ function showView(name) {
   if (name === 'contacts') loadContacts();
   if (name === 'relances') loadRelances();
   if (name === 'planning') loadPlanning();
+  if (name === 'emails') loadAllEmails();
 }
 
 // ═══════════════════════════════════════
@@ -1005,6 +1076,7 @@ async function openDetail(id) {
       <button class="tab-btn active" onclick="switchTab('info')">📋 Infos</button>
       <button class="tab-btn" onclick="switchTab('notes')">📝 Notes (${(notes||[]).length})</button>
       <button class="tab-btn" onclick="switchTab('relances')">🔔 Relances (${(relances||[]).filter(r=>!r.done).length})</button>
+      <button class="tab-btn" onclick="switchTab('emails');loadEmailsTab('${id}')">✉️ Emails (${(emails||[]).length})</button>
     </div>
 
     <!-- TAB: INFO -->
@@ -1040,6 +1112,27 @@ async function openDetail(id) {
         <div style="display:flex;gap:8px;margin-top:8px;justify-content:flex-end;">
           <button class="btn btn-green btn-sm" onclick="addNote('${id}')">Ajouter la note</button>
         </div>
+      </div>
+    </div>
+
+    <!-- TAB: EMAILS -->
+    <div class="tab-content" id="tab-emails">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+        <button class="btn btn-green btn-sm" onclick="openComposeModal('${id}','${c.email||''}','${(c.prenom||'')+' '+(c.nom||'')}')">✉️ Envoyer un email</button>
+      </div>
+      <div id="emails-contact-list">
+        ${(emails||[]).length ? (emails||[]).map(e => `
+          <div class="email-item" onclick="toggleEmailBody(this)">
+            <div class="email-item-header">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span class="email-direction ${e.direction}">${e.direction==='out'?'↗ Envoyé':'↙ Reçu'}</span>
+                <span class="email-subject">${escHtml(e.subject||'(sans objet)')}</span>
+              </div>
+              <span class="email-date">${fmtDate(e.created_at)}</span>
+            </div>
+            <div class="email-preview">${e.direction==='out'?'À : '+escHtml(e.to_email||''):'De : '+escHtml(e.from_email||'')} · ${escHtml((e.body||'').substring(0,80))}...</div>
+            <div class="email-expand">${escHtml(e.body||'')}</div>
+          </div>`).join('') : '<div class="empty-state"><div class="ico">✉️</div><p>Aucun email</p></div>'}
       </div>
     </div>
 
@@ -1537,6 +1630,118 @@ async function renderDevis(contactId) {
   w.document.write(html);
   w.document.close();
 }
+
+// ═══════════════════════════════════════
+// EMAIL (BREVO)
+// ═══════════════════════════════════════
+const BREVO_KEY = ['xkeysib-9b2cbbf442c4801799f3f2f12819831','7265ff85d07e14498efae7db6d1633ff8','zEp8GtJwGFJiFfAX'].join('');
+let _composeContactId = null;
+
+function openComposeModal(contactId, email, name) {
+  _composeContactId = contactId || null;
+  document.getElementById('compose-to').value = email || '';
+  document.getElementById('compose-subject').value = '';
+  document.getElementById('compose-body').value = '';
+  document.getElementById('compose-status').textContent = '';
+  openModal('modal-compose');
+}
+
+async function sendEmail() {
+  const to = document.getElementById('compose-to').value.trim();
+  const subject = document.getElementById('compose-subject').value.trim();
+  const body = document.getElementById('compose-body').value.trim();
+  const statusEl = document.getElementById('compose-status');
+  if (!to || !subject || !body) { statusEl.style.color='#e53e3e'; statusEl.textContent='Tous les champs sont requis.'; return; }
+  const btn = document.getElementById('send-email-btn');
+  btn.disabled = true; btn.textContent = '⏳ Envoi...';
+  statusEl.textContent = '';
+  try {
+    const resp = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: { 'api-key': BREVO_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sender: { name: 'Seolia', email: 'contact@seolia.be' },
+        to: [{ email: to }],
+        subject: subject,
+        textContent: body
+      })
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(()=>({}));
+      throw new Error(err.message || resp.statusText);
+    }
+    // Log in Supabase
+    const row = { direction:'out', from_email:'contact@seolia.be', to_email:to, subject, body };
+    if (_composeContactId) row.contact_id = _composeContactId;
+    await sb.from('emails').insert(row);
+    closeModal('modal-compose');
+    showToast('✉️ Email envoyé !');
+    if (_composeContactId) loadEmailsTab(_composeContactId);
+    const cur = document.querySelector('.nav-item.active')?.dataset?.view;
+    if (cur === 'emails') loadAllEmails();
+  } catch(e) {
+    statusEl.style.color='#e53e3e';
+    statusEl.textContent = 'Erreur : ' + e.message;
+  } finally {
+    btn.disabled = false; btn.textContent = '✉️ Envoyer';
+  }
+}
+
+async function loadEmailsTab(contactId) {
+  const { data } = await sb.from('emails').select('*').eq('contact_id', contactId).order('created_at', { ascending: false });
+  const list = document.getElementById('emails-contact-list');
+  if (!list) return;
+  const emails = data || [];
+  if (!emails.length) { list.innerHTML = '<div class="empty-state"><div class="ico">✉️</div><p>Aucun email</p></div>'; return; }
+  list.innerHTML = emails.map(e => `
+    <div class="email-item" onclick="toggleEmailBody(this)">
+      <div class="email-item-header">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="email-direction ${e.direction}">${e.direction==='out'?'↗ Envoyé':'↙ Reçu'}</span>
+          <span class="email-subject">${escHtml(e.subject||'(sans objet)')}</span>
+        </div>
+        <span class="email-date">${fmtDate(e.created_at)}</span>
+      </div>
+      <div class="email-preview">${e.direction==='out'?'À : '+escHtml(e.to_email||''):'De : '+escHtml(e.from_email||'')} · ${escHtml((e.body||'').substring(0,80))}...</div>
+      <div class="email-expand">${escHtml(e.body||'')}</div>
+    </div>`).join('');
+}
+
+async function loadAllEmails() {
+  const dir = document.getElementById('email-filter-dir')?.value || '';
+  const search = document.getElementById('email-search')?.value?.toLowerCase() || '';
+  let q = sb.from('emails').select('*, contacts(nom, prenom, societe)').order('created_at', { ascending: false }).limit(100);
+  if (dir) q = q.eq('direction', dir);
+  const { data } = await q;
+  const list = document.getElementById('emails-global-list');
+  if (!list) return;
+  let emails = data || [];
+  if (search) emails = emails.filter(e => (e.subject||'').toLowerCase().includes(search) || (e.to_email||'').toLowerCase().includes(search) || (e.from_email||'').toLowerCase().includes(search) || (e.body||'').toLowerCase().includes(search));
+  if (!emails.length) { list.innerHTML = '<div class="empty-state"><div class="ico">✉️</div><p>Aucun email trouvé</p></div>'; return; }
+  list.innerHTML = emails.map(e => {
+    const c = e.contacts;
+    const cname = c ? [c.prenom, c.nom, c.societe].filter(Boolean).join(' ') : '';
+    return `<div class="email-item" onclick="toggleEmailBody(this)">
+      <div class="email-item-header">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="email-direction ${e.direction}">${e.direction==='out'?'↗ Envoyé':'↙ Reçu'}</span>
+          <span class="email-subject">${escHtml(e.subject||'(sans objet)')}</span>
+          ${cname ? `<span class="global-email-contact">${escHtml(cname)}</span>` : ''}
+        </div>
+        <span class="email-date">${fmtDate(e.created_at)}</span>
+      </div>
+      <div class="email-preview">${e.direction==='out'?'À : '+escHtml(e.to_email||''):'De : '+escHtml(e.from_email||'')} · ${escHtml((e.body||'').substring(0,80))}...</div>
+      <div class="email-expand">${escHtml(e.body||'')}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleEmailBody(el) {
+  const expand = el.querySelector('.email-expand');
+  if (!expand) return;
+  expand.style.display = expand.style.display === 'block' ? 'none' : 'block';
+}
+
 </script>
 </body>
 </html>

@@ -575,8 +575,8 @@
                 <span>Quelques-unes</span>
               </label>
               <label class="radio-item">
-                <input type="radio" name="photos" value="Non (séance photo incluse)">
-                <span>Non (séance photo incluse)</span>
+                <input type="radio" name="photos" value="Non (photos de stock seront utilisées)">
+                <span>Non (photos de stock)</span>
               </label>
             </div>
           </div>
@@ -833,12 +833,169 @@
         </div>
       </div>
 
-      <!-- 8. Premium uniquement -->
+      <!-- 8. Pack IA -->
+      <div class="form-section" id="section-ia">
+        <div class="section-header">
+          <div class="section-icon">🤖</div>
+          <div>
+            <div class="section-title">8. Pack Intelligence Artificielle</div>
+            <div class="section-subtitle">À remplir uniquement si vous avez souscrit un pack IA ou bundle</div>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field full">
+            <label>Pack IA souscrit <span class="optional">(optionnel si web seul)</span></label>
+            <div class="radio-group">
+              <label class="radio-item">
+                <input type="radio" name="pack_ia" value="Aucun — formule web uniquement">
+                <span>Aucun — web uniquement</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" name="pack_ia" value="Starter IA — 50€/mois">
+                <span>Starter IA — 50€/mois</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" name="pack_ia" value="Business IA — 150€/mois">
+                <span>Business IA — 150€/mois</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" name="pack_ia" value="Premium IA — 300€/mois">
+                <span>Premium IA — 300€/mois</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field full">
+            <label>Langue(s) parlées par vos clients <span class="optional">(pour le chatbot et l'agent vocal)</span></label>
+            <div class="checkbox-group">
+              <label class="checkbox-item">
+                <input type="checkbox" name="langues_clients[]" value="Français">
+                <span>Français</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="langues_clients[]" value="Néerlandais">
+                <span>Néerlandais</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="langues_clients[]" value="Anglais">
+                <span>Anglais</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="langues_clients[]" value="Allemand">
+                <span>Allemand</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field full">
+            <label>Questions fréquentes de vos clients <span class="optional">(pour programmer le chatbot FAQ)</span></label>
+            <textarea name="faq_questions" placeholder="Ex: Quels sont vos tarifs ? Intervenez-vous le week-end ? Êtes-vous disponible en urgence ? Faites-vous des devis gratuits ? Quels secteurs couvrez-vous ?..."></textarea>
+          </div>
+
+          <div class="field full">
+            <label>Ton souhaité pour l'IA <span class="optional">(comment voulez-vous qu'elle s'exprime ?)</span></label>
+            <div class="radio-group">
+              <label class="radio-item">
+                <input type="radio" name="ton_ia" value="Professionnel et formel">
+                <span>Professionnel et formel</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" name="ton_ia" value="Amical et accessible">
+                <span>Amical et accessible</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" name="ton_ia" value="Dynamique et commercial">
+                <span>Dynamique et commercial</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field-divider"></div>
+
+          <div class="field full">
+            <label style="color: var(--gold); font-size:0.9rem; font-weight:700; margin-bottom:4px;">⬇ Business IA & Premium IA uniquement</label>
+          </div>
+
+          <div class="field full">
+            <label>Nom souhaité pour votre agent vocal IA <span class="optional">(le nom qu'il donnera au téléphone)</span></label>
+            <input type="text" name="nom_agent_vocal" placeholder="Ex: Julie, Alex, Thomas, Assistant de Plomberie Dupont...">
+          </div>
+
+          <div class="field full">
+            <label>Types d'appels les plus fréquents <span class="optional">(pour calibrer l'agent vocal)</span></label>
+            <textarea name="types_appels" placeholder="Ex: Demandes de devis, urgences plomberie, prise de RDV entretien chaudière, renseignements tarifs, confirmation de commande..."></textarea>
+          </div>
+
+          <div class="field full">
+            <label>Que doit faire l'agent vocal si le client veut parler à un humain ? <span class="optional">(optionnel)</span></label>
+            <div class="radio-group">
+              <label class="radio-item">
+                <input type="radio" name="escalade_agent" value="Transfert immédiat vers mon numéro">
+                <span>Transfert vers mon numéro</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" name="escalade_agent" value="Prendre un message et rappeler">
+                <span>Prendre un message + rappel</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" name="escalade_agent" value="Proposer un RDV téléphonique">
+                <span>Proposer un RDV téléphonique</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field full">
+            <label>Souhaitez-vous activer l'agent WhatsApp ? <span class="optional">(Premium IA uniquement)</span></label>
+            <div class="radio-group">
+              <label class="radio-item">
+                <input type="radio" name="whatsapp_agent" value="Oui">
+                <span>Oui</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" name="whatsapp_agent" value="Non">
+                <span>Non</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field full">
+            <label>KPIs prioritaires pour votre dashboard <span class="optional">(Premium IA — que voulez-vous suivre ?)</span></label>
+            <div class="checkbox-group">
+              <label class="checkbox-item">
+                <input type="checkbox" name="kpis[]" value="Nombre de leads reçus">
+                <span>Nombre de leads</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="kpis[]" value="Visites sur le site">
+                <span>Visites sur le site</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="kpis[]" value="Appels traités par l'IA">
+                <span>Appels IA</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="kpis[]" value="Avis Google reçus">
+                <span>Avis Google</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="kpis[]" value="Conversations chatbot">
+                <span>Conversations chatbot</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="kpis[]" value="Messages WhatsApp traités">
+                <span>Messages WhatsApp</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9. Infos complémentaires -->
       <div class="form-section">
         <div class="section-header">
           <div class="section-icon">⭐</div>
           <div>
-            <div class="section-title">8. Infos complémentaires</div>
+            <div class="section-title">9. Infos complémentaires</div>
             <div class="section-subtitle">Pour personnaliser encore plus votre site</div>
           </div>
         </div>
@@ -873,19 +1030,31 @@
             <textarea name="question_speciale" placeholder="Quelque chose à nous communiquer ? Une fonctionnalité spécifique souhaitée ? Une contrainte particulière ?"></textarea>
           </div>
           <div class="field full">
-            <label>Formule choisie <span class="required">*</span></label>
+            <label>Formule web choisie <span class="required">*</span></label>
             <div class="radio-group">
               <label class="radio-item">
-                <input type="radio" name="formule" value="Essentiel — 199€ setup + 49€/mois" required>
-                <span>Essentiel</span>
+                <input type="radio" name="formule" value="Essentiel — 199€ setup + 69€/mois" required>
+                <span>Essentiel — 199€ + 69€/mois</span>
               </label>
               <label class="radio-item">
-                <input type="radio" name="formule" value="Business — 349€ setup + 89€/mois">
-                <span>Business</span>
+                <input type="radio" name="formule" value="Business — 349€ setup + 119€/mois">
+                <span>Business — 349€ + 119€/mois ⭐</span>
               </label>
               <label class="radio-item">
-                <input type="radio" name="formule" value="Premium — 499€ setup + 149€/mois">
-                <span>Premium</span>
+                <input type="radio" name="formule" value="Premium — 499€ setup + 199€/mois">
+                <span>Premium — 499€ + 199€/mois</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" name="formule" value="Bundle Essentiel IA — 499€ setup + 109€/mois">
+                <span>Bundle Essentiel IA — 499€ + 109€/mois</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" name="formule" value="Bundle Business IA — 949€ setup + 249€/mois">
+                <span>Bundle Business IA — 949€ + 249€/mois 🔥</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" name="formule" value="Bundle Premium IA — 1499€ setup + 449€/mois">
+                <span>Bundle Premium IA — 1 499€ + 449€/mois</span>
               </label>
             </div>
           </div>

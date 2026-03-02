@@ -510,6 +510,14 @@
               <option>Autre</option>
             </select>
           </div>
+          <div class="form-field form-full">
+            <label>Adresse (rue + numéro)</label>
+            <input type="text" id="cf-adresse" placeholder="Rue de la Paix 12">
+          </div>
+          <div class="form-field">
+            <label>Code postal</label>
+            <input type="text" id="cf-codepostal" placeholder="4000">
+          </div>
           <div class="form-field">
             <label>Ville</label>
             <input type="text" id="cf-ville" placeholder="Liège">
@@ -593,6 +601,7 @@
     <div class="modal-header">
       <h3>Fiche contact</h3>
       <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-navy btn-sm" onclick="generateDevis()">📄 Devis</button>
         <button class="btn btn-ghost btn-sm" onclick="editCurrentContact()">✏️ Modifier</button>
         <button class="modal-close" onclick="closeModal('modal-detail')">✕</button>
       </div>
@@ -832,7 +841,7 @@ async function openContactForm(id = null) {
 }
 
 function clearForm() {
-  ['cf-id','cf-nom','cf-entreprise','cf-telephone','cf-email','cf-ville','cf-notes','cf-setup','cf-mensuel','cf-rdv','cf-debut']
+  ['cf-id','cf-nom','cf-entreprise','cf-telephone','cf-email','cf-adresse','cf-codepostal','cf-ville','cf-notes','cf-setup','cf-mensuel','cf-rdv','cf-debut']
     .forEach(id => document.getElementById(id).value = '');
   document.getElementById('cf-secteur').value = '';
   document.getElementById('cf-statut').value = 'prospect';
@@ -847,6 +856,8 @@ function fillForm(c) {
   document.getElementById('cf-telephone').value = c.telephone || '';
   document.getElementById('cf-email').value = c.email || '';
   document.getElementById('cf-secteur').value = c.secteur || '';
+  document.getElementById('cf-adresse').value = c.adresse || '';
+  document.getElementById('cf-codepostal').value = c.code_postal || '';
   document.getElementById('cf-ville').value = c.ville || '';
   document.getElementById('cf-statut').value = c.statut || 'prospect';
   document.getElementById('cf-source').value = c.source || '';
@@ -873,6 +884,8 @@ async function saveContact(e) {
     telephone: document.getElementById('cf-telephone').value.trim() || null,
     email: document.getElementById('cf-email').value.trim() || null,
     secteur: document.getElementById('cf-secteur').value || null,
+    adresse: document.getElementById('cf-adresse').value.trim() || null,
+    code_postal: document.getElementById('cf-codepostal').value.trim() || null,
     ville: document.getElementById('cf-ville').value.trim() || null,
     statut: document.getElementById('cf-statut').value,
     source: document.getElementById('cf-source').value || null,
@@ -948,7 +961,7 @@ async function openDetail(id) {
       <div class="info-grid">
         <div class="info-item"><label>Téléphone</label><p>${c.telephone ? `<a href="tel:${c.telephone}" style="color:var(--navy)">${escHtml(c.telephone)}</a>` : '—'}</p></div>
         <div class="info-item"><label>Email</label><p>${c.email ? `<a href="mailto:${c.email}" style="color:var(--navy)">${escHtml(c.email)}</a>` : '—'}</p></div>
-        <div class="info-item"><label>Ville</label><p>${escHtml(c.ville||'—')}</p></div>
+        <div class="info-item"><label>Adresse</label><p>${c.adresse ? escHtml(c.adresse) + (c.code_postal ? ', ' + escHtml(c.code_postal) : '') + (c.ville ? ' ' + escHtml(c.ville) : '') : (c.ville ? escHtml(c.ville) : '—')}</p></div>
         <div class="info-item"><label>Secteur</label><p>${escHtml(c.secteur||'—')}</p></div>
         <div class="info-item"><label>Source</label><p>${escHtml(c.source||'—')}</p></div>
         <div class="info-item"><label>Date de début</label><p>${c.date_debut ? new Date(c.date_debut).toLocaleDateString('fr-BE') : '—'}</p></div>
@@ -1122,6 +1135,220 @@ function isLate(date) { return date < new Date().toISOString().split('T')[0]; }
 
 function typeIcon(type) {
   return {appel:'📞', rdv:'🤝', email:'📧', whatsapp:'💬', note:'📝'}[type] || '📝';
+}
+
+// ═══════════════════════════════════════
+// GÉNÉRATION DE DEVIS
+// ═══════════════════════════════════════
+async function generateDevis() {
+  if (!currentContactId) return;
+  const { data: c } = await sb.from('contacts').select('*').eq('id', currentContactId).single();
+  if (!c) return;
+
+  const FORMULE_DETAILS = {
+    essentiel:    { label:'Formule Essentiel',    desc:'Site une page, visibilité de base, hébergement inclus',                setup:199,  mensuel:69  },
+    business:     { label:'Formule Business',     desc:'Site multi-pages, SEO avancé, hébergement, suivi mensuel',             setup:349,  mensuel:119 },
+    premium:      { label:'Formule Premium',      desc:'Site 8-10 pages, SEO premium, article mensuel, technologies avancées', setup:499,  mensuel:199 },
+    essentiel_ia: { label:'Bundle Essentiel + IA',desc:'Formule Essentiel + chatbot, FAQ automatisée, réponses Google',        setup:499,  mensuel:109 },
+    business_ia:  { label:'Bundle Business + IA', desc:'Formule Business + agent vocal IA (200 min/mois), notifications SMS',  setup:949,  mensuel:249 },
+    premium_ia:   { label:'Bundle Premium + IA',  desc:'Formule Premium + dashboard Looker Studio, agent WhatsApp',            setup:1499, mensuel:449 },
+  };
+
+  const fd = c.formule ? FORMULE_DETAILS[c.formule] : null;
+  const setup = c.prix_setup != null ? c.prix_setup : (fd ? fd.setup : 0);
+  const mensuel = c.prix_mensuel != null ? c.prix_mensuel : (fd ? fd.mensuel : 0);
+  const devisNum = 'DEV-' + new Date().getFullYear() + '-' + String(Date.now()).slice(-4);
+  const dateStr = new Date().toLocaleDateString('fr-BE', {day:'numeric', month:'long', year:'numeric'});
+  const adresseClient = [c.adresse, c.code_postal && c.ville ? c.code_postal + ' ' + c.ville : (c.code_postal || c.ville)].filter(Boolean).join(', ') || '';
+
+  const setupTVAC = (setup * 1.21).toFixed(2);
+  const mensuelTVAC = (mensuel * 1.21).toFixed(2);
+  const total6mois = (setup + mensuel * 6).toFixed(2);
+  const total6moisTVAC = (total6mois * 1.21).toFixed(2);
+
+  const html = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Devis ${devisNum} — Seolia</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', Arial, sans-serif; color:#2c3e50; background:#fff; padding:0; }
+  @page { size:A4; margin:15mm 15mm 15mm 15mm; }
+  @media print { body { padding:0; } .no-print { display:none; } }
+
+  .header { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:20px; border-bottom:3px solid #1a2b5e; margin-bottom:24px; }
+  .brand { font-size:32px; font-weight:900; color:#1a2b5e; letter-spacing:-1px; }
+  .brand span { color:#00d68f; }
+  .brand-sub { font-size:12px; color:#7f8c9b; margin-top:2px; }
+  .seolia-info { text-align:right; font-size:12px; color:#7f8c9b; line-height:1.7; }
+  .seolia-info strong { color:#2c3e50; font-size:13px; }
+
+  .devis-meta { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:28px; }
+  .devis-title-block h1 { font-size:26px; font-weight:800; color:#1a2b5e; }
+  .devis-title-block .num { font-size:14px; color:#7f8c9b; margin-top:4px; }
+  .devis-title-block .date { font-size:13px; color:#7f8c9b; }
+
+  .client-box { background:#f7f9fc; border-radius:10px; padding:16px 20px; min-width:240px; }
+  .client-box .label { font-size:10px; font-weight:700; color:#7f8c9b; text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
+  .client-box .nom { font-size:16px; font-weight:700; color:#1a2b5e; }
+  .client-box .detail { font-size:12px; color:#7f8c9b; line-height:1.7; margin-top:4px; }
+
+  .section-title { font-size:11px; font-weight:700; color:#7f8c9b; text-transform:uppercase; letter-spacing:.6px; margin-bottom:10px; }
+
+  table.items { width:100%; border-collapse:collapse; margin-bottom:20px; }
+  table.items thead tr { background:#1a2b5e; color:#fff; }
+  table.items th { padding:10px 14px; text-align:left; font-size:12px; font-weight:600; }
+  table.items th:last-child { text-align:right; }
+  table.items td { padding:12px 14px; font-size:13px; border-bottom:1px solid #e8ecf0; vertical-align:top; }
+  table.items td:last-child { text-align:right; font-weight:600; white-space:nowrap; }
+  table.items tbody tr:last-child td { border-bottom:none; }
+  table.items .desc { font-size:11px; color:#7f8c9b; margin-top:3px; }
+
+  .totals { margin-left:auto; width:280px; }
+  .totals-row { display:flex; justify-content:space-between; padding:6px 0; font-size:13px; }
+  .totals-row.sep { border-top:1px solid #e8ecf0; margin-top:4px; padding-top:10px; }
+  .totals-row.total { font-size:15px; font-weight:800; color:#1a2b5e; border-top:2px solid #1a2b5e; padding-top:10px; margin-top:4px; }
+  .totals-row .lbl { color:#7f8c9b; }
+  .totals-row.total .lbl { color:#1a2b5e; }
+
+  .conditions { background:#f0fdf8; border-left:4px solid #00d68f; border-radius:0 8px 8px 0; padding:14px 18px; margin-top:24px; margin-bottom:20px; }
+  .conditions h3 { font-size:13px; font-weight:700; color:#1a2b5e; margin-bottom:8px; }
+  .conditions ul { list-style:none; font-size:12px; color:#2c3e50; line-height:2; }
+  .conditions ul li::before { content:'✓ '; color:#00d68f; font-weight:700; }
+
+  .signature-block { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:28px; }
+  .sig-box { border:1px solid #e8ecf0; border-radius:8px; padding:14px; }
+  .sig-box .sig-label { font-size:11px; font-weight:700; color:#7f8c9b; text-transform:uppercase; letter-spacing:.5px; margin-bottom:40px; }
+  .sig-box .sig-line { border-top:1px solid #ddd; padding-top:6px; font-size:11px; color:#aaa; }
+
+  .footer { margin-top:24px; padding-top:14px; border-top:1px solid #e8ecf0; display:flex; justify-content:space-between; font-size:10px; color:#aaa; }
+
+  .btn-print { position:fixed; bottom:24px; right:24px; background:#00d68f; color:#fff; border:none; padding:12px 24px; border-radius:8px; font-size:15px; font-weight:700; cursor:pointer; box-shadow:0 4px 16px rgba(0,214,143,.4); }
+  .btn-print:hover { background:#00b87a; }
+</style>
+</head>
+<body>
+
+<button class="btn-print no-print" onclick="window.print()">🖨️ Imprimer / PDF</button>
+
+<div class="header">
+  <div>
+    <div class="brand">Seo<span>lia</span></div>
+    <div class="brand-sub">Plus de visibilité. Plus d'appels. Plus de clients.</div>
+  </div>
+  <div class="seolia-info">
+    <strong>Seolia</strong><br>
+    Belgique<br>
+    +32 470 92 21 88<br>
+    florianmoerspro@gmail.com<br>
+    seolia.be<br>
+    TVA : BE 0727.941.547
+  </div>
+</div>
+
+<div class="devis-meta">
+  <div class="devis-title-block">
+    <h1>Devis</h1>
+    <div class="num">${devisNum}</div>
+    <div class="date">Émis le ${dateStr}</div>
+  </div>
+  <div class="client-box">
+    <div class="label">Destinataire</div>
+    <div class="nom">${escHtml(c.nom)}</div>
+    <div class="detail">
+      ${c.entreprise ? escHtml(c.entreprise) + '<br>' : ''}
+      ${adresseClient ? escHtml(adresseClient) + '<br>' : ''}
+      ${c.telephone ? escHtml(c.telephone) + '<br>' : ''}
+      ${c.email ? escHtml(c.email) : ''}
+    </div>
+  </div>
+</div>
+
+<div class="section-title">Détail de l'offre</div>
+<table class="items">
+  <thead>
+    <tr>
+      <th>Description</th>
+      <th style="text-align:center">Type</th>
+      <th>Prix HTVA</th>
+      <th>TVA 21%</th>
+      <th>Prix TVAC</th>
+    </tr>
+  </thead>
+  <tbody>
+    ${fd || setup > 0 ? `
+    <tr>
+      <td>
+        <strong>${fd ? fd.label : 'Frais de mise en place'}</strong>
+        ${fd ? `<div class="desc">${fd.desc}</div>` : ''}
+      </td>
+      <td style="text-align:center;font-size:12px;color:#7f8c9b;">Unique</td>
+      <td>${setup.toLocaleString('fr-BE')} €</td>
+      <td>${(setup * 0.21).toFixed(2)} €</td>
+      <td>${setupTVAC} €</td>
+    </tr>` : ''}
+    ${mensuel > 0 ? `
+    <tr>
+      <td>
+        <strong>Abonnement mensuel${fd ? ' — ' + fd.label : ''}</strong>
+        <div class="desc">Hébergement, maintenance, support, mises à jour — engagement minimum 6 mois</div>
+      </td>
+      <td style="text-align:center;font-size:12px;color:#7f8c9b;">Mensuel</td>
+      <td>${mensuel.toLocaleString('fr-BE')} €</td>
+      <td>${(mensuel * 0.21).toFixed(2)} €</td>
+      <td>${mensuelTVAC} €</td>
+    </tr>` : ''}
+    ${!fd && setup === 0 && mensuel === 0 ? `
+    <tr><td colspan="5" style="text-align:center;color:#aaa;padding:20px;">Aucune formule sélectionnée — à compléter</td></tr>` : ''}
+  </tbody>
+</table>
+
+<div style="display:flex;justify-content:flex-end;">
+  <div class="totals">
+    ${setup > 0 ? `<div class="totals-row"><span class="lbl">Mise en place HTVA</span><span>${setup.toLocaleString('fr-BE')} €</span></div>` : ''}
+    ${mensuel > 0 ? `<div class="totals-row"><span class="lbl">Abonnement mensuel HTVA</span><span>${mensuel.toLocaleString('fr-BE')} €</span></div>` : ''}
+    ${(setup > 0 || mensuel > 0) ? `<div class="totals-row sep"><span class="lbl">TVA 21%</span><span>${((setup + mensuel) * 0.21).toFixed(2)} €</span></div>` : ''}
+    ${setup > 0 ? `<div class="totals-row"><span class="lbl">Mise en place TVAC</span><span>${setupTVAC} €</span></div>` : ''}
+    ${mensuel > 0 ? `<div class="totals-row"><span class="lbl">Abonnement mensuel TVAC</span><span>${mensuelTVAC} €</span></div>` : ''}
+    ${mensuel > 0 ? `<div class="totals-row total"><span class="lbl">Total 6 premiers mois</span><span>${(parseFloat(setupTVAC) + parseFloat(mensuelTVAC) * 6).toFixed(2)} €</span></div>` : ''}
+  </div>
+</div>
+
+<div class="conditions">
+  <h3>Conditions générales</h3>
+  <ul>
+    <li>Engagement minimum de 6 mois à partir de la date de mise en ligne</li>
+    <li>Résiliation libre après 6 mois avec 1 mois de préavis</li>
+    <li>Paiement mensuel automatique par mandat SEPA</li>
+    <li>Devis valable 30 jours à compter de la date d'émission</li>
+    <li>Mise en ligne sous 7 à 14 jours ouvrables après réception des contenus</li>
+    <li>Prix HTVA — TVA 21% applicable pour les assujettis TVA belges</li>
+  </ul>
+</div>
+
+<div class="signature-block">
+  <div class="sig-box">
+    <div class="sig-label">Bon pour accord — Client</div>
+    <div class="sig-line">Nom, date et signature</div>
+  </div>
+  <div class="sig-box">
+    <div class="sig-label">Pour Seolia</div>
+    <div class="sig-line">Florian Moers — Gérant</div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>Seolia — BE 0727.941.547 — seolia.be — florianmoerspro@gmail.com</span>
+  <span>${devisNum} · ${dateStr}</span>
+</div>
+
+</body>
+</html>`;
+
+  const w = window.open('', '_blank', 'width=900,height=1100');
+  w.document.write(html);
+  w.document.close();
 }
 </script>
 </body>

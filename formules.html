@@ -4,11 +4,163 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Formules & Tarifs — Seolia | Sites web pour artisans en Belgique</title>
-  <meta name="description" content="Découvrez les formules Seolia : Essentiel 69€/mois, Business 119€/mois, Premium 199€/mois. Sites web SEO pour artisans en Belgique. Engagement 6 mois, résiliable ensuite avec 1 mois de préavis."/>
+  <meta name="description" content="Découvrez les formules Seolia : sites web SEO + IA pour artisans en Belgique. Essentiel 69€/mois, Business 119€/mois, Premium 199€/mois. Engagement 6 mois, résiliable ensuite avec 1 mois de préavis."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/style.css"/>
   <style>
+    /* ── Tabs ── */
+    .tab-bar {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 0 auto 48px;
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 6px;
+      width: fit-content;
+    }
+    .tab-btn {
+      padding: 10px 28px;
+      border-radius: 50px;
+      border: none;
+      background: transparent;
+      color: var(--grey);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .tab-btn.active {
+      background: var(--green);
+      color: var(--navy);
+    }
+
+    /* ── Cards grid ── */
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 24px;
+    }
+    .plan-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s;
+    }
+    .plan-card.featured {
+      border: 2px solid rgba(0,214,143,0.4);
+      transform: translateY(-8px);
+    }
+    .plan-card.ia-card { border-color: rgba(124,58,237,0.4); }
+    .plan-card.bundle-card { border-color: rgba(14,165,233,0.35); }
+    .plan-stripe {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+    }
+    .badge-recommended {
+      display: inline-block;
+      background: var(--green);
+      color: var(--navy);
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 50px;
+      margin-bottom: 18px;
+      align-self: flex-start;
+    }
+    .badge-popular {
+      display: inline-block;
+      background: #7c3aed;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 50px;
+      margin-bottom: 18px;
+      align-self: flex-start;
+    }
+    .badge-bundle {
+      display: inline-block;
+      background: linear-gradient(135deg,#0ea5e9,#7c3aed);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 50px;
+      margin-bottom: 18px;
+      align-self: flex-start;
+    }
+    .plan-name { font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; }
+    .plan-tagline { font-size: 0.85rem; color: var(--grey); margin-bottom: 24px; }
+    .plan-setup { font-size: 0.8rem; color: var(--grey); text-decoration: line-through; margin-bottom: 4px; }
+    .plan-price-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 28px; }
+    .plan-currency { font-size: 1.2rem; font-weight: 700; }
+    .plan-amount { font-size: 2.4rem; font-weight: 900; }
+    .plan-period { font-size: 0.8rem; color: var(--grey); }
+    .plan-features { list-style: none; flex: 1; margin-bottom: 28px; }
+    .plan-features li {
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .plan-features li:last-child { border-bottom: none; }
+    .plan-features .check { font-weight: 800; flex-shrink: 0; }
+    .plan-note { font-size: 0.75rem; color: var(--grey); margin-top: -20px; margin-bottom: 20px; padding: 8px 12px; background: rgba(255,255,255,0.04); border-radius: 8px; }
+    .btn-outline {
+      display: block; text-align: center; padding: 14px;
+      border-radius: 50px; font-weight: 700;
+      border: 2px solid var(--border); color: var(--white);
+      transition: all 0.3s; text-decoration: none;
+    }
+    .btn-outline:hover { border-color: var(--green); color: var(--green); }
+    .btn-ia {
+      display: block; text-align: center; padding: 14px;
+      border-radius: 50px; font-weight: 700;
+      border: 2px solid rgba(124,58,237,0.5); color: #a78bfa;
+      transition: all 0.3s; text-decoration: none;
+    }
+    .btn-ia:hover { border-color: #7c3aed; color: white; background: rgba(124,58,237,0.15); }
+    .btn-bundle {
+      display: block; text-align: center; padding: 14px;
+      border-radius: 50px; font-weight: 700;
+      background: linear-gradient(135deg,#0ea5e9,#7c3aed);
+      color: white; transition: all 0.3s; text-decoration: none;
+    }
+    .btn-bundle:hover { opacity: 0.9; box-shadow: 0 8px 25px rgba(14,165,233,0.3); }
+
+    /* ── Section labels ── */
+    .section-label {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .section-label h2 { margin-bottom: 12px; }
+    .section-label p { color: var(--grey); max-width: 580px; margin: 0 auto; font-size: 0.95rem; }
+
+    /* ── Bundle savings banner ── */
+    .savings-banner {
+      text-align: center;
+      background: linear-gradient(135deg,rgba(14,165,233,0.1),rgba(124,58,237,0.1));
+      border: 1px solid rgba(14,165,233,0.25);
+      border-radius: var(--radius);
+      padding: 16px 32px;
+      font-size: 0.9rem;
+      color: #7dd3fc;
+      margin-bottom: 40px;
+    }
+
+    /* ── Compare table ── */
     .compare-table { width: 100%; border-collapse: collapse; margin-top: 60px; }
     .compare-table th, .compare-table td {
       padding: 16px 20px;
@@ -31,15 +183,12 @@
       letter-spacing: 1.5px;
       padding: 10px 20px;
     }
-    .price-header .price {
-      font-size: 1.8rem;
-      font-weight: 900;
-      color: var(--white);
-    }
+    .price-header .price { font-size: 1.8rem; font-weight: 900; color: var(--white); }
     .price-header .price .currency { color: var(--green); font-size: 1rem; vertical-align: super; }
     .price-header .period { font-size: 0.75rem; color: var(--grey); }
     .price-header .setup { font-size: 0.75rem; color: var(--grey); text-decoration: line-through; margin-bottom: 4px; }
 
+    /* ── Included section ── */
     .included-section {
       background: var(--navy-light);
       border-top: 1px solid var(--border);
@@ -64,8 +213,10 @@
     .included-card p { font-size: 0.83rem; }
 
     @media (max-width: 768px) {
+      .plans-grid { grid-template-columns: 1fr; }
       .compare-table { display: none; }
       .included-grid { grid-template-columns: 1fr; }
+      .tab-bar { flex-direction: column; border-radius: 16px; width: 90%; }
     }
   </style>
 </head>
@@ -99,94 +250,101 @@
   <div style="position:relative;z-index:1;">
     <div class="section-tag" data-aos>Tarifs transparents</div>
     <h1 data-aos data-aos-delay="100">Formules & <span class="highlight">Tarifs</span></h1>
-    <p data-aos data-aos-delay="200">Sans contrat. Sans surprise. Résiliable à tout moment. Vous choisissez, on s'occupe du reste.</p>
+    <p data-aos data-aos-delay="200">Engagement 6 mois. Sans surprise. Résiliable ensuite avec 1 mois de préavis.</p>
   </div>
 </div>
 
-<!-- FORMULES -->
-<section style="background: var(--navy-light); border-top: 1px solid var(--border);">
-  <div class="section">
-    <div style="display:grid; grid-template-columns: repeat(3,1fr); gap: 24px;">
+<!-- ═══════════════════════════════════════
+     SECTION 1 — FORMULES SITE WEB
+════════════════════════════════════════ -->
+<section style="background: var(--navy-light); border-top: 1px solid var(--border); padding: 80px 40px;">
+  <div style="max-width:1200px;margin:0 auto;">
+
+    <div class="section-label" data-aos>
+      <div class="section-tag" style="margin:0 auto 16px;">Site web</div>
+      <h2>Votre vitrine sur <span class="highlight">Google</span></h2>
+      <p>Un site pro, un référencement local optimisé, et des appels entrants — sans vous prendre la tête.</p>
+    </div>
+
+    <!-- Bannière lancement -->
+    <div style="text-align:center;background:var(--green-glow);border:1px solid rgba(0,214,143,0.2);border-radius:var(--radius);padding:16px 32px;font-size:0.9rem;color:var(--green);margin-bottom:48px;" data-aos>
+      <strong style="color:white;">Offre de lancement — 3 clients uniquement :</strong> Les frais de mise en place sont offerts. Vous ne payez que le mensuel, dès le premier mois. Économisez jusqu'à 499&nbsp;€.
+    </div>
+
+    <div class="plans-grid">
 
       <!-- Essentiel -->
-      <div style="background:var(--navy-card);border:1px solid var(--border);border-radius:var(--radius);padding:36px 28px;display:flex;flex-direction:column;position:relative;overflow:hidden;" data-aos data-aos-delay="100">
-        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:var(--grey);"></div>
-        <div style="font-size:1.3rem;font-weight:800;margin-bottom:8px;">Essentiel</div>
-        <div style="font-size:0.85rem;color:var(--grey);margin-bottom:24px;">Idéal pour démarrer et exister sur Google.</div>
-        <div style="margin-bottom:28px;">
-          <div style="font-size:0.8rem;color:var(--grey);text-decoration:line-through;margin-bottom:4px;">199€ de mise en place</div>
-          <div style="display:flex;align-items:baseline;gap:6px;">
-            <span style="color:var(--green);font-size:1.2rem;font-weight:700;">€</span>
-            <span style="font-size:2.4rem;font-weight:900;">69</span>
-            <span style="font-size:0.8rem;color:var(--grey);">/mois</span>
-          </div>
+      <div class="plan-card" data-aos data-aos-delay="100">
+        <div class="plan-stripe" style="background:var(--grey);"></div>
+        <div class="plan-name">Essentiel</div>
+        <div class="plan-tagline">Idéal pour démarrer et exister sur Google.</div>
+        <div class="plan-setup">199€ de mise en place</div>
+        <div class="plan-price-row">
+          <span class="plan-currency" style="color:var(--green);">€</span>
+          <span class="plan-amount">69</span>
+          <span class="plan-period">/mois</span>
         </div>
-        <ul style="list-style:none;flex:1;margin-bottom:28px;">
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Site web 1 page professionnel</li>
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Google Business Profile créé et optimisé</li>
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Hébergement + nom de domaine inclus</li>
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Design mobile-first responsive</li>
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Formulaire de contact + bouton appel</li>
-          <li style="padding:9px 0;font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Support WhatsApp</li>
+        <ul class="plan-features">
+          <li><span class="check" style="color:var(--green);">✓</span> Site web 1 page professionnel</li>
+          <li><span class="check" style="color:var(--green);">✓</span> Google Business Profile créé et optimisé</li>
+          <li><span class="check" style="color:var(--green);">✓</span> Hébergement + nom de domaine inclus</li>
+          <li><span class="check" style="color:var(--green);">✓</span> Design mobile-first responsive</li>
+          <li><span class="check" style="color:var(--green);">✓</span> Formulaire de contact + bouton appel</li>
+          <li><span class="check" style="color:var(--green);">✓</span> Support WhatsApp</li>
         </ul>
-        <a href="contact.html" style="display:block;text-align:center;padding:14px;border-radius:50px;font-weight:700;border:2px solid var(--border);color:var(--white);transition:all 0.3s;" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--white)'">Choisir Essentiel</a>
+        <a href="contact.html" class="btn-outline">Choisir Essentiel</a>
       </div>
 
       <!-- Business -->
-      <div style="background:var(--navy-card);border:2px solid rgba(0,214,143,0.35);border-radius:var(--radius);padding:36px 28px;display:flex;flex-direction:column;position:relative;overflow:hidden;transform:translateY(-8px);box-shadow:0 30px 60px rgba(0,0,0,0.3),0 0 40px rgba(0,214,143,0.15);" data-aos data-aos-delay="200">
-        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--green),#00b4d8);"></div>
-        <div style="display:inline-block;background:var(--green);color:var(--navy);font-size:0.7rem;font-weight:800;padding:4px 12px;border-radius:50px;margin-bottom:18px;align-self:flex-start;">Recommandé</div>
-        <div style="font-size:1.3rem;font-weight:800;margin-bottom:8px;">Business</div>
-        <div style="font-size:0.85rem;color:var(--grey);margin-bottom:24px;">Dominez Google dans votre ville et votre secteur.</div>
-        <div style="margin-bottom:28px;">
-          <div style="font-size:0.8rem;color:var(--grey);text-decoration:line-through;margin-bottom:4px;">349€ de mise en place</div>
-          <div style="display:flex;align-items:baseline;gap:6px;">
-            <span style="color:var(--green);font-size:1.2rem;font-weight:700;">€</span>
-            <span style="font-size:2.4rem;font-weight:900;">119</span>
-            <span style="font-size:0.8rem;color:var(--grey);">/mois</span>
-          </div>
+      <div class="plan-card featured" data-aos data-aos-delay="200">
+        <div class="plan-stripe" style="background:linear-gradient(90deg,var(--green),#00b4d8);"></div>
+        <div class="badge-recommended">Recommandé</div>
+        <div class="plan-name">Business</div>
+        <div class="plan-tagline">Dominez Google dans votre ville et votre secteur.</div>
+        <div class="plan-setup">349€ de mise en place</div>
+        <div class="plan-price-row">
+          <span class="plan-currency" style="color:var(--green);">€</span>
+          <span class="plan-amount">119</span>
+          <span class="plan-period">/mois</span>
         </div>
-        <ul style="list-style:none;flex:1;margin-bottom:28px;">
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Site web 5 pages (1 par service)</li>
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Pages locales par commune</li>
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Google Business Premium (photos, posts, avis)</li>
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> 1 article SEO publié chaque mois</li>
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Gestion active des avis Google</li>
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Rapport mensuel de visibilité détaillé</li>
-          <li style="padding:9px 0;font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--green);font-weight:800;">✓</span> Google Analytics + Search Console</li>
+        <ul class="plan-features">
+          <li><span class="check" style="color:var(--green);">✓</span> Site web 5 pages (1 par service)</li>
+          <li><span class="check" style="color:var(--green);">✓</span> Pages locales par commune</li>
+          <li><span class="check" style="color:var(--green);">✓</span> Google Business Premium (photos, posts, avis)</li>
+          <li><span class="check" style="color:var(--green);">✓</span> 1 article SEO publié chaque mois</li>
+          <li><span class="check" style="color:var(--green);">✓</span> Gestion active des avis Google</li>
+          <li><span class="check" style="color:var(--green);">✓</span> Rapport mensuel de visibilité détaillé</li>
+          <li><span class="check" style="color:var(--green);">✓</span> Google Analytics + Search Console</li>
         </ul>
-        <a href="contact.html" style="display:block;text-align:center;padding:14px;border-radius:50px;font-weight:700;background:var(--green);color:var(--navy);transition:all 0.3s;" onmouseover="this.style.background='var(--green-dark)';this.style.boxShadow='0 8px 25px rgba(0,214,143,0.35)'" onmouseout="this.style.background='var(--green)';this.style.boxShadow='none'">Choisir Business</a>
+        <a href="contact.html" style="display:block;text-align:center;padding:14px;border-radius:50px;font-weight:700;background:var(--green);color:var(--navy);transition:all 0.3s;text-decoration:none;" onmouseover="this.style.background='var(--green-dark)';this.style.boxShadow='0 8px 25px rgba(0,214,143,0.35)'" onmouseout="this.style.background='var(--green)';this.style.boxShadow='none'">Choisir Business</a>
       </div>
 
       <!-- Premium -->
-      <div style="background:var(--navy-card);border:1px solid var(--border);border-radius:var(--radius);padding:36px 28px;display:flex;flex-direction:column;position:relative;overflow:hidden;" data-aos data-aos-delay="300">
-        <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),#f97316);"></div>
-        <div style="font-size:1.3rem;font-weight:800;margin-bottom:8px;">Premium</div>
-        <div style="font-size:0.85rem;color:var(--grey);margin-bottom:24px;">Le package leader pour ceux qui veulent tout dominer.</div>
-        <div style="margin-bottom:28px;">
-          <div style="font-size:0.8rem;color:var(--grey);text-decoration:line-through;margin-bottom:4px;">499€ de mise en place</div>
-          <div style="display:flex;align-items:baseline;gap:6px;">
-            <span style="color:var(--gold);font-size:1.2rem;font-weight:700;">€</span>
-            <span style="font-size:2.4rem;font-weight:900;">199</span>
-            <span style="font-size:0.8rem;color:var(--grey);">/mois</span>
-          </div>
+      <div class="plan-card" data-aos data-aos-delay="300">
+        <div class="plan-stripe" style="background:linear-gradient(90deg,var(--gold),#f97316);"></div>
+        <div class="plan-name">Premium</div>
+        <div class="plan-tagline">Le package leader pour ceux qui veulent tout dominer.</div>
+        <div class="plan-setup">499€ de mise en place</div>
+        <div class="plan-price-row">
+          <span class="plan-currency" style="color:var(--gold);">€</span>
+          <span class="plan-amount">199</span>
+          <span class="plan-period">/mois</span>
         </div>
-        <ul style="list-style:none;flex:1;margin-bottom:28px;">
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--gold);font-weight:800;">✓</span> Site web 8 pages ultra-premium</li>
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--gold);font-weight:800;">✓</span> Séance photo professionnelle chez vous</li>
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--gold);font-weight:800;">✓</span> Landing pages par commune (illimitées)</li>
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--gold);font-weight:800;">✓</span> 2 articles SEO publiés chaque mois</li>
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--gold);font-weight:800;">✓</span> Gestion avis + Google Posts hebdomadaires</li>
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--gold);font-weight:800;">✓</span> Rapport + appel stratégique mensuel</li>
-          <li style="padding:9px 0;border-bottom:1px solid var(--border);font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--gold);font-weight:800;">✓</span> Priorité absolue au support (1h max)</li>
-          <li style="padding:9px 0;font-size:0.85rem;display:flex;gap:10px;align-items:flex-start;"><span style="color:var(--gold);font-weight:800;">✓</span> Positionnement top 3 Google garanti</li>
+        <ul class="plan-features">
+          <li><span class="check" style="color:var(--gold);">✓</span> Site web 8 pages ultra-premium</li>
+          <li><span class="check" style="color:var(--gold);">✓</span> Landing pages par commune (illimitées)</li>
+          <li><span class="check" style="color:var(--gold);">✓</span> 2 articles SEO publiés chaque mois</li>
+          <li><span class="check" style="color:var(--gold);">✓</span> Gestion avis + Google Posts hebdomadaires</li>
+          <li><span class="check" style="color:var(--gold);">✓</span> Rapport + appel stratégique mensuel</li>
+          <li><span class="check" style="color:var(--gold);">✓</span> Priorité absolue au support (réponse 1h)</li>
+          <li><span class="check" style="color:var(--gold);">✓</span> Positionnement top 3 Google garanti</li>
         </ul>
-        <a href="contact.html" style="display:block;text-align:center;padding:14px;border-radius:50px;font-weight:700;background:linear-gradient(135deg,var(--gold),#f97316);color:white;transition:all 0.3s;" onmouseover="this.style.boxShadow='0 8px 25px rgba(245,166,35,0.35)'" onmouseout="this.style.boxShadow='none'">Choisir Premium</a>
+        <a href="contact.html" style="display:block;text-align:center;padding:14px;border-radius:50px;font-weight:700;background:linear-gradient(135deg,var(--gold),#f97316);color:white;transition:all 0.3s;text-decoration:none;" onmouseover="this.style.boxShadow='0 8px 25px rgba(245,166,35,0.35)'" onmouseout="this.style.boxShadow='none'">Choisir Premium</a>
       </div>
 
     </div>
 
-    <!-- Comparison table -->
+    <!-- Tableau comparatif -->
     <table class="compare-table" data-aos>
       <thead>
         <tr>
@@ -201,15 +359,14 @@
         <tr><td>Nombre de pages</td><td>1</td><td class="col-business">5</td><td>8</td></tr>
         <tr><td>Design mobile-first</td><td class="check">✓</td><td class="col-business check">✓</td><td class="check">✓</td></tr>
         <tr><td>Pages par commune</td><td class="cross">—</td><td class="col-business check">✓</td><td class="check">✓ illimitées</td></tr>
-        <tr><td>Séance photo pro</td><td class="cross">—</td><td class="col-business cross">—</td><td class="check">✓</td></tr>
         <tr class="section-row"><td colspan="4">SEO & Google</td></tr>
-        <tr><td>Google Business Profile</td><td class="check">Basique</td><td class="col-business check">Premium</td><td class="check">Premium</td></tr>
+        <tr><td>Google Business Profile</td><td>Basique</td><td class="col-business check">Premium</td><td class="check">Premium</td></tr>
         <tr><td>Articles SEO/mois</td><td class="cross">—</td><td class="col-business check">1</td><td class="check">2</td></tr>
         <tr><td>Gestion des avis Google</td><td class="cross">—</td><td class="col-business check">✓</td><td class="check">✓</td></tr>
         <tr><td>Google Analytics + Search Console</td><td class="cross">—</td><td class="col-business check">✓</td><td class="check">✓</td></tr>
         <tr class="section-row"><td colspan="4">Suivi & support</td></tr>
         <tr><td>Rapport mensuel</td><td class="cross">—</td><td class="col-business check">✓</td><td class="check">Appel inclus</td></tr>
-        <tr><td>Support</td><td>WhatsApp</td><td class="col-business">WhatsApp prioritaire</td><td>1h garantie</td></tr>
+        <tr><td>Support</td><td>WhatsApp</td><td class="col-business">WhatsApp prioritaire</td><td>Réponse 1h garantie</td></tr>
         <tr><td>Mises à jour du site</td><td class="check">✓</td><td class="col-business check">✓</td><td class="check">✓</td></tr>
         <tr class="section-row"><td colspan="4">Conditions</td></tr>
         <tr><td>Contrat</td><td>Engagement 6 mois</td><td class="col-business">Engagement 6 mois</td><td>Engagement 6 mois</td></tr>
@@ -217,13 +374,182 @@
       </tbody>
     </table>
 
-    <div style="text-align:center;background:var(--green-glow);border:1px solid rgba(0,214,143,0.2);border-radius:var(--radius);padding:20px 32px;font-size:0.9rem;color:var(--green);margin-top:40px;" data-aos>
-      <strong style="color:white;">Offre de lancement — 3 clients uniquement :</strong> Les frais de mise en place sont offerts pour les 3 premiers clients. Vous ne payez que le mensuel, dès le premier mois.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SECTION 2 — PACKS IA (ADD-ONS)
+════════════════════════════════════════ -->
+<section style="padding: 80px 40px; background: var(--navy);">
+  <div style="max-width:1200px;margin:0 auto;">
+
+    <div class="section-label" data-aos>
+      <div class="section-tag" style="margin:0 auto 16px;background:rgba(124,58,237,0.15);color:#a78bfa;border-color:rgba(124,58,237,0.3);">Intelligence Artificielle</div>
+      <h2>Automatisez votre <span style="color:#a78bfa;">relation client</span></h2>
+      <p>Nos packs IA s'ajoutent à votre formule web. Chatbot, réponses automatiques aux avis, agent vocal — votre entreprise tourne même quand vous dormez.</p>
+    </div>
+
+    <div class="plans-grid">
+
+      <!-- Starter IA -->
+      <div class="plan-card ia-card" data-aos data-aos-delay="100">
+        <div class="plan-stripe" style="background:linear-gradient(90deg,#059669,#10b981);"></div>
+        <div class="plan-name" style="color:#34d399;">Starter IA</div>
+        <div class="plan-tagline">L'automatisation essentielle pour gagner du temps.</div>
+        <div class="plan-setup">299€ de mise en place</div>
+        <div class="plan-price-row">
+          <span class="plan-currency" style="color:#34d399;">€</span>
+          <span class="plan-amount">50</span>
+          <span class="plan-period">/mois</span>
+        </div>
+        <ul class="plan-features">
+          <li><span class="check" style="color:#34d399;">✓</span> Chatbot IA sur votre site</li>
+          <li><span class="check" style="color:#34d399;">✓</span> FAQ automatisée (horaires, tarifs, zones)</li>
+          <li><span class="check" style="color:#34d399;">✓</span> Réponses automatiques aux avis Google</li>
+          <li><span class="check" style="color:#34d399;">✓</span> Capture de leads 24h/24</li>
+        </ul>
+        <a href="contact.html" class="btn-ia">Ajouter Starter IA</a>
+      </div>
+
+      <!-- Business IA -->
+      <div class="plan-card ia-card featured" style="border-color:rgba(124,58,237,0.6);transform:translateY(-8px);" data-aos data-aos-delay="200">
+        <div class="plan-stripe" style="background:linear-gradient(90deg,#7c3aed,#a855f7);"></div>
+        <div class="badge-popular">Le plus populaire</div>
+        <div class="plan-name" style="color:#a78bfa;">Business IA</div>
+        <div class="plan-tagline">Votre standard téléphonique automatisé, 24h/24.</div>
+        <div class="plan-setup">599€ de mise en place</div>
+        <div class="plan-price-row">
+          <span class="plan-currency" style="color:#a78bfa;">€</span>
+          <span class="plan-amount">150</span>
+          <span class="plan-period">/mois</span>
+        </div>
+        <ul class="plan-features">
+          <li><span class="check" style="color:#a78bfa;">✓</span> Tout le Starter IA inclus</li>
+          <li><span class="check" style="color:#a78bfa;">✓</span> Agent vocal IA (numéro belge dédié)</li>
+          <li><span class="check" style="color:#a78bfa;">✓</span> 200 min d'appels/mois incluses</li>
+          <li><span class="check" style="color:#a78bfa;">✓</span> Gestion des prises de rendez-vous</li>
+          <li><span class="check" style="color:#a78bfa;">✓</span> Notifications SMS & email automatiques</li>
+        </ul>
+        <div class="plan-note">Surplus au-delà de 200 min : 0,15 €/min</div>
+        <a href="contact.html" style="display:block;text-align:center;padding:14px;border-radius:50px;font-weight:700;background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;transition:all 0.3s;text-decoration:none;">Ajouter Business IA</a>
+      </div>
+
+      <!-- Premium IA -->
+      <div class="plan-card ia-card" data-aos data-aos-delay="300">
+        <div class="plan-stripe" style="background:linear-gradient(90deg,#f59e0b,#f97316);"></div>
+        <div class="plan-name" style="color:#fbbf24;">Premium IA</div>
+        <div class="plan-tagline">L'automatisation totale de votre relation client.</div>
+        <div class="plan-setup">999€ de mise en place</div>
+        <div class="plan-price-row">
+          <span class="plan-currency" style="color:#fbbf24;">€</span>
+          <span class="plan-amount">300</span>
+          <span class="plan-period">/mois</span>
+        </div>
+        <ul class="plan-features">
+          <li><span class="check" style="color:#fbbf24;">✓</span> Tout le Business IA inclus</li>
+          <li><span class="check" style="color:#fbbf24;">✓</span> Agent WhatsApp IA</li>
+          <li><span class="check" style="color:#fbbf24;">✓</span> Dashboard statistiques en temps réel</li>
+          <li><span class="check" style="color:#fbbf24;">✓</span> Rapports hebdomadaires automatiques</li>
+          <li><span class="check" style="color:#fbbf24;">✓</span> Gestion des commandes & devis IA</li>
+        </ul>
+        <a href="contact.html" class="btn-ia" style="border-color:rgba(251,191,36,0.5);color:#fbbf24;" onmouseover="this.style.background='rgba(251,191,36,0.1)'" onmouseout="this.style.background='transparent'">Ajouter Premium IA</a>
+      </div>
+
     </div>
   </div>
 </section>
 
-<!-- INCLUDED -->
+<!-- ═══════════════════════════════════════
+     SECTION 3 — BUNDLES COMBINÉS
+════════════════════════════════════════ -->
+<section style="padding: 80px 40px; background: var(--navy-light); border-top: 1px solid var(--border);">
+  <div style="max-width:1200px;margin:0 auto;">
+
+    <div class="section-label" data-aos>
+      <div class="section-tag" style="margin:0 auto 16px;background:linear-gradient(135deg,rgba(14,165,233,0.15),rgba(124,58,237,0.15));color:#7dd3fc;border-color:rgba(14,165,233,0.3);">Packs combinés</div>
+      <h2>Site web <span style="color:#7dd3fc;">+ IA</span> — <span class="highlight">10% de remise</span></h2>
+      <p>Combinez votre site Seolia avec un pack IA et économisez 10% sur l'ensemble. La solution complète pour être trouvé et ne plus manquer un seul appel.</p>
+    </div>
+
+    <div class="savings-banner" data-aos>
+      <strong style="color:white;">Offre de lancement :</strong> Les frais de mise en place sont offerts pour les 3 premiers clients — économisez jusqu'à 1&nbsp;499&nbsp;€ sur un pack combiné.
+    </div>
+
+    <div class="plans-grid">
+
+      <!-- Essentiel IA -->
+      <div class="plan-card bundle-card" data-aos data-aos-delay="100">
+        <div class="plan-stripe" style="background:linear-gradient(90deg,#0ea5e9,#7c3aed);"></div>
+        <div class="badge-bundle">Web + IA — 10% offert</div>
+        <div class="plan-name">Essentiel IA</div>
+        <div class="plan-tagline">Démarrez avec un site pro et un chatbot IA.</div>
+        <div class="plan-setup">499€ de mise en place</div>
+        <div class="plan-price-row">
+          <span class="plan-currency" style="color:#7dd3fc;">€</span>
+          <span class="plan-amount">109</span>
+          <span class="plan-period">/mois</span>
+        </div>
+        <ul class="plan-features">
+          <li><span class="check" style="color:#7dd3fc;">✓</span> Formule Essentiel web complète</li>
+          <li><span class="check" style="color:#7dd3fc;">✓</span> Pack Starter IA inclus</li>
+          <li><span class="check" style="color:#7dd3fc;">✓</span> Chatbot + FAQ automatisée</li>
+          <li><span class="check" style="color:#7dd3fc;">✓</span> Réponses automatiques avis Google</li>
+          <li><span class="check" style="color:#7dd3fc;">✓</span> 10% de remise sur le total</li>
+        </ul>
+        <a href="contact.html" class="btn-bundle">Choisir Essentiel IA</a>
+      </div>
+
+      <!-- Business IA -->
+      <div class="plan-card bundle-card" style="border-color:rgba(14,165,233,0.6);transform:translateY(-8px);" data-aos data-aos-delay="200">
+        <div class="plan-stripe" style="background:linear-gradient(90deg,#0ea5e9,#7c3aed);"></div>
+        <div class="badge-bundle">Recommandé</div>
+        <div class="plan-name">Business IA</div>
+        <div class="plan-tagline">Le meilleur rapport qualité/prix pour dominer.</div>
+        <div class="plan-setup">949€ de mise en place</div>
+        <div class="plan-price-row">
+          <span class="plan-currency" style="color:#7dd3fc;">€</span>
+          <span class="plan-amount">249</span>
+          <span class="plan-period">/mois</span>
+        </div>
+        <ul class="plan-features">
+          <li><span class="check" style="color:#7dd3fc;">✓</span> Formule Business web complète</li>
+          <li><span class="check" style="color:#7dd3fc;">✓</span> Pack Business IA inclus</li>
+          <li><span class="check" style="color:#7dd3fc;">✓</span> Agent vocal IA 200 min/mois</li>
+          <li><span class="check" style="color:#7dd3fc;">✓</span> Prises de RDV & notifications auto</li>
+          <li><span class="check" style="color:#7dd3fc;">✓</span> 10% de remise sur le total</li>
+        </ul>
+        <a href="contact.html" class="btn-bundle">Choisir Business IA</a>
+      </div>
+
+      <!-- Premium IA -->
+      <div class="plan-card bundle-card" data-aos data-aos-delay="300">
+        <div class="plan-stripe" style="background:linear-gradient(90deg,#0ea5e9,#7c3aed);"></div>
+        <div class="badge-bundle">Tout-en-un</div>
+        <div class="plan-name">Premium IA</div>
+        <div class="plan-tagline">La solution ultime pour les leaders de leur secteur.</div>
+        <div class="plan-setup">1&nbsp;499€ de mise en place</div>
+        <div class="plan-price-row">
+          <span class="plan-currency" style="color:#7dd3fc;">€</span>
+          <span class="plan-amount">449</span>
+          <span class="plan-period">/mois</span>
+        </div>
+        <ul class="plan-features">
+          <li><span class="check" style="color:#7dd3fc;">✓</span> Formule Premium web complète</li>
+          <li><span class="check" style="color:#7dd3fc;">✓</span> Pack Premium IA inclus</li>
+          <li><span class="check" style="color:#7dd3fc;">✓</span> Agent vocal + WhatsApp IA</li>
+          <li><span class="check" style="color:#7dd3fc;">✓</span> Dashboard & rapports hebdomadaires</li>
+          <li><span class="check" style="color:#7dd3fc;">✓</span> 10% de remise sur le total</li>
+        </ul>
+        <a href="contact.html" class="btn-bundle">Choisir Premium IA</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     TOUJOURS INCLUS
+════════════════════════════════════════ -->
 <div class="included-section">
   <div style="max-width:1200px;margin:0 auto;">
     <div style="text-align:center;margin-bottom:50px;">
@@ -247,14 +573,14 @@
         <p>Certificat SSL, protection contre les attaques, sauvegardes automatiques. Votre site est sécurisé.</p>
       </div>
       <div class="included-card" data-aos data-aos-delay="250">
-        <div class="included-icon">&#128200;</div>
-        <h3>Sans contrat</h3>
-        <p>Résiliable à tout moment, sans frais de sortie. On garde vos clients grâce aux résultats.</p>
+        <div class="included-icon">&#128197;</div>
+        <h3>Engagement 6 mois</h3>
+        <p>Engagement de 6 mois minimum, puis résiliation libre avec 1 mois de préavis. On garde nos clients grâce aux résultats.</p>
       </div>
       <div class="included-card" data-aos data-aos-delay="300">
         <div class="included-icon">&#128221;</div>
         <h3>Facturation conforme</h3>
-        <p>Prélèvement SEPA automatique + e-factures Peppol. Conforme aux exigences belgiques 2026.</p>
+        <p>Prélèvement SEPA automatique + e-factures Peppol. Conforme aux exigences belges 2026.</p>
       </div>
       <div class="included-card" data-aos data-aos-delay="350">
         <div class="included-icon">&#127891;</div>
@@ -304,7 +630,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 Seolia — Tous droits réservés</p>
+      <p>© 2026 Seolia — Tous droits réservés</p>
       <p>TVA : BE 0727.941.547</p>
     </div>
   </div>

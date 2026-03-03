@@ -1721,20 +1721,26 @@ async function loadRevenus() {
   const totalMRR_HTVA = totalMRR_TVAC / TVA_RATE;
   const totalCommMensuelle = totalMRR_HTVA * TAUX_COMMISSION;
 
-  // Setup commissions this month
-  let totalSetupComm = 0;
+  // Setup fees + commissions this month
+  let totalSetupComm = 0, totalSetupTVAC = 0, totalSetupHTVA = 0;
   try {
-    const setups = await sbFetch('/rest/v1/commission_history?mois=eq.' + moisKey + '&type=eq.setup&select=commission') || [];
+    const setups = await sbFetch('/rest/v1/commission_history?mois=eq.' + moisKey + '&type=eq.setup&select=*') || [];
     totalSetupComm = setups.reduce((s,c) => s+(parseFloat(c.commission)||0), 0);
+    totalSetupTVAC = setups.reduce((s,c) => s+(parseFloat(c.montant_tvac)||0), 0);
+    totalSetupHTVA = setups.reduce((s,c) => s+(parseFloat(c.montant_htva)||0), 0);
   } catch(e) {}
 
   const totalComm = totalCommMensuelle + totalSetupComm;
-  const netFlorian = totalMRR_HTVA - totalComm;
+  const totalRevenusHTVA = totalMRR_HTVA + totalSetupHTVA;
+  const netFlorian = totalRevenusHTVA - totalComm;
 
   document.getElementById('rev-overview').innerHTML = [
     { label: 'MRR Total TVAC', value: fmtEur(totalMRR_TVAC) },
     { label: 'MRR Total HTVA', value: fmtEur(totalMRR_HTVA) },
-    { label: 'Commissions totales ce mois', value: fmtEur(totalComm) },
+    { label: 'Setups encaissés ce mois TVAC', value: fmtEur(totalSetupTVAC) },
+    { label: 'Setups encaissés ce mois HTVA', value: fmtEur(totalSetupHTVA) },
+    { label: 'Revenus totaux HTVA', value: fmtEur(totalRevenusHTVA) },
+    { label: 'Commissions versées ce mois', value: fmtEur(totalComm) },
     { label: 'Net Florian ce mois', value: fmtEur(netFlorian), accent: true },
   ].map(m =>
     '<div class="revenus-metric' + (m.accent?' accent':'') + '">' +

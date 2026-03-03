@@ -201,7 +201,59 @@
     .toast { padding: 12px 18px; border-radius: 10px; font-size: 13px; font-weight: 500; box-shadow: 0 4px 16px rgba(0,0,0,.15); animation: slideIn .3s ease; max-width: 300px; }
     .toast.success { background: #fff; border-left: 4px solid var(--green); color: var(--text); }
     .toast.error { background: #fff; border-left: 4px solid var(--red); color: var(--text); }
+    .toast.lead { background: #fff; border-left: 4px solid #f59e0b; color: var(--text); cursor: pointer; }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    /* ── NOTIFICATIONS ── */
+    .notif-wrapper { position: relative; margin: 12px 0 0; }
+    .notif-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.08); border: none; border-radius: 10px;
+      padding: 9px 14px; color: #fff; cursor: pointer; width: 100%;
+      font-size: 13px; font-weight: 600; transition: background .2s;
+    }
+    .notif-btn:hover { background: rgba(255,255,255,.15); }
+    .notif-badge {
+      background: #f59e0b; color: #fff;
+      border-radius: 50%; width: 18px; height: 18px;
+      font-size: 10px; font-weight: 800;
+      display: none; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-left: auto;
+    }
+    .notif-badge.visible { display: flex; }
+    .notif-badge.pulse { animation: notifPulse 1.2s ease infinite; }
+    @keyframes notifPulse {
+      0%,100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245,158,11,.5); }
+      50% { transform: scale(1.15); box-shadow: 0 0 0 5px rgba(245,158,11,0); }
+    }
+    .notif-panel {
+      display: none; position: absolute; bottom: calc(100% + 8px); left: 0;
+      width: 290px; background: #fff; border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.18); z-index: 200; overflow: hidden;
+    }
+    .notif-panel.open { display: block; }
+    .notif-panel-header {
+      background: var(--navy); color: #fff;
+      padding: 12px 16px; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .notif-panel-header button {
+      background: rgba(255,255,255,.15); border: none; color: #fff;
+      font-size: 11px; padding: 3px 8px; border-radius: 6px; cursor: pointer;
+    }
+    .notif-panel-header button:hover { background: rgba(255,255,255,.25); }
+    .notif-list { max-height: 280px; overflow-y: auto; }
+    .notif-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 11px 14px; border-bottom: 1px solid #f0f0f0;
+      cursor: pointer; transition: background .15s;
+    }
+    .notif-item:hover { background: #fafafa; }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+    .notif-content .notif-name { font-size: 13px; font-weight: 700; color: var(--navy); }
+    .notif-content .notif-detail { font-size: 11px; color: #888; margin-top: 2px; }
+    .notif-empty { padding: 24px; text-align: center; color: #aaa; font-size: 13px; }
 
     /* ── COMMISSIONS ── */
     .commission-summary { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
@@ -324,6 +376,25 @@
     <div class="sidebar-user">
       <strong id="user-name-display">-</strong>
       <div id="user-role-badge" class="role-badge">-</div>
+
+      <!-- Cloche notifications leads -->
+      <div class="notif-wrapper" id="notif-wrapper" style="display:none">
+        <button class="notif-btn" onclick="toggleNotifPanel()">
+          <span>🔔</span>
+          <span>Nouveaux leads</span>
+          <span class="notif-badge" id="notif-badge">0</span>
+        </button>
+        <div class="notif-panel" id="notif-panel">
+          <div class="notif-panel-header">
+            <span>🔔 Nouveaux leads</span>
+            <button onclick="markAllRead()">Tout lire</button>
+          </div>
+          <div class="notif-list" id="notif-list">
+            <div class="notif-empty">Aucun nouveau lead</div>
+          </div>
+        </div>
+      </div>
+
       <button class="btn-logout" onclick="doLogout()">&#x2192; Déconnexion</button>
     </div>
   </aside>
@@ -842,6 +913,8 @@ async function initApp() {
     // Load initial data
     await loadContacts();
     showView('dashboard');
+    // Démarrer le polling des nouveaux leads
+    initNotifications();
   } catch(e) {
     alert('Erreur de connexion: ' + e.message);
     doLogout();
@@ -2296,6 +2369,7 @@ function noteTypeLabel(type) {
           buildNav();
           await loadContacts();
           showView('dashboard');
+          initNotifications();
           return;
         }
       }
@@ -2431,6 +2505,115 @@ async function showCommercialDetail(email) {
 function closeCommDetail() {
   document.getElementById('modal-comm-detail').style.display = 'none';
 }
+
+// ════════════════════════════════════════════════════════════════
+//  SYSTÈME DE NOTIFICATIONS — Nouveaux leads (chatbot / formulaire)
+// ════════════════════════════════════════════════════════════════
+let notifLastCheck = null;     // ISO string de la dernière vérification
+let notifUnread = [];          // leads non lus
+let notifPollingInterval = null;
+
+function initNotifications() {
+  // Afficher la cloche (visible une fois connecté)
+  document.getElementById('notif-wrapper').style.display = 'block';
+  // Marquer comme "déjà vu" tout ce qui existe avant maintenant
+  notifLastCheck = new Date().toISOString();
+  // Polling toutes les 30 secondes
+  pollNewLeads();
+  notifPollingInterval = setInterval(pollNewLeads, 30000);
+  // Fermer panel si clic ailleurs
+  document.addEventListener('click', function(e) {
+    const panel = document.getElementById('notif-panel');
+    const wrapper = document.getElementById('notif-wrapper');
+    if (panel && wrapper && !wrapper.contains(e.target)) {
+      panel.classList.remove('open');
+    }
+  });
+}
+
+async function pollNewLeads() {
+  if (!currentToken || !notifLastCheck) return;
+  try {
+    const since = encodeURIComponent(notifLastCheck);
+    const data = await sbFetch(
+      `/rest/v1/contacts?source=in.("chatbot","formulaire")&created_at=gt.${since}&select=id,nom,telephone,secteur,source,created_at&order=created_at.desc`
+    );
+    if (!data || !Array.isArray(data) || data.length === 0) return;
+
+    // Mettre à jour le timestamp
+    notifLastCheck = new Date().toISOString();
+
+    // Ajouter aux non-lus
+    data.forEach(lead => {
+      if (!notifUnread.find(n => n.id === lead.id)) {
+        notifUnread.unshift(lead);
+        // Toast cliquable
+        showLeadToast(lead);
+      }
+    });
+
+    // Mettre à jour le badge
+    updateNotifBadge();
+    renderNotifList();
+  } catch (_) { /* silencieux */ }
+}
+
+function showLeadToast(lead) {
+  const sourceLabel = lead.source === 'chatbot' ? '💬 Chatbot' : '📋 Formulaire';
+  const el = document.createElement('div');
+  el.className = 'toast lead';
+  el.innerHTML = `<strong>${sourceLabel}</strong><br>${esc(lead.nom)} — ${esc(lead.telephone || '')}`;
+  el.onclick = () => {
+    openContact(lead.id);
+    el.remove();
+  };
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => { if (el.parentNode) el.remove(); }, 6000);
+}
+
+function updateNotifBadge() {
+  const badge = document.getElementById('notif-badge');
+  const count = notifUnread.length;
+  if (count > 0) {
+    badge.textContent = count > 9 ? '9+' : count;
+    badge.classList.add('visible', 'pulse');
+  } else {
+    badge.classList.remove('visible', 'pulse');
+  }
+}
+
+function renderNotifList() {
+  const list = document.getElementById('notif-list');
+  if (!notifUnread.length) {
+    list.innerHTML = '<div class="notif-empty">Aucun nouveau lead</div>';
+    return;
+  }
+  list.innerHTML = notifUnread.map(lead => {
+    const icon = lead.source === 'chatbot' ? '💬' : '📋';
+    const date = new Date(lead.created_at).toLocaleString('fr-BE', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+    const secteur = lead.secteur ? ` · ${esc(lead.secteur)}` : '';
+    return `<div class="notif-item" onclick="openContact('${lead.id}'); toggleNotifPanel();">
+      <div class="notif-icon">${icon}</div>
+      <div class="notif-content">
+        <div class="notif-name">${esc(lead.nom)}</div>
+        <div class="notif-detail">${esc(lead.telephone || 'Pas de tél')}${secteur} · ${date}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleNotifPanel() {
+  document.getElementById('notif-panel').classList.toggle('open');
+}
+
+function markAllRead() {
+  notifUnread = [];
+  updateNotifBadge();
+  renderNotifList();
+  document.getElementById('notif-panel').classList.remove('open');
+}
+
+// initNotifications() est appelé depuis loadProfile() après le login
 </script>
 
 <!-- Modal détail commercial -->

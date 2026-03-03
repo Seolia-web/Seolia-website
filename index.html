@@ -1251,7 +1251,9 @@ if (demoCard) {
 }
 </script>
 
-<!-- CHATBOT CUSTOM SEOLIA -->
+<!-- ═══════════════════════════════════════════════════════════
+     CHATBOT CUSTOM SEOLIA  –  v3 (RDV flow + CRM integration)
+═══════════════════════════════════════════════════════════ -->
 <style>
   /* ── CHAT BUBBLE ── */
   #chatBubble {
@@ -1536,6 +1538,11 @@ if (demoCard) {
   let isOpen = false;
   let previewHidden = false;
 
+  // ── RDV state machine ──────────────────────────────────────────────────────
+  // States: null | 'rdv_type' | 'rdv_secteur' | 'rdv_nom' | 'rdv_telephone' | 'rdv_dispo' | 'rdv_done'
+  let rdvState = null;
+  let rdvData = {};
+
   // Hide preview after 8s
   setTimeout(() => {
     const p = document.getElementById('chatPreview');
@@ -1562,7 +1569,7 @@ if (demoCard) {
   };
 
   function showWelcome() {
-    addMsg('bot', 'Bonjour ! 👋 Je suis l\'assistant IA de <strong>Seolia</strong>.<br>Je réponds à toutes vos questions sur nos services.');
+    addMsg('bot', 'Bonjour ! 👋 Je suis l\'assistant IA de <strong>Seolia</strong>.<br>Comment puis-je vous aider ?');
     setTimeout(() => {
       const qr = document.createElement('div');
       qr.className = 'quick-replies';
@@ -1570,13 +1577,145 @@ if (demoCard) {
         <button class="quick-reply" onclick="quickAsk('💰 Les prix')">💰 Les prix</button>
         <button class="quick-reply" onclick="quickAsk('⏱ Les délais')">⏱ Les délais</button>
         <button class="quick-reply" onclick="quickAsk('🤖 Services IA')">🤖 Services IA</button>
-        <button class="quick-reply" onclick="quickAsk('📅 Prendre RDV')">📅 Prendre RDV</button>
+        <button class="quick-reply" onclick="startRDV()">📅 Prendre RDV</button>
       `;
       document.getElementById('chatMessages').appendChild(qr);
       scrollBottom();
     }, 600);
   }
 
+  // ── RDV flow ───────────────────────────────────────────────────────────────
+  window.startRDV = function() {
+    document.querySelectorAll('.quick-replies').forEach(el => el.remove());
+    addMsg('user', '📅 Prendre RDV');
+    rdvState = 'rdv_type';
+    rdvData = {};
+    setTimeout(() => {
+      addMsg('bot', 'Super ! Je vais vous mettre en contact avec Florian. 😊<br><br>Vous préférez un <strong>rendez-vous sur place</strong> ou un <strong>appel téléphonique</strong> ?');
+      const qr = document.createElement('div');
+      qr.className = 'quick-replies';
+      qr.innerHTML = `
+        <button class="quick-reply" onclick="pickRdvType('Sur place')">🏠 Sur place</button>
+        <button class="quick-reply" onclick="pickRdvType('Appel téléphonique')">📞 Appel téléphonique</button>
+      `;
+      document.getElementById('chatMessages').appendChild(qr);
+      scrollBottom();
+    }, 500);
+  };
+
+  window.pickRdvType = function(type) {
+    document.querySelectorAll('.quick-replies').forEach(el => el.remove());
+    addMsg('user', type);
+    rdvData.type_rdv = type;
+    rdvState = 'rdv_secteur';
+    setTimeout(() => {
+      addMsg('bot', 'Parfait ! Et quel est votre secteur d\'activité ? <em>(ex : plombier, électricien, carrossier…)</em>');
+      showInput();
+    }, 400);
+  };
+
+  function showInput() {
+    document.getElementById('chatInput').disabled = false;
+    document.getElementById('chatInput').focus();
+  }
+
+  // ── Gestion des messages entrants (texte libre) ────────────────────────────
+  function handleRdvInput(text) {
+    switch (rdvState) {
+      case 'rdv_secteur':
+        rdvData.secteur = text;
+        rdvState = 'rdv_nom';
+        setTimeout(() => {
+          addMsg('bot', 'Votre <strong>prénom et nom</strong>, s\'il vous plaît ?');
+        }, 400);
+        break;
+
+      case 'rdv_nom':
+        rdvData.nom = text;
+        rdvState = 'rdv_telephone';
+        setTimeout(() => {
+          addMsg('bot', 'Votre <strong>numéro de téléphone</strong> ? (on vous rappelle pour fixer l\'heure exacte)');
+        }, 400);
+        break;
+
+      case 'rdv_telephone':
+        rdvData.telephone = text;
+        rdvState = 'rdv_dispo';
+        setTimeout(() => {
+          addMsg('bot', 'Vos <strong>disponibilités</strong> ? <em>(ex : lundi matin, en semaine après 17h…)</em>');
+        }, 400);
+        break;
+
+      case 'rdv_dispo':
+        rdvData.disponibilites = text;
+        rdvState = 'rdv_done';
+        submitRdv();
+        break;
+
+      default:
+        // Pas en mode RDV → IA classique
+        callAI(text);
+    }
+  }
+
+  async function submitRdv() {
+    showTyping();
+    try {
+      const res = await fetch(WORKER_URL + '/create-contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nom: rdvData.nom,
+          telephone: rdvData.telephone,
+          secteur: rdvData.secteur,
+          type_rdv: rdvData.type_rdv,
+          disponibilites: rdvData.disponibilites,
+          source: 'chatbot',
+        })
+      });
+      const data = await res.json();
+      hideTyping();
+      if (data.success) {
+        addMsg('bot', `✅ <strong>C'est noté, ${rdvData.nom.split(' ')[0]} !</strong><br><br>Florian vous contacte très prochainement au <strong>${rdvData.telephone}</strong> pour confirmer votre ${rdvData.type_rdv.toLowerCase()}.<br><br>À très bientôt ! 🙌`);
+      } else {
+        throw new Error('API error');
+      }
+    } catch (e) {
+      hideTyping();
+      addMsg('bot', 'Oops, une erreur technique est survenue. Appelez directement Florian au <strong>+32 470 92 21 88</strong> — il sera ravi de vous aider !');
+    }
+    rdvState = null;
+    rdvData = {};
+
+    // Proposer de continuer
+    setTimeout(() => {
+      const qr = document.createElement('div');
+      qr.className = 'quick-replies';
+      qr.innerHTML = `<button class="quick-reply" onclick="resetChat()">🔄 Retour au menu</button>`;
+      document.getElementById('chatMessages').appendChild(qr);
+      scrollBottom();
+    }, 800);
+  }
+
+  window.resetChat = function() {
+    document.querySelectorAll('.quick-replies').forEach(el => el.remove());
+    rdvState = null;
+    rdvData = {};
+    setTimeout(() => {
+      const qr = document.createElement('div');
+      qr.className = 'quick-replies';
+      qr.innerHTML = `
+        <button class="quick-reply" onclick="quickAsk('💰 Les prix')">💰 Les prix</button>
+        <button class="quick-reply" onclick="quickAsk('⏱ Les délais')">⏱ Les délais</button>
+        <button class="quick-reply" onclick="quickAsk('🤖 Services IA')">🤖 Services IA</button>
+        <button class="quick-reply" onclick="startRDV()">📅 Prendre RDV</button>
+      `;
+      document.getElementById('chatMessages').appendChild(qr);
+      scrollBottom();
+    }, 200);
+  };
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
   window.quickAsk = function(text) {
     document.querySelectorAll('.quick-replies').forEach(el => el.remove());
     addMsg('user', text);
@@ -1624,9 +1763,22 @@ if (demoCard) {
       addMsg('bot', data.response || 'Désolé, je n\'ai pas pu répondre. Appelez-nous au +32 470 92 21 88 !');
     } catch (e) {
       hideTyping();
-      addMsg('bot', 'Une erreur est survenue. Contactez-nous directement au <strong>+32 470 92 21 88</strong> ou via <a href="mailto:florianmoerspro@gmail.com" style="color:#00d68f">florianmoerspro@gmail.com</a>.');
+      addMsg('bot', 'Une erreur est survenue. Contactez-nous directement au <strong>+32 470 92 21 88</strong>.');
     }
-    scrollBottom();
+
+    // Proposer le menu après une réponse IA
+    setTimeout(() => {
+      if (rdvState === null) {
+        const existing = document.querySelector('.quick-replies');
+        if (!existing) {
+          const qr = document.createElement('div');
+          qr.className = 'quick-replies';
+          qr.innerHTML = `<button class="quick-reply" onclick="startRDV()">📅 Prendre RDV</button>`;
+          document.getElementById('chatMessages').appendChild(qr);
+        }
+      }
+      scrollBottom();
+    }, 300);
   }
 
   window.sendMessage = function() {
@@ -1637,7 +1789,12 @@ if (demoCard) {
     addMsg('user', text);
     input.value = '';
     input.style.height = 'auto';
-    callAI(text);
+    // Si on est dans le flow RDV, traiter autrement
+    if (rdvState && rdvState !== 'rdv_done') {
+      handleRdvInput(text);
+    } else {
+      callAI(text);
+    }
   };
 
   window.handleKey = function(e) {

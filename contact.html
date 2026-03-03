@@ -339,12 +339,63 @@
 
 <script src="js/main.js"></script>
 <script>
-function handleSubmit(e) {
+const WORKER_URL = 'https://seolia-ai-chat.seolia.workers.dev';
+const WEB3FORMS_KEY = 'ba868ed8-1796-456e-ba13-b7d0e0b4f2cf';
+
+async function handleSubmit(e) {
   e.preventDefault();
-  const btn = e.target.querySelector('.form-submit');
-  btn.textContent = 'Message envoyé ! On vous rappelle bientôt.';
-  btn.style.background = 'var(--green-dark)';
+  const form = e.target;
+  const btn = form.querySelector('.form-submit');
+  btn.textContent = 'Envoi en cours…';
   btn.disabled = true;
+
+  const prenom = form.prenom.value.trim();
+  const nom    = form.nom.value.trim();
+  const tel    = form.tel.value.trim();
+  const email  = form.email.value.trim();
+  const secteur  = form.secteur.value;
+  const situation = form.situation.value;
+  const message  = form.message.value.trim();
+
+  // 1. Créer la fiche dans le CRM Supabase
+  try {
+    await fetch(WORKER_URL + '/create-contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nom: prenom + ' ' + nom,
+        telephone: tel,
+        email: email || null,
+        secteur: secteur || null,
+        source: 'formulaire',
+        type_rdv: null,
+        disponibilites: null,
+        message: [situation, message].filter(Boolean).join(' — ') || null,
+      })
+    });
+  } catch (_) { /* silencieux si CRM indisponible */ }
+
+  // 2. Envoyer l'email via Web3Forms
+  try {
+    await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        access_key: WEB3FORMS_KEY,
+        subject: `Nouveau lead Seolia — ${prenom} ${nom} (${secteur})`,
+        from_name: `${prenom} ${nom}`,
+        name: `${prenom} ${nom}`,
+        email: email || 'non renseigné',
+        telephone: tel,
+        secteur: secteur,
+        situation: situation,
+        message: message || '(aucun message)',
+      })
+    });
+  } catch (_) { /* silencieux */ }
+
+  btn.textContent = '✅ Message envoyé ! On vous rappelle très bientôt.';
+  btn.style.background = '#00b87a';
 }
 </script>
 </body>

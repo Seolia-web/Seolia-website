@@ -289,9 +289,18 @@ async function handleSaveOnboarding(request, env) {
     const notesJson = JSON.stringify(data, null, 2);
     const notes = `[QUESTIONNAIRE_ONBOARDING]\n${notesJson}`;
 
-    // Build contact record
+    // Map formule to CRM-valid values
+    const formuleMap = {
+      'essentiel-ia': 'Bundle Essentiel IA',
+      'business-ia': 'Bundle Business IA',
+      'premium-ia': 'Bundle Premium IA',
+      'web-essentiel': 'Web Essentiel',
+      'web-business': 'Web Business',
+    };
+    const crmFormule = formuleMap[data.tier] || null;
+
+    // Build contact record (using actual contacts table schema)
     const contact = {
-      prenom: '',
       nom: nom_entreprise || '',
       entreprise: nom_entreprise || '',
       telephone: telephone || '',
@@ -300,7 +309,7 @@ async function handleSaveOnboarding(request, env) {
       ville: ville || '',
       statut: 'prospect',
       source: 'questionnaire',
-      formule: formule || '',
+      formule: crmFormule,
       notes_generales: notes,
       created_by: 'questionnaire',
     };
@@ -327,10 +336,14 @@ async function handleSaveOnboarding(request, env) {
         headers: supabaseHeaders(),
         body: JSON.stringify({
           contact_id: saved.id,
+          contact_nom: nom_entreprise || '',
           type: 'questionnaire',
-          note: `Questionnaire reçu — Formule: ${formule || 'Non précisée'} — Démarrer la création du site`,
-          date_rappel: new Date(Date.now() + 86400000).toISOString().split('T')[0], // tomorrow
-          statut: 'en_attente',
+          note: `Questionnaire reçu — Formule: ${formule || 'Non précisée'}`,
+          description: `Démarrer la création du site client`,
+          date_rappel: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+          date_prevue: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+          fait: false,
+          created_by: 'questionnaire',
         }),
       });
     }

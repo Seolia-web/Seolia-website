@@ -443,9 +443,19 @@
             </div>
             <div id="detail-followups"></div>
           </div>
-          <div class="card">
+          <div class="card" style="margin-bottom:16px">
             <div class="section-title">&#x1F4B0; Tarification</div>
             <div id="detail-pricing"></div>
+          </div>
+          <div class="card">
+            <div class="section-title" style="justify-content:space-between;align-items:center">
+              <span>&#x1F4CE; Documents</span>
+              <label class="btn btn-ghost btn-sm" style="cursor:pointer;margin:0">
+                + Uploader
+                <input type="file" id="doc-upload-input" style="display:none" onchange="uploadDocument(event)" multiple>
+              </label>
+            </div>
+            <div id="detail-docs"></div>
           </div>
         </div>
       </div>
@@ -1030,7 +1040,16 @@ function renderKanban() {
     '</select>';
 
   const filterAssignee = document.getElementById('pipeline-filter-assignee');
-  const assigneeFilter = filterAssignee ? filterAssignee.value : '';
+  // Si commercial: forcer le filtre sur son propre nom, cacher le dropdown
+  if (currentProfile.role === 'commercial') {
+    if (filterAssignee) {
+      filterAssignee.value = currentProfile.nom;
+      filterAssignee.style.display = 'none';
+    }
+  } else {
+    if (filterAssignee) filterAssignee.style.display = '';
+  }
+  const assigneeFilter = currentProfile.role === 'commercial' ? currentProfile.nom : (filterAssignee ? filterAssignee.value : '');
   let contacts = allContacts;
   if (assigneeFilter) contacts = contacts.filter(c => c.assignee === assigneeFilter);
 
@@ -1273,6 +1292,110 @@ async function openContactDetail(id) {
   showView('contact-detail');
   loadDetailNotes(id);
   loadDetailFollowups(id);
+  loadDetailDocs(id);
+}
+
+function formatFileSize(bytes) {
+  if (!bytes) return '';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1048576).toFixed(1) + ' MB';
+}
+
+async function loadDetailDocs(contactId) {
+  const el = document.getElementById('detail-docs');
+  if (!el) return;
+  el.innerHTML = '<div class="loading-center"><span class="spinner spinner-dark"></span></div>';
+  try {
+    const docs = await sbFetch('/rest/v1/documents?contact_id=eq.' + contactId + '&order=created_at.desc&select=*') || [];
+    if (docs.length === 0) {
+      el.innerHTML = '<div class="empty-state" style="padding:16px"><div style="font-size:32px;margin-bottom:8px">📭</div><p style="color:var(--text-secondary)">Aucun document</p></div>';
+    } else {
+      el.innerHTML = docs.map(d => {
+        const publicUrl = SUPABASE_URL + '/storage/v1/object/public/documents/' + d.file_path;
+        const ext = (d.nom||'').split('.').pop().toUpperCase();
+        const extColors = { PDF:'#ef4444', DOC:'#3b82f6', DOCX:'#3b82f6', JPG:'#f97316', JPEG:'#f97316', PNG:'#f97316', XLS:'#16a34a', XLSX:'#16a34a' };
+        const color = extColors[ext] || '#64748b';
+        return '<div class="note-item" style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">' +
+          '<div style="background:' + color + ';color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;min-width:36px;text-align:center">' + esc(ext) + '</div>' +
+          '<div style="flex:1;min-width:0">' +
+            '<a href="' + publicUrl + '" target="_blank" style="font-weight:500;color:var(--primary);text-decoration:none;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(d.nom) + '</a>' +
+            '<span style="color:var(--text-secondary);font-size:12px">' + formatDate(d.created_at) + ' &mdash; ' + esc(d.uploaded_by||'') + (d.taille ? ' &mdash; ' + formatFileSize(d.taille) : '') + '</span>' +
+          '</div>' +
+          '<a href="' + publicUrl + '" download="' + esc(d.nom) + '" class="btn btn-ghost btn-sm" title="Télécharger">&#x2B07;</a>' +
+          '<button class="btn btn-ghost btn-sm" style="color:#ef4444" onclick="deleteDocument('' + d.id + '','' + esc(d.file_path) + '')" title="Supprimer">&#x1F5D1;</button>' +
+        '</div>';
+      }).join('') + '<div style="height:8px"></div>';
+    }
+  } catch(e) {
+    el.innerHTML = '<div class="empty-state" style="padding:16px"><p style="color:var(--text-secondary)">Erreur chargement documents</p></div>';
+  }
+}
+
+async function uploadDocument(e) {
+  const files = Array.from(e.target.files);
+  if (!files.length || !currentContactId) return;
+  const btn = document.querySelector('label[style*="cursor:pointer"]');
+  if (btn) btn.textContent = 'Upload...';
+
+  for (const file of files) {
+    try {
+      const safeName = file.name.replace(/[^a-zA-Z0-9._\-]/g, '_');
+      const filePath = currentContactId + '/' + Date.now() + '_' + safeName;
+
+      // Upload to Supabase Storage
+      const upRes = await fetch(SUPABASE_URL + '/storage/v1/object/documents/' + filePath, {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + currentToken,
+          'apikey': ANON_KEY,
+          'Content-Type': file.type || 'application/octet-stream',
+          'x-upsert': 'true'
+        },
+        body: file
+      });
+      if (!upRes.ok) {
+        const err = await upRes.text();
+        alert('Erreur upload "' + file.name + '": ' + err);
+        continue;
+      }
+
+      // Save metadata
+      await sbFetch('/rest/v1/documents', {
+        method: 'POST',
+        headers: { 'Prefer': 'return=minimal' },
+        body: JSON.stringify({
+          contact_id: currentContactId,
+          nom: file.name,
+          file_path: filePath,
+          type_fichier: file.type,
+          taille: file.size,
+          uploaded_by: currentUser.email
+        })
+      });
+    } catch(err) {
+      alert('Erreur: ' + err.message);
+    }
+  }
+  e.target.value = '';
+  if (btn) btn.innerHTML = '+ Uploader <input type="file" id="doc-upload-input" style="display:none" onchange="uploadDocument(event)" multiple>';
+  loadDetailDocs(currentContactId);
+}
+
+async function deleteDocument(docId, filePath) {
+  if (!confirm('Supprimer ce document ?')) return;
+  try {
+    // Delete from storage
+    await fetch(SUPABASE_URL + '/storage/v1/object/documents/' + filePath, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + currentToken, 'apikey': ANON_KEY }
+    });
+    // Delete metadata
+    await sbFetch('/rest/v1/documents?id=eq.' + docId, { method: 'DELETE' });
+    loadDetailDocs(currentContactId);
+  } catch(e) {
+    alert('Erreur suppression: ' + e.message);
+  }
 }
 
 async function loadDetailNotes(contactId) {

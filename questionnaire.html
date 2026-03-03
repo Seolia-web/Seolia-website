@@ -4,9 +4,7 @@
   <meta charset="UTF-8">
   <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Questionnaire Client — Seolia</title>
   <meta name="robots" content="noindex, nofollow">
@@ -40,6 +38,13 @@
       overflow-x: hidden;
     }
 
+    /* Progress bar */
+    #progressBar {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: var(--green); width: 0%; z-index: 1000;
+      transition: width 0.1s ease;
+    }
+
     /* Header */
     .header {
       background: var(--navy-light);
@@ -47,113 +52,200 @@
       padding: 20px 0;
       text-align: center;
     }
-    .header .logo {
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: var(--white);
-    }
+    .header .logo { font-size: 1.8rem; font-weight: 800; color: var(--white); }
     .header .logo span { color: var(--green); }
-    .header p {
-      color: var(--grey);
-      margin-top: 6px;
-      font-size: 0.95rem;
-    }
+    .header p { color: var(--grey); margin-top: 6px; font-size: 0.95rem; }
 
     /* Hero */
     .hero {
       background: linear-gradient(135deg, var(--navy-light) 0%, #0d1526 100%);
-      padding: 60px 20px 50px;
+      padding: 50px 20px 40px;
       text-align: center;
       border-bottom: 1px solid var(--border);
-      position: relative;
-      overflow: hidden;
     }
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -100px; left: 50%;
-      transform: translateX(-50%);
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(0,214,143,0.07) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .hero h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); margin-bottom: 16px; }
+    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); margin-bottom: 12px; }
     .hero h1 span { color: var(--green); }
-    .hero p { color: var(--grey-light); max-width: 600px; margin: 0 auto; font-size: 1.05rem; }
+    .hero p { color: var(--grey-light); max-width: 560px; margin: 0 auto; font-size: 1rem; }
     .badge {
       display: inline-block;
       background: var(--green-glow);
       border: 1px solid rgba(0,214,143,0.3);
       color: var(--green);
-      padding: 6px 16px;
+      padding: 5px 14px;
       border-radius: 50px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
-      margin-bottom: 20px;
-      letter-spacing: 0.5px;
+      margin-bottom: 16px;
     }
 
     /* Container */
-    .container {
-      max-width: 800px;
+    .container { max-width: 820px; margin: 0 auto; padding: 0 20px; }
+
+    /* Formula selector */
+    .formula-selector-section {
+      padding: 50px 20px 20px;
+      max-width: 820px;
       margin: 0 auto;
-      padding: 0 20px;
     }
+    .formula-selector-section h2 {
+      text-align: center;
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+    }
+    .formula-selector-section .subtitle {
+      text-align: center;
+      color: var(--grey);
+      font-size: 0.93rem;
+      margin-bottom: 32px;
+    }
+    .formula-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 680px) {
+      .formula-cards { grid-template-columns: 1fr; }
+    }
+    .formula-card {
+      background: var(--navy-card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: center;
+      position: relative;
+      user-select: none;
+    }
+    .formula-card:hover {
+      border-color: rgba(0,214,143,0.4);
+      transform: translateY(-2px);
+    }
+    .formula-card.selected {
+      border-color: var(--green);
+      background: rgba(0,214,143,0.07);
+      box-shadow: 0 0 0 3px rgba(0,214,143,0.15);
+    }
+    .formula-card .check {
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--green);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .formula-card.selected .check { opacity: 1; }
+    .formula-card .formula-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .formula-card .formula-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .formula-card .formula-price {
+      color: var(--green);
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .formula-card .formula-desc {
+      color: var(--grey);
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+    .formula-card .popular-badge {
+      display: inline-block;
+      background: var(--gold);
+      color: #000;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 50px;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    .web-only-note {
+      text-align: center;
+      color: var(--grey);
+      font-size: 0.82rem;
+      margin-top: 8px;
+    }
+    .web-only-note a {
+      color: var(--grey-light);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .formula-card.web-only {
+      padding: 16px;
+      opacity: 0.7;
+    }
+    .formula-card.web-only .formula-name { font-size: 0.95rem; }
 
-    /* Form */
+    /* Form sections */
     .form-wrapper {
-      padding: 50px 20px 80px;
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+      display: none;
     }
+    .form-wrapper.visible { display: block; }
 
-    /* Section */
+    /* Section reveal animation */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
     .form-section {
       background: var(--navy-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 36px;
-      margin-bottom: 24px;
-      position: relative;
-      overflow: hidden;
-      transition: border-color 0.3s;
+      padding: 30px;
+      margin-bottom: 20px;
+      animation: fadeInUp 0.4s ease forwards;
     }
-    .form-section:hover {
-      border-color: rgba(0,214,143,0.2);
-    }
-    .form-section::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 4px; height: 100%;
-      background: linear-gradient(180deg, var(--green), var(--green-dark));
-      border-radius: 4px 0 0 4px;
-    }
+    .form-section.hidden { display: none; }
+
     .section-header {
       display: flex;
       align-items: center;
       gap: 14px;
-      margin-bottom: 28px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
     }
     .section-icon {
       width: 44px; height: 44px;
       background: var(--green-glow);
-      border: 1px solid rgba(0,214,143,0.2);
+      border: 1px solid rgba(0,214,143,0.3);
       border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       font-size: 1.2rem;
       flex-shrink: 0;
     }
-    .section-title {
-      font-size: 1.15rem;
+    .section-number {
+      color: var(--green);
+      font-size: 0.78rem;
       font-weight: 700;
-      color: var(--white);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
     }
-    .section-subtitle {
-      font-size: 0.85rem;
-      color: var(--grey);
-      margin-top: 2px;
+    .section-title { font-size: 1.1rem; font-weight: 700; }
+    .section-subtitle { color: var(--grey); font-size: 0.85rem; margin-top: 2px; }
+
+    /* IA section color */
+    .section-ia .section-icon {
+      background: rgba(245, 166, 35, 0.12);
+      border-color: rgba(245,166,35,0.3);
     }
+    .section-ia .section-number { color: var(--gold); }
 
     /* Fields */
     .field-group {
@@ -161,173 +253,117 @@
       grid-template-columns: 1fr 1fr;
       gap: 16px;
     }
-    .field-group.full { grid-template-columns: 1fr; }
-    .field-group.three { grid-template-columns: 1fr 1fr 1fr; }
     @media (max-width: 600px) {
-      .field-group, .field-group.three { grid-template-columns: 1fr; }
+      .field-group { grid-template-columns: 1fr; }
     }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+    .field { display: flex; flex-direction: column; gap: 6px; }
     .field.full { grid-column: 1 / -1; }
 
     label {
       font-size: 0.875rem;
       font-weight: 600;
       color: var(--grey-light);
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
-    label .required {
-      color: var(--green);
-      font-size: 0.75rem;
-    }
-    label .optional {
-      color: var(--grey);
-      font-size: 0.75rem;
-      font-weight: 400;
-    }
+    .required { color: var(--green); }
+    .optional { color: var(--grey); font-weight: 400; font-size: 0.8rem; }
 
-    input[type="text"],
-    input[type="email"],
-    input[type="tel"],
-    input[type="url"],
-    input[type="number"],
-    select,
-    textarea {
-      background: var(--navy);
+    input[type="text"], input[type="tel"], input[type="email"], input[type="url"],
+    input[type="number"], select, textarea {
+      background: rgba(255,255,255,0.05);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       color: var(--white);
       font-family: var(--font);
-      font-size: 0.95rem;
-      padding: 12px 16px;
-      transition: border-color 0.25s, box-shadow 0.25s;
-      outline: none;
+      font-size: 0.9rem;
+      padding: 10px 14px;
+      transition: border-color 0.2s;
       width: 100%;
     }
-    input::placeholder, textarea::placeholder { color: var(--grey); }
     input:focus, select:focus, textarea:focus {
+      outline: none;
       border-color: var(--green);
-      box-shadow: 0 0 0 3px rgba(0,214,143,0.1);
     }
-    select option { background: var(--navy-card); }
     textarea { resize: vertical; min-height: 90px; }
+    select option { background: var(--navy-card); }
+    input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.25); font-size: 0.85rem; }
 
-    /* Checkbox group */
-    .checkbox-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    @media (max-width: 500px) { .checkbox-group { grid-template-columns: 1fr; } }
-
-    .checkbox-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--navy);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 10px 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .checkbox-item:hover { border-color: rgba(0,214,143,0.3); }
-    .checkbox-item input[type="checkbox"] {
-      width: 18px; height: 18px;
-      accent-color: var(--green);
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    .checkbox-item span {
-      font-size: 0.875rem;
-      color: var(--grey-light);
-    }
-
-    /* Radio group */
-    .radio-group {
+    /* Radio & Checkbox */
+    .radio-group, .checkbox-group {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
     }
-    .radio-item {
+    .radio-item, .checkbox-item {
       display: flex;
       align-items: center;
       gap: 8px;
-      background: var(--navy);
+      background: rgba(255,255,255,0.04);
       border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 10px 16px;
+      border-radius: 8px;
+      padding: 8px 14px;
       cursor: pointer;
-      transition: all 0.2s;
+      font-size: 0.85rem;
+      transition: all 0.15s;
     }
-    .radio-item:hover { border-color: rgba(0,214,143,0.3); }
-    .radio-item input[type="radio"] {
-      accent-color: var(--green);
-      cursor: pointer;
+    .radio-item:hover, .checkbox-item:hover {
+      border-color: rgba(0,214,143,0.4);
+      background: rgba(0,214,143,0.05);
     }
-    .radio-item span { font-size: 0.875rem; color: var(--grey-light); }
+    .radio-item input, .checkbox-item input { accent-color: var(--green); }
 
-    /* Divider */
     .field-divider {
+      grid-column: 1 / -1;
       height: 1px;
       background: var(--border);
-      margin: 20px 0;
+      margin: 8px 0;
+    }
+
+    /* Section divider label */
+    .sub-section-label {
       grid-column: 1 / -1;
+      background: rgba(245,166,35,0.1);
+      border: 1px solid rgba(245,166,35,0.25);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.3px;
     }
 
     /* Submit */
     .submit-section {
-      background: linear-gradient(135deg, var(--navy-card), #0d1526);
-      border: 1px solid rgba(0,214,143,0.2);
-      border-radius: var(--radius);
-      padding: 40px 36px;
       text-align: center;
+      padding: 40px 20px;
     }
-    .submit-section h3 { margin-bottom: 8px; font-size: 1.3rem; }
-    .submit-section p { color: var(--grey); margin-bottom: 28px; font-size: 0.95rem; }
-
+    .submit-section h3 { font-size: 1.3rem; margin-bottom: 10px; }
+    .submit-section p { color: var(--grey-light); margin-bottom: 24px; font-size: 0.95rem; }
     .btn-submit {
-      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      background: var(--green);
       color: #0a0e1a;
       border: none;
       border-radius: 12px;
-      font-family: var(--font);
-      font-size: 1.05rem;
+      padding: 16px 40px;
+      font-size: 1rem;
       font-weight: 700;
-      padding: 16px 48px;
       cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: 0 8px 30px rgba(0,214,143,0.3);
-      letter-spacing: 0.3px;
+      transition: all 0.2s;
     }
-    .btn-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(0,214,143,0.4);
-    }
-    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:hover { background: var(--green-dark); transform: translateY(-1px); }
     .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
     /* Success */
     .success-message {
       display: none;
-      background: var(--green-glow);
+      text-align: center;
+      padding: 50px 20px;
+      background: var(--navy-card);
       border: 1px solid rgba(0,214,143,0.3);
       border-radius: var(--radius);
-      padding: 40px;
-      text-align: center;
-      margin-top: 30px;
+      margin: 20px 0;
     }
-    .success-message .check {
-      font-size: 3rem;
-      margin-bottom: 16px;
-    }
-    .success-message h3 { color: var(--green); margin-bottom: 10px; }
+    .success-message .check { font-size: 3rem; margin-bottom: 16px; }
+    .success-message h3 { font-size: 1.4rem; margin-bottom: 10px; color: var(--green); }
     .success-message p { color: var(--grey-light); }
 
     /* Footer */
@@ -336,763 +372,738 @@
       border-top: 1px solid var(--border);
       padding: 24px 20px;
       text-align: center;
+      color: var(--grey);
+      font-size: 0.85rem;
     }
-    .footer p { color: var(--grey); font-size: 0.85rem; }
     .footer span { color: var(--green); font-weight: 600; }
 
-    /* Progress bar */
-    .progress-bar {
-      position: fixed;
-      top: 0; left: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--green), var(--green-dark));
-      transition: width 0.3s;
-      z-index: 9999;
+    /* Scroll-to-form button */
+    .scroll-hint {
+      text-align: center;
+      padding: 30px 20px 0;
     }
+    .scroll-hint p {
+      color: var(--grey);
+      font-size: 0.88rem;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+    /* Selected formula banner */
+    .selected-formula-banner {
+      background: rgba(0,214,143,0.08);
+      border: 1px solid rgba(0,214,143,0.25);
+      border-radius: 12px;
+      padding: 14px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .selected-formula-banner .name {
+      font-weight: 700;
+      color: var(--green);
+    }
+    .selected-formula-banner .change-btn {
+      color: var(--grey);
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-decoration: underline;
+      background: none;
+      border: none;
+      font-family: var(--font);
+    }
+    .selected-formula-banner .change-btn:hover { color: var(--grey-light); }
   </style>
 </head>
 <body>
-
-<div class="progress-bar" id="progressBar"></div>
+<div id="progressBar"></div>
 
 <!-- Header -->
 <div class="header">
-  <div class="container">
-    <div class="logo">Seo<span>lia</span></div>
-    <p>Questionnaire de création de site web</p>
-  </div>
+  <p class="logo">Seo<span>lia</span></p>
+  <p>Questionnaire de démarrage — Confidentiel</p>
 </div>
 
 <!-- Hero -->
 <div class="hero">
-  <div class="container">
-    <div class="badge">Confidentiel — Usage interne</div>
-    <h1>Créons votre site <span>ensemble</span></h1>
-    <p>Remplissez ce questionnaire le plus précisément possible. Chaque détail nous permet de personnaliser votre site et d'optimiser votre visibilité sur Google.</p>
+  <div class="badge">ESPACE CLIENT</div>
+  <h1>Bienvenue dans votre espace <span>Seolia</span></h1>
+  <p>Complétez ce questionnaire pour que notre équipe puisse démarrer votre projet avec tous les éléments nécessaires.</p>
+</div>
+
+<!-- STEP 1: Formula Selector -->
+<div class="formula-selector-section" id="formulaSection">
+  <h2>Quelle formule avez-vous choisie ?</h2>
+  <p class="subtitle">Sélectionnez votre formule pour voir les questions adaptées à votre projet.</p>
+
+  <div class="formula-cards">
+    <!-- Essentiel IA -->
+    <div class="formula-card" data-formula="Essentiel IA — 499€ setup + 109€/mois" data-tier="essentiel-ia" onclick="selectFormula(this)">
+      <div class="check">✓</div>
+      <span class="formula-icon">⚡</span>
+      <div class="formula-name">Essentiel IA</div>
+      <div class="formula-price">499€ + 109€/mois</div>
+      <div class="formula-desc">Site vitrine · Chatbot IA · FAQ auto · Avis Google</div>
+    </div>
+
+    <!-- Business IA -->
+    <div class="formula-card" data-formula="Business IA — 949€ setup + 249€/mois" data-tier="business-ia" onclick="selectFormula(this)">
+      <div class="check">✓</div>
+      <span class="popular-badge">LE PLUS POPULAIRE</span>
+      <span class="formula-icon">⭐</span>
+      <div class="formula-name">Business IA</div>
+      <div class="formula-price">949€ + 249€/mois</div>
+      <div class="formula-desc">Site multi-pages SEO · RDV auto · Commandes · Notifications</div>
+    </div>
+
+    <!-- Premium IA -->
+    <div class="formula-card" data-formula="Premium IA — 1499€ setup + 449€/mois" data-tier="premium-ia" onclick="selectFormula(this)">
+      <div class="check">✓</div>
+      <span class="formula-icon">👑</span>
+      <div class="formula-name">Premium IA</div>
+      <div class="formula-price">1 499€ + 449€/mois</div>
+      <div class="formula-desc">Site premium · Agent vocal 200min · WhatsApp · Dashboard</div>
+    </div>
+  </div>
+
+  <!-- Web only options (collapsed) -->
+  <div class="web-only-note">
+    Formule web uniquement ?
+    <a onclick="toggleWebOnly()">Cliquez ici</a>
+  </div>
+  <div id="webOnlyCards" style="display:none; margin-top:16px;">
+    <div class="formula-cards" style="grid-template-columns: 1fr 1fr; max-width: 500px; margin: 0 auto;">
+      <div class="formula-card web-only" data-formula="Web Essentiel — 149€ setup + 69€/mois" data-tier="web-essentiel" onclick="selectFormula(this)">
+        <div class="check">✓</div>
+        <div class="formula-name">Web Essentiel</div>
+        <div class="formula-price">149€ + 69€/mois</div>
+        <div class="formula-desc">Site vitrine simple</div>
+      </div>
+      <div class="formula-card web-only" data-formula="Web Business — 299€ setup + 119€/mois" data-tier="web-business" onclick="selectFormula(this)">
+        <div class="check">✓</div>
+        <div class="formula-name">Web Business</div>
+        <div class="formula-price">299€ + 119€/mois</div>
+        <div class="formula-desc">Site multi-pages SEO</div>
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- Form -->
-<div class="form-wrapper">
-  <div class="container">
-    <form id="clientForm">
-      <!-- Web3Forms hidden fields -->
-      <input type="hidden" name="access_key" value="ba868ed8-1796-456e-ba13-b7d0e0b4f2cf">
-      <input type="hidden" name="subject" value="Nouveau questionnaire client — Seolia">
-      <input type="hidden" name="from_name" value="Seolia — Questionnaire Client">
-      <input type="checkbox" name="botcheck" style="display:none;">
-
-      <!-- 1. Informations générales -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-icon">📋</div>
-          <div>
-            <div class="section-title">1. Informations générales</div>
-            <div class="section-subtitle">Les bases de votre entreprise</div>
-          </div>
-        </div>
-        <div class="field-group">
-          <div class="field">
-            <label>Nom complet <span class="required">*</span></label>
-            <input type="text" name="nom_complet" placeholder="Jean Dupont" required>
-          </div>
-          <div class="field">
-            <label>Nom de l'entreprise <span class="required">*</span></label>
-            <input type="text" name="nom_entreprise" placeholder="Plomberie Dupont" required>
-          </div>
-          <div class="field">
-            <label>Téléphone <span class="required">*</span></label>
-            <input type="tel" name="telephone" placeholder="+32 470 00 00 00" required>
-          </div>
-          <div class="field">
-            <label>Email professionnel <span class="required">*</span></label>
-            <input type="email" name="email" placeholder="info@votreentreprise.be" required>
-          </div>
-          <div class="field">
-            <label>Numéro BCE / TVA <span class="optional">(optionnel)</span></label>
-            <input type="text" name="tva" placeholder="BE 0123.456.789">
-          </div>
-          <div class="field">
-            <label>Adresse complète <span class="required">*</span></label>
-            <input type="text" name="adresse" placeholder="Rue de la Paix 12, 4000 Liège" required>
-          </div>
-          <div class="field full">
-            <label>Zone d'intervention <span class="required">*</span></label>
-            <input type="text" name="zone_intervention" placeholder="Ex: Liège, Seraing, Herstal, toute la province de Liège..." required>
-          </div>
-          <div class="field">
-            <label>Année de création <span class="optional">(optionnel)</span></label>
-            <input type="number" name="annee_creation" placeholder="2015" min="1950" max="2026">
-          </div>
-          <div class="field">
-            <label>Nombre d'employés <span class="optional">(optionnel)</span></label>
-            <select name="nb_employes">
-              <option value="">Sélectionner...</option>
-              <option>Indépendant seul</option>
-              <option>2-5 personnes</option>
-              <option>6-10 personnes</option>
-              <option>Plus de 10</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2. Activité & Services -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-icon">🔧</div>
-          <div>
-            <div class="section-title">2. Activité & Services</div>
-            <div class="section-subtitle">Ce que vous faites — la base de votre SEO</div>
-          </div>
-        </div>
-        <div class="field-group">
-          <div class="field">
-            <label>Secteur d'activité principal <span class="required">*</span></label>
-            <select name="secteur" required>
-              <option value="">Sélectionner...</option>
-              <option>Plomberie</option>
-              <option>Electricité</option>
-              <option>Chauffage / HVAC</option>
-              <option>Serrurerie</option>
-              <option>Toiture / Couverture</option>
-              <option>Peinture</option>
-              <option>Carrelage</option>
-              <option>Menuiserie</option>
-              <option>Maçonnerie</option>
-              <option>Nettoyage / Detailing</option>
-              <option>Autre</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Si autre, précisez</label>
-            <input type="text" name="secteur_autre" placeholder="Votre secteur...">
-          </div>
-          <div class="field full">
-            <label>Listez tous vos services <span class="required">*</span></label>
-            <textarea name="services_liste" placeholder="Ex: Installation chauffage central, dépannage urgent 24h/24, entretien chaudière, installation poêle à pellets, installation pompe à chaleur..." required></textarea>
-          </div>
-          <div class="field full">
-            <label>Votre service phare / best-seller <span class="required">*</span></label>
-            <input type="text" name="service_phare" placeholder="Ex: Dépannage plomberie urgent 24h/24" required>
-          </div>
-          <div class="field full">
-            <label>Faites-vous des interventions d'urgence ? <span class="required">*</span></label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input type="radio" name="urgences" value="Oui, 24h/24 7j/7">
-                <span>Oui, 24h/24 7j/7</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="urgences" value="Oui, en heures ouvrables">
-                <span>Oui, en heures ouvrables</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="urgences" value="Non">
-                <span>Non</span>
-              </label>
-            </div>
-          </div>
-          <div class="field full">
-            <label>Certifications / agréments <span class="optional">(optionnel)</span></label>
-            <input type="text" name="certifications" placeholder="Ex: Certibeau, agréé Techlink, certifié Viessmann, membre Confédération Construction...">
-          </div>
-          <div class="field full">
-            <label>Votre "plus" par rapport aux concurrents <span class="required">*</span></label>
-            <textarea name="avantages" placeholder="Pourquoi un client devrait-il vous choisir plutôt qu'un autre ? Ex: Réponse en moins d'1h, 15 ans d'expérience, devis gratuit sous 24h, équipe locale..." required></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3. Identité visuelle -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-icon">🎨</div>
-          <div>
-            <div class="section-title">3. Identité visuelle</div>
-            <div class="section-subtitle">Le look de votre site</div>
-          </div>
-        </div>
-        <div class="field-group">
-          <div class="field full">
-            <label>Avez-vous un logo ? <span class="required">*</span></label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input type="radio" name="logo" value="Oui, je l'enverrai par email">
-                <span>Oui, je l'enverrai par email</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="logo" value="Non, à créer">
-                <span>Non, à créer</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="logo" value="À refaire">
-                <span>À refaire</span>
-              </label>
-            </div>
-          </div>
-          <div class="field full">
-            <label>Couleurs de votre entreprise <span class="optional">(optionnel)</span></label>
-            <input type="text" name="couleurs" placeholder="Ex: Bleu et blanc, rouge et noir, couleurs libres...">
-          </div>
-          <div class="field full">
-            <label>Style visuel souhaité pour le site <span class="required">*</span></label>
-            <div class="checkbox-group">
-              <label class="checkbox-item">
-                <input type="checkbox" name="style[]" value="Moderne et minimaliste">
-                <span>Moderne et minimaliste</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="style[]" value="Dynamique et coloré">
-                <span>Dynamique et coloré</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="style[]" value="Sérieux et professionnel">
-                <span>Sérieux et professionnel</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="style[]" value="Chaleureux et artisanal">
-                <span>Chaleureux et artisanal</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="style[]" value="Sombre et premium">
-                <span>Sombre et premium</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="style[]" value="Clair et épuré">
-                <span>Clair et épuré</span>
-              </label>
-            </div>
-          </div>
-          <div class="field full">
-            <label>Avez-vous des sites que vous aimez ? <span class="optional">(optionnel)</span></label>
-            <textarea name="sites_inspiration" placeholder="Collez des URLs de sites que vous trouvez beaux ou qui vous inspirent..."></textarea>
-          </div>
-          <div class="field full">
-            <label>Avez-vous des photos de votre travail ? <span class="required">*</span></label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input type="radio" name="photos" value="Oui, beaucoup (j'enverrai par email)">
-                <span>Oui, beaucoup</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="photos" value="Quelques-unes">
-                <span>Quelques-unes</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="photos" value="Non (photos de stock seront utilisées)">
-                <span>Non (photos de stock)</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 4. Contenu & Textes -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-icon">✍️</div>
-          <div>
-            <div class="section-title">4. Contenu & Textes</div>
-            <div class="section-subtitle">Ce qui sera écrit sur votre site</div>
-          </div>
-        </div>
-        <div class="field-group">
-          <div class="field full">
-            <label>Présentez-vous en quelques phrases <span class="required">*</span></label>
-            <textarea name="presentation" placeholder="Qui êtes-vous ? Votre parcours, votre expertise, ce qui vous a poussé à créer votre entreprise..." required></textarea>
-          </div>
-          <div class="field">
-            <label>Années d'expérience <span class="required">*</span></label>
-            <input type="number" name="annees_experience" placeholder="Ex: 12" min="0" max="60" required>
-          </div>
-          <div class="field">
-            <label>Nombre de chantiers réalisés <span class="optional">(approx.)</span></label>
-            <input type="text" name="nb_chantiers" placeholder="Ex: 500+ chantiers">
-          </div>
-          <div class="field full">
-            <label>Avez-vous des témoignages clients ? <span class="required">*</span></label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input type="radio" name="temoignages" value="Oui, j'en enverrai">
-                <span>Oui, j'en enverrai</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="temoignages" value="Quelques avis Google">
-                <span>Quelques avis Google</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="temoignages" value="Non pas encore">
-                <span>Non pas encore</span>
-              </label>
-            </div>
-          </div>
-          <div class="field full">
-            <label>Chiffres clés à mettre en avant <span class="optional">(optionnel)</span></label>
-            <input type="text" name="chiffres_cles" placeholder="Ex: 500+ clients, 15 ans d'expérience, intervention en moins d'1h, 98% de satisfaction...">
-          </div>
-          <div class="field full">
-            <label>Avez-vous des labels / récompenses ? <span class="optional">(optionnel)</span></label>
-            <input type="text" name="labels" placeholder="Ex: Meilleur artisan 2023, certifié ISO, partenaire officiel...">
-          </div>
-          <div class="field full">
-            <label>Votre slogan / phrase d'accroche <span class="optional">(optionnel — on peut en créer un)</span></label>
-            <input type="text" name="slogan" placeholder="Ex: Votre urgence, notre priorité">
-          </div>
-        </div>
-      </div>
-
-      <!-- 5. Tarifs -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-icon">💶</div>
-          <div>
-            <div class="section-title">5. Tarifs & Devis</div>
-            <div class="section-subtitle">Votre politique commerciale</div>
-          </div>
-        </div>
-        <div class="field-group">
-          <div class="field full">
-            <label>Affichez-vous vos tarifs ? <span class="required">*</span></label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input type="radio" name="afficher_tarifs" value="Oui, tarifs fixes">
-                <span>Oui, tarifs fixes</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="afficher_tarifs" value="Tarifs indicatifs (à partir de)">
-                <span>Tarifs indicatifs</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="afficher_tarifs" value="Non, uniquement sur devis">
-                <span>Non, sur devis uniquement</span>
-              </label>
-            </div>
-          </div>
-          <div class="field full">
-            <label>Si oui, vos tarifs principaux <span class="optional">(optionnel)</span></label>
-            <textarea name="tarifs_details" placeholder="Ex: Débouchage égouts à partir de 75€, dépannage urgent 90€/h, entretien chaudière 120€ forfait..."></textarea>
-          </div>
-          <div class="field full">
-            <label>Proposez-vous des devis gratuits ? <span class="required">*</span></label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input type="radio" name="devis_gratuit" value="Oui, devis gratuit">
-                <span>Oui, gratuit</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="devis_gratuit" value="Oui, devis gratuit sous 24h">
-                <span>Oui, sous 24h</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="devis_gratuit" value="Non">
-                <span>Non</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 6. SEO & Google -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-icon">🔍</div>
-          <div>
-            <div class="section-title">6. SEO & Visibilité Google</div>
-            <div class="section-subtitle">Votre présence actuelle en ligne</div>
-          </div>
-        </div>
-        <div class="field-group">
-          <div class="field full">
-            <label>Avez-vous déjà un site web ? <span class="required">*</span></label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input type="radio" name="site_existant" value="Non">
-                <span>Non</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="site_existant" value="Oui, à remplacer">
-                <span>Oui, à remplacer</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="site_existant" value="Oui, à conserver">
-                <span>Oui, à conserver</span>
-              </label>
-            </div>
-          </div>
-          <div class="field full">
-            <label>Si oui, URL du site actuel <span class="optional">(optionnel)</span></label>
-            <input type="url" name="url_actuel" placeholder="https://votresite.be">
-          </div>
-          <div class="field full">
-            <label>Avez-vous une fiche Google Business Profile ? <span class="required">*</span></label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input type="radio" name="google_business" value="Oui, optimisée">
-                <span>Oui, optimisée</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="google_business" value="Oui, mais peu remplie">
-                <span>Oui, mais peu remplie</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="google_business" value="Non">
-                <span>Non</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="google_business" value="Je ne sais pas">
-                <span>Je ne sais pas</span>
-              </label>
-            </div>
-          </div>
-          <div class="field">
-            <label>Combien d'avis Google avez-vous ? <span class="optional">(optionnel)</span></label>
-            <input type="number" name="nb_avis" placeholder="Ex: 12" min="0">
-          </div>
-          <div class="field">
-            <label>Note Google actuelle <span class="optional">(optionnel)</span></label>
-            <select name="note_google">
-              <option value="">Sélectionner...</option>
-              <option>5/5</option>
-              <option>4.5/5</option>
-              <option>4/5</option>
-              <option>3.5/5 ou moins</option>
-              <option>Pas de fiche Google</option>
-            </select>
-          </div>
-          <div class="field full">
-            <label>Mots-clés prioritaires <span class="required">*</span></label>
-            <input type="text" name="mots_cles" placeholder="Ex: plombier Liège urgence, débouchage Seraing, installation chaudière Herstal..." required>
-          </div>
-          <div class="field full">
-            <label>Vos 3 principaux concurrents <span class="optional">(optionnel)</span></label>
-            <input type="text" name="concurrents" placeholder="Noms d'entreprises concurrentes dans votre région...">
-          </div>
-          <div class="field full">
-            <label>Communes prioritaires pour le SEO <span class="required">*</span></label>
-            <input type="text" name="communes_seo" placeholder="Ex: Liège, Seraing, Herstal, Ans, Flémalle, Saint-Nicolas, Grâce-Hollogne..." required>
-          </div>
-        </div>
-      </div>
-
-      <!-- 7. Technique & Domaine -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-icon">⚙️</div>
-          <div>
-            <div class="section-title">7. Technique & Domaine</div>
-            <div class="section-subtitle">Infrastructure technique</div>
-          </div>
-        </div>
-        <div class="field-group">
-          <div class="field full">
-            <label>Avez-vous un nom de domaine ? <span class="required">*</span></label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input type="radio" name="domaine_existant" value="Oui">
-                <span>Oui</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="domaine_existant" value="Non, à acheter">
-                <span>Non, à acheter</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="domaine_existant" value="Je ne sais pas">
-                <span>Je ne sais pas</span>
-              </label>
-            </div>
-          </div>
-          <div class="field">
-            <label>Si oui, le nom de domaine <span class="optional">(optionnel)</span></label>
-            <input type="text" name="nom_domaine" placeholder="votreentreprise.be">
-          </div>
-          <div class="field">
-            <label>Email professionnel souhaité <span class="optional">(optionnel)</span></label>
-            <input type="text" name="email_pro_souhaite" placeholder="info@votreentreprise.be">
-          </div>
-          <div class="field full">
-            <label>Réseaux sociaux actifs <span class="optional">(optionnel)</span></label>
-            <input type="text" name="reseaux_sociaux" placeholder="Ex: Facebook: facebook.com/votrepage, Instagram: @votrecompte...">
-          </div>
-          <div class="field full">
-            <label>Proposez-vous la prise de RDV en ligne ? <span class="required">*</span></label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input type="radio" name="rdv_en_ligne" value="Oui, j'ai déjà un outil">
-                <span>Oui, j'ai déjà un outil</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="rdv_en_ligne" value="Non mais intéressé">
-                <span>Non mais intéressé</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="rdv_en_ligne" value="Non, uniquement par téléphone">
-                <span>Non, téléphone uniquement</span>
-              </label>
-            </div>
-          </div>
-          <div class="field full">
-            <label>Horaires d'ouverture <span class="required">*</span></label>
-            <textarea name="horaires" placeholder="Ex: Lun-Ven 8h-18h, Sam 9h-13h, Urgences 24h/24" required></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- 8. Pack IA -->
-      <div class="form-section" id="section-ia">
-        <div class="section-header">
-          <div class="section-icon">🤖</div>
-          <div>
-            <div class="section-title">8. Pack Intelligence Artificielle</div>
-            <div class="section-subtitle">À remplir uniquement si vous avez souscrit un pack IA ou bundle</div>
-          </div>
-        </div>
-        <div class="field-group">
-          <div class="field full">
-            <label>Pack IA souscrit <span class="optional">(optionnel si web seul)</span></label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input type="radio" name="pack_ia" value="Aucun — formule web uniquement">
-                <span>Aucun — web uniquement</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="pack_ia" value="Starter IA — 50€/mois">
-                <span>Starter IA — 50€/mois</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="pack_ia" value="Business IA — 150€/mois">
-                <span>Business IA — 150€/mois</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="pack_ia" value="Premium IA — 300€/mois">
-                <span>Premium IA — 300€/mois</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="field full">
-            <label>Langue(s) parlées par vos clients <span class="optional">(pour le chatbot et l'agent vocal)</span></label>
-            <div class="checkbox-group">
-              <label class="checkbox-item">
-                <input type="checkbox" name="langues_clients[]" value="Français">
-                <span>Français</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="langues_clients[]" value="Néerlandais">
-                <span>Néerlandais</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="langues_clients[]" value="Anglais">
-                <span>Anglais</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="langues_clients[]" value="Allemand">
-                <span>Allemand</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="field full">
-            <label>Questions fréquentes de vos clients <span class="optional">(pour programmer le chatbot FAQ)</span></label>
-            <textarea name="faq_questions" placeholder="Ex: Quels sont vos tarifs ? Intervenez-vous le week-end ? Êtes-vous disponible en urgence ? Faites-vous des devis gratuits ? Quels secteurs couvrez-vous ?..."></textarea>
-          </div>
-
-          <div class="field full">
-            <label>Ton souhaité pour l'IA <span class="optional">(comment voulez-vous qu'elle s'exprime ?)</span></label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input type="radio" name="ton_ia" value="Professionnel et formel">
-                <span>Professionnel et formel</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="ton_ia" value="Amical et accessible">
-                <span>Amical et accessible</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="ton_ia" value="Dynamique et commercial">
-                <span>Dynamique et commercial</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="field-divider"></div>
-
-          <div class="field full">
-            <label style="color: var(--gold); font-size:0.9rem; font-weight:700; margin-bottom:4px;">⬇ Business IA & Premium IA uniquement</label>
-          </div>
-
-          <div class="field full">
-            <label>Nom souhaité pour votre agent vocal IA <span class="optional">(le nom qu'il donnera au téléphone)</span></label>
-            <input type="text" name="nom_agent_vocal" placeholder="Ex: Julie, Alex, Thomas, Assistant de Plomberie Dupont...">
-          </div>
-
-          <div class="field full">
-            <label>Types d'appels les plus fréquents <span class="optional">(pour calibrer l'agent vocal)</span></label>
-            <textarea name="types_appels" placeholder="Ex: Demandes de devis, urgences plomberie, prise de RDV entretien chaudière, renseignements tarifs, confirmation de commande..."></textarea>
-          </div>
-
-          <div class="field full">
-            <label>Que doit faire l'agent vocal si le client veut parler à un humain ? <span class="optional">(optionnel)</span></label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input type="radio" name="escalade_agent" value="Transfert immédiat vers mon numéro">
-                <span>Transfert vers mon numéro</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="escalade_agent" value="Prendre un message et rappeler">
-                <span>Prendre un message + rappel</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="escalade_agent" value="Proposer un RDV téléphonique">
-                <span>Proposer un RDV téléphonique</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="field full">
-            <label>Souhaitez-vous activer l'agent WhatsApp ? <span class="optional">(Premium IA uniquement)</span></label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input type="radio" name="whatsapp_agent" value="Oui">
-                <span>Oui</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="whatsapp_agent" value="Non">
-                <span>Non</span>
-              </label>
-            </div>
-          </div>
-
-          <div class="field full">
-            <label>KPIs prioritaires pour votre dashboard <span class="optional">(Premium IA — que voulez-vous suivre ?)</span></label>
-            <div class="checkbox-group">
-              <label class="checkbox-item">
-                <input type="checkbox" name="kpis[]" value="Nombre de leads reçus">
-                <span>Nombre de leads</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="kpis[]" value="Visites sur le site">
-                <span>Visites sur le site</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="kpis[]" value="Appels traités par l'IA">
-                <span>Appels IA</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="kpis[]" value="Avis Google reçus">
-                <span>Avis Google</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="kpis[]" value="Conversations chatbot">
-                <span>Conversations chatbot</span>
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" name="kpis[]" value="Messages WhatsApp traités">
-                <span>Messages WhatsApp</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 9. Infos complémentaires -->
-      <div class="form-section">
-        <div class="section-header">
-          <div class="section-icon">⭐</div>
-          <div>
-            <div class="section-title">9. Infos complémentaires</div>
-            <div class="section-subtitle">Pour personnaliser encore plus votre site</div>
-          </div>
-        </div>
-        <div class="field-group">
-          <div class="field full">
-            <label>L'histoire de votre entreprise <span class="optional">(optionnel)</span></label>
-            <textarea name="histoire" placeholder="Comment a démarré l'aventure ? Pourquoi ce métier ? Une anecdote marquante ? Ces histoires créent de la confiance..."></textarea>
-          </div>
-          <div class="field full">
-            <label>Avez-vous des photos avant/après de vos chantiers ? <span class="optional">(optionnel)</span></label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input type="radio" name="photos_avant_apres" value="Oui, plusieurs">
-                <span>Oui, plusieurs</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="photos_avant_apres" value="Quelques-unes">
-                <span>Quelques-unes</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="photos_avant_apres" value="Non">
-                <span>Non</span>
-              </label>
-            </div>
-          </div>
-          <div class="field full">
-            <label>Premier article de blog — Sujet souhaité <span class="optional">(optionnel)</span></label>
-            <input type="text" name="sujet_article" placeholder="Ex: Comment choisir sa chaudière à condensation, 5 signes que votre installation électrique est dangereuse...">
-          </div>
-          <div class="field full">
-            <label>Question / demande spéciale <span class="optional">(optionnel)</span></label>
-            <textarea name="question_speciale" placeholder="Quelque chose à nous communiquer ? Une fonctionnalité spécifique souhaitée ? Une contrainte particulière ?"></textarea>
-          </div>
-          <div class="field full">
-            <label>Formule web choisie <span class="required">*</span></label>
-            <div class="radio-group">
-              <label class="radio-item">
-                <input type="radio" name="formule" value="Essentiel — 199€ setup + 69€/mois" required>
-                <span>Essentiel — 199€ + 69€/mois</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="formule" value="Business — 349€ setup + 119€/mois">
-                <span>Business — 349€ + 119€/mois ⭐</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="formule" value="Premium — 499€ setup + 199€/mois">
-                <span>Premium — 499€ + 199€/mois</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="formule" value="Bundle Essentiel IA — 499€ setup + 109€/mois">
-                <span>Bundle Essentiel IA — 499€ + 109€/mois</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="formule" value="Bundle Business IA — 949€ setup + 249€/mois">
-                <span>Bundle Business IA — 949€ + 249€/mois 🔥</span>
-              </label>
-              <label class="radio-item">
-                <input type="radio" name="formule" value="Bundle Premium IA — 1499€ setup + 449€/mois">
-                <span>Bundle Premium IA — 1 499€ + 449€/mois</span>
-              </label>
-            </div>
-          </div>
-          <div class="field full">
-            <label>Délai souhaité pour la mise en ligne <span class="optional">(optionnel)</span></label>
-            <select name="delai">
-              <option value="">Sélectionner...</option>
-              <option>Le plus tôt possible</option>
-              <option>Dans les 2 semaines</option>
-              <option>Dans le mois</option>
-              <option>Pas pressé</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- Submit -->
-      <div class="submit-section">
-        <h3>Tout est prêt !</h3>
-        <p>Une fois envoyé, Seolia vous contacte sous 24h pour confirmer le démarrage de votre projet.</p>
-        <button type="submit" class="btn-submit" id="submitBtn">
-          Envoyer le questionnaire
-        </button>
-      </div>
-
-      <!-- Success -->
-      <div class="success-message" id="successMessage">
-        <div class="check">✅</div>
-        <h3>Questionnaire envoyé !</h3>
-        <p>Merci ! Nous avons bien reçu vos informations et vous recontacterons dans les 24 heures pour démarrer votre projet.</p>
-      </div>
-    </form>
+<!-- STEP 2: Form (appears after formula selection) -->
+<div class="form-wrapper" id="formWrapper">
+  <div class="selected-formula-banner" id="selectedBanner">
+    <div>Formule sélectionnée : <span class="name" id="bannerName"></span></div>
+    <button class="change-btn" onclick="changeFormula()">Modifier</button>
   </div>
+
+  <form id="clientForm">
+    <!-- Hidden fields -->
+    <input type="hidden" name="access_key" value="ba868ed8-1796-456e-ba13-b7d0e0b4f2cf">
+    <input type="hidden" name="subject" value="Nouveau questionnaire client — Seolia">
+    <input type="hidden" name="from_name" value="Seolia Questionnaire">
+    <input type="hidden" name="formule" id="hiddenFormule" value="">
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- SECTION 1 — ENTREPRISE             -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="form-section" id="s1">
+      <div class="section-header">
+        <div class="section-icon">🏢</div>
+        <div>
+          <div class="section-number">Section 1</div>
+          <div class="section-title">Votre entreprise</div>
+          <div class="section-subtitle">Les informations de base sur votre société</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field full">
+          <label>Nom de l'entreprise <span class="required">*</span></label>
+          <input type="text" name="nom_entreprise" placeholder="Plomberie Dupont" required>
+        </div>
+        <div class="field">
+          <label>Téléphone <span class="required">*</span></label>
+          <input type="tel" name="telephone" placeholder="+32 470 00 00 00" required>
+        </div>
+        <div class="field">
+          <label>Email professionnel <span class="required">*</span></label>
+          <input type="email" name="email" placeholder="info@votreentreprise.be" required>
+        </div>
+        <div class="field">
+          <label>Numéro BCE / TVA <span class="optional">(optionnel)</span></label>
+          <input type="text" name="tva" placeholder="BE 0123.456.789">
+        </div>
+        <div class="field">
+          <label>Année de création <span class="optional">(optionnel)</span></label>
+          <input type="number" name="annee_creation" placeholder="2015" min="1950" max="2026">
+        </div>
+        <div class="field full">
+          <label>Adresse complète <span class="required">*</span></label>
+          <input type="text" name="adresse" placeholder="Rue de la Paix 12, 4000 Liège" required>
+        </div>
+        <div class="field full">
+          <label>Zone d'intervention <span class="required">*</span></label>
+          <input type="text" name="zone_intervention" placeholder="Ex: Province de Liège, toute la Wallonie..." required>
+        </div>
+        <div class="field">
+          <label>Nombre d'employés <span class="optional">(optionnel)</span></label>
+          <select name="nb_employes">
+            <option value="">Sélectionner...</option>
+            <option>Indépendant seul</option>
+            <option>2-5 personnes</option>
+            <option>6-10 personnes</option>
+            <option>Plus de 10</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- SECTION 2 — ACTIVITÉ               -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="form-section" id="s2">
+      <div class="section-header">
+        <div class="section-icon">🔧</div>
+        <div>
+          <div class="section-number">Section 2</div>
+          <div class="section-title">Activité & Services</div>
+          <div class="section-subtitle">Ce que vous faites — la base de votre référencement</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>Secteur d'activité principal <span class="required">*</span></label>
+          <select name="secteur" required>
+            <option value="">Sélectionner...</option>
+            <option>Plomberie</option>
+            <option>Electricité</option>
+            <option>Chauffage / HVAC</option>
+            <option>Serrurerie</option>
+            <option>Toiture / Couverture</option>
+            <option>Peinture</option>
+            <option>Carrelage</option>
+            <option>Menuiserie</option>
+            <option>Maçonnerie</option>
+            <option>Nettoyage / Detailing</option>
+            <option>Autre</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Si autre, précisez</label>
+          <input type="text" name="secteur_autre" placeholder="Votre secteur...">
+        </div>
+        <div class="field full">
+          <label>Listez tous vos services <span class="required">*</span></label>
+          <textarea name="services_liste" placeholder="Ex: Installation chauffage central, dépannage urgent 24h/24, entretien chaudière, pompe à chaleur..." required></textarea>
+        </div>
+        <div class="field full">
+          <label>Votre service phare / best-seller <span class="required">*</span></label>
+          <input type="text" name="service_phare" placeholder="Ex: Dépannage plomberie urgent 24h/24" required>
+        </div>
+        <div class="field full">
+          <label>Faites-vous des interventions d'urgence ? <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="urgences" value="Oui, 24h/24 7j/7"><span>Oui, 24h/24 7j/7</span></label>
+            <label class="radio-item"><input type="radio" name="urgences" value="Oui, en heures ouvrables"><span>Oui, en heures ouvrables</span></label>
+            <label class="radio-item"><input type="radio" name="urgences" value="Non"><span>Non</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Certifications / agréments <span class="optional">(optionnel)</span></label>
+          <input type="text" name="certifications" placeholder="Ex: Certibeau, agréé Techlink, certifié Viessmann, membre Confédération Construction...">
+        </div>
+        <div class="field full">
+          <label>Votre avantage sur les concurrents <span class="required">*</span></label>
+          <textarea name="avantages" placeholder="Pourquoi un client vous choisirait-il ? Ex: Réponse en moins d'1h, 15 ans d'expérience, devis gratuit sous 24h..." required></textarea>
+        </div>
+        <div class="field full">
+          <label>Vos 3 principaux concurrents <span class="optional">(optionnel — utile pour le SEO)</span></label>
+          <input type="text" name="concurrents" placeholder="Noms d'entreprises concurrentes dans votre région...">
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- SECTION 3 — IDENTITÉ VISUELLE      -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="form-section" id="s3">
+      <div class="section-header">
+        <div class="section-icon">🎨</div>
+        <div>
+          <div class="section-number">Section 3</div>
+          <div class="section-title">Identité visuelle</div>
+          <div class="section-subtitle">Le look de votre site — couleurs, style, logo</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field full">
+          <label>Avez-vous un logo ? <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="logo" value="Oui, je l'enverrai par email" required><span>Oui, j'enverrai par email</span></label>
+            <label class="radio-item"><input type="radio" name="logo" value="Non, à créer"><span>Non, à créer</span></label>
+            <label class="radio-item"><input type="radio" name="logo" value="À refaire"><span>À refaire</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Couleurs de votre entreprise <span class="optional">(optionnel)</span></label>
+          <input type="text" name="couleurs" placeholder="Ex: Bleu et blanc, rouge et noir, couleurs libres...">
+        </div>
+        <div class="field full">
+          <label>Style visuel souhaité <span class="required">*</span></label>
+          <div class="checkbox-group">
+            <label class="checkbox-item"><input type="checkbox" name="style[]" value="Moderne et minimaliste"><span>Moderne et minimaliste</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="style[]" value="Dynamique et coloré"><span>Dynamique et coloré</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="style[]" value="Sérieux et professionnel"><span>Sérieux et professionnel</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="style[]" value="Chaleureux et artisanal"><span>Chaleureux et artisanal</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="style[]" value="Sombre et premium"><span>Sombre et premium</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="style[]" value="Clair et épuré"><span>Clair et épuré</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Sites web que vous aimez <span class="optional">(optionnel — URLs pour inspiration)</span></label>
+          <textarea name="sites_inspiration" placeholder="Collez des URLs de sites que vous trouvez beaux ou inspirants..."></textarea>
+        </div>
+        <div class="field full">
+          <label>Avez-vous des photos de votre travail ? <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="photos" value="Oui, beaucoup (j'enverrai par email)" required><span>Oui, beaucoup</span></label>
+            <label class="radio-item"><input type="radio" name="photos" value="Quelques-unes"><span>Quelques-unes</span></label>
+            <label class="radio-item"><input type="radio" name="photos" value="Non (photos de stock)"><span>Non (photos de stock)</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Photos avant/après de vos chantiers ? <span class="optional">(optionnel)</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="photos_avant_apres" value="Oui, plusieurs"><span>Oui, plusieurs</span></label>
+            <label class="radio-item"><input type="radio" name="photos_avant_apres" value="Quelques-unes"><span>Quelques-unes</span></label>
+            <label class="radio-item"><input type="radio" name="photos_avant_apres" value="Non"><span>Non</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- SECTION 4 — CONTENU & TEXTES       -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="form-section" id="s4">
+      <div class="section-header">
+        <div class="section-icon">✍️</div>
+        <div>
+          <div class="section-number">Section 4</div>
+          <div class="section-title">Contenu & Textes</div>
+          <div class="section-subtitle">Ce qui sera écrit sur votre site</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field full">
+          <label>Présentez-vous en quelques phrases <span class="required">*</span></label>
+          <textarea name="presentation" placeholder="Qui êtes-vous ? Votre parcours, votre expertise, ce qui vous a poussé à créer votre entreprise..." required></textarea>
+        </div>
+        <div class="field">
+          <label>Années d'expérience <span class="required">*</span></label>
+          <input type="number" name="annees_experience" placeholder="Ex: 12" min="0" max="60" required>
+        </div>
+        <div class="field">
+          <label>Nombre de chantiers réalisés <span class="optional">(approx.)</span></label>
+          <input type="text" name="nb_chantiers" placeholder="Ex: 500+ chantiers">
+        </div>
+        <div class="field full">
+          <label>Avez-vous des témoignages clients ? <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="temoignages" value="Oui, j'en enverrai" required><span>Oui, j'en enverrai</span></label>
+            <label class="radio-item"><input type="radio" name="temoignages" value="Quelques avis Google"><span>Avis Google</span></label>
+            <label class="radio-item"><input type="radio" name="temoignages" value="Non pas encore"><span>Pas encore</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Chiffres clés à mettre en avant <span class="optional">(optionnel)</span></label>
+          <input type="text" name="chiffres_cles" placeholder="Ex: 500+ clients, 15 ans d'expérience, intervention en moins d'1h...">
+        </div>
+        <div class="field full">
+          <label>Labels / récompenses <span class="optional">(optionnel)</span></label>
+          <input type="text" name="labels" placeholder="Ex: Meilleur artisan 2023, certifié ISO, partenaire officiel...">
+        </div>
+        <div class="field full">
+          <label>Votre slogan <span class="optional">(optionnel — on peut en créer un)</span></label>
+          <input type="text" name="slogan" placeholder="Ex: Votre urgence, notre priorité">
+        </div>
+        <div class="field full">
+          <label>L'histoire de votre entreprise <span class="optional">(optionnel — crée de la confiance)</span></label>
+          <textarea name="histoire" placeholder="Comment a démarré l'aventure ? Pourquoi ce métier ? Une anecdote marquante ?"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- SECTION 5 — TARIFS                 -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="form-section" id="s5">
+      <div class="section-header">
+        <div class="section-icon">💶</div>
+        <div>
+          <div class="section-number">Section 5</div>
+          <div class="section-title">Tarifs & Devis</div>
+          <div class="section-subtitle">Votre politique commerciale</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field full">
+          <label>Affichez-vous vos tarifs ? <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="afficher_tarifs" value="Oui, tarifs fixes" required><span>Tarifs fixes</span></label>
+            <label class="radio-item"><input type="radio" name="afficher_tarifs" value="Tarifs indicatifs (à partir de)"><span>Tarifs indicatifs</span></label>
+            <label class="radio-item"><input type="radio" name="afficher_tarifs" value="Non, uniquement sur devis"><span>Sur devis uniquement</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Si oui, vos tarifs principaux <span class="optional">(optionnel)</span></label>
+          <textarea name="tarifs_details" placeholder="Ex: Débouchage à partir de 75€, dépannage urgent 90€/h, entretien chaudière 120€..."></textarea>
+        </div>
+        <div class="field full">
+          <label>Proposez-vous des devis gratuits ? <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="devis_gratuit" value="Oui, devis gratuit" required><span>Oui, gratuit</span></label>
+            <label class="radio-item"><input type="radio" name="devis_gratuit" value="Oui, devis gratuit sous 24h"><span>Oui, sous 24h</span></label>
+            <label class="radio-item"><input type="radio" name="devis_gratuit" value="Non"><span>Non</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- SECTION 6 — SEO & GOOGLE           -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="form-section" id="s6">
+      <div class="section-header">
+        <div class="section-icon">🔍</div>
+        <div>
+          <div class="section-number">Section 6</div>
+          <div class="section-title">SEO & Visibilité Google</div>
+          <div class="section-subtitle">Votre présence actuelle en ligne</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field full">
+          <label>Avez-vous déjà un site web ? <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="site_existant" value="Non" required><span>Non</span></label>
+            <label class="radio-item"><input type="radio" name="site_existant" value="Oui, à remplacer"><span>Oui, à remplacer</span></label>
+            <label class="radio-item"><input type="radio" name="site_existant" value="Oui, à conserver"><span>Oui, à conserver</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>URL du site actuel <span class="optional">(si applicable)</span></label>
+          <input type="url" name="url_actuel" placeholder="https://votresite.be">
+        </div>
+        <div class="field full">
+          <label>Avez-vous une fiche Google Business Profile ? <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="google_business" value="Oui, optimisée" required><span>Oui, optimisée</span></label>
+            <label class="radio-item"><input type="radio" name="google_business" value="Oui, mais peu remplie"><span>Oui, peu remplie</span></label>
+            <label class="radio-item"><input type="radio" name="google_business" value="Non"><span>Non</span></label>
+            <label class="radio-item"><input type="radio" name="google_business" value="Je ne sais pas"><span>Je ne sais pas</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nombre d'avis Google <span class="optional">(optionnel)</span></label>
+          <input type="number" name="nb_avis" placeholder="Ex: 12" min="0">
+        </div>
+        <div class="field">
+          <label>Note Google actuelle <span class="optional">(optionnel)</span></label>
+          <select name="note_google">
+            <option value="">Sélectionner...</option>
+            <option>5/5</option>
+            <option>4.5/5</option>
+            <option>4/5</option>
+            <option>3.5/5 ou moins</option>
+            <option>Pas de fiche Google</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>Mots-clés que vos clients tapent sur Google <span class="required">*</span></label>
+          <input type="text" name="mots_cles" placeholder="Ex: plombier Liège urgence, débouchage Seraing, installation chaudière Herstal..." required>
+        </div>
+        <div class="field full">
+          <label>Communes prioritaires pour le SEO <span class="required">*</span></label>
+          <input type="text" name="communes_seo" placeholder="Ex: Liège, Seraing, Herstal, Ans, Flémalle..." required>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- SECTION 7 — TECHNIQUE              -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="form-section" id="s7">
+      <div class="section-header">
+        <div class="section-icon">⚙️</div>
+        <div>
+          <div class="section-number">Section 7</div>
+          <div class="section-title">Technique & Domaine</div>
+          <div class="section-subtitle">Infrastructure technique</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field full">
+          <label>Avez-vous un nom de domaine ? <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="domaine_existant" value="Oui" required><span>Oui</span></label>
+            <label class="radio-item"><input type="radio" name="domaine_existant" value="Non, à acheter"><span>Non, à acheter</span></label>
+            <label class="radio-item"><input type="radio" name="domaine_existant" value="Je ne sais pas"><span>Je ne sais pas</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Si oui, le nom de domaine</label>
+          <input type="text" name="nom_domaine" placeholder="votreentreprise.be">
+        </div>
+        <div class="field">
+          <label>Email professionnel souhaité <span class="optional">(optionnel)</span></label>
+          <input type="text" name="email_pro_souhaite" placeholder="info@votreentreprise.be">
+        </div>
+        <div class="field full">
+          <label>Réseaux sociaux actifs <span class="optional">(optionnel)</span></label>
+          <input type="text" name="reseaux_sociaux" placeholder="Ex: Facebook: facebook.com/votrepage, Instagram: @votrecompte...">
+        </div>
+        <div class="field full">
+          <label>Proposez-vous la prise de RDV en ligne ? <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="rdv_en_ligne" value="Oui, j'ai déjà un outil" required><span>Oui, j'ai un outil</span></label>
+            <label class="radio-item"><input type="radio" name="rdv_en_ligne" value="Non mais intéressé"><span>Non mais intéressé</span></label>
+            <label class="radio-item"><input type="radio" name="rdv_en_ligne" value="Non, uniquement par téléphone"><span>Téléphone uniquement</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Horaires d'ouverture <span class="required">*</span></label>
+          <textarea name="horaires" placeholder="Ex: Lun-Ven 8h-18h, Sam 9h-13h, Urgences 24h/24" required></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- SECTION 8a — IA CHATBOT & AVIS     -->
+    <!-- Visible: essentiel-ia, business-ia, premium-ia -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="form-section section-ia hidden" id="s8a" data-show-for="essentiel-ia business-ia premium-ia">
+      <div class="section-header">
+        <div class="section-icon">🤖</div>
+        <div>
+          <div class="section-number">Section 8 — Intelligence Artificielle</div>
+          <div class="section-title">Chatbot IA & Avis Google automatiques</div>
+          <div class="section-subtitle">Configuration de votre assistant IA et automation des avis</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field full">
+          <label>Langues parlées par vos clients <span class="required">*</span></label>
+          <div class="checkbox-group">
+            <label class="checkbox-item"><input type="checkbox" name="langues_clients[]" value="Français"><span>Français</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="langues_clients[]" value="Néerlandais"><span>Néerlandais</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="langues_clients[]" value="Anglais"><span>Anglais</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="langues_clients[]" value="Allemand"><span>Allemand</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Questions fréquentes de vos clients <span class="required">*</span></label>
+          <textarea name="faq_questions" placeholder="Ex: Quels sont vos tarifs ? Intervenez-vous le week-end ? Êtes-vous disponible en urgence ? Faites-vous des devis gratuits ?" required></textarea>
+        </div>
+        <div class="field full">
+          <label>Ton souhaité pour votre IA <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="ton_ia" value="Professionnel et formel" required><span>Professionnel et formel</span></label>
+            <label class="radio-item"><input type="radio" name="ton_ia" value="Amical et accessible"><span>Amical et accessible</span></label>
+            <label class="radio-item"><input type="radio" name="ton_ia" value="Dynamique et commercial"><span>Dynamique et commercial</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Email de notification pour les demandes chatbot <span class="required">*</span></label>
+          <input type="email" name="notif_email_chatbot" placeholder="Votre email pour recevoir les demandes du chatbot" required>
+        </div>
+        <div class="field full">
+          <label>Activer la demande automatique d'avis Google ? <span class="optional">(après chaque intervention)</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="auto_avis_google" value="Oui — envoyer un SMS/email au client après l'intervention"><span>Oui, par SMS/email</span></label>
+            <label class="radio-item"><input type="radio" name="auto_avis_google" value="Oui — uniquement par email"><span>Oui, par email uniquement</span></label>
+            <label class="radio-item"><input type="radio" name="auto_avis_google" value="Non, je le ferai manuellement"><span>Non, manuel</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Lien vers votre fiche Google Business <span class="optional">(optionnel — pour configurer l'auto-avis)</span></label>
+          <input type="url" name="lien_google_business" placeholder="https://g.page/votre-fiche-google">
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- SECTION 8b — IA RDV & COMMANDES    -->
+    <!-- Visible: business-ia, premium-ia   -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="form-section section-ia hidden" id="s8b" data-show-for="business-ia premium-ia">
+      <div class="section-header">
+        <div class="section-icon">📅</div>
+        <div>
+          <div class="section-number">Section 8b — Business IA</div>
+          <div class="section-title">RDV automatiques & Gestion des commandes</div>
+          <div class="section-subtitle">Configuration de l'automation RDV et des notifications</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field full">
+          <label>Outil de prise de RDV actuel <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="outil_rdv" value="Calendly" required><span>Calendly</span></label>
+            <label class="radio-item"><input type="radio" name="outil_rdv" value="Google Calendar"><span>Google Calendar</span></label>
+            <label class="radio-item"><input type="radio" name="outil_rdv" value="Autre outil"><span>Autre outil</span></label>
+            <label class="radio-item"><input type="radio" name="outil_rdv" value="Aucun — à configurer"><span>Aucun (à configurer)</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Types de rendez-vous à automatiser <span class="required">*</span></label>
+          <textarea name="types_rdv" placeholder="Ex: Entretien chaudière annuel, devis installation, dépannage planifié, visite diagnostic..." required></textarea>
+        </div>
+        <div class="field full">
+          <label>Types de commandes/demandes gérées par l'IA <span class="required">*</span></label>
+          <textarea name="types_services_chatbot" placeholder="Ex: Demande de devis, réservation intervention, commande de pièces, suivi de chantier..." required></textarea>
+        </div>
+        <div class="field">
+          <label>Email de notification pour nouvelles commandes <span class="required">*</span></label>
+          <input type="email" name="notif_email_commandes" placeholder="Email pour recevoir les notifications" required>
+        </div>
+        <div class="field">
+          <label>Numéro SMS pour notifications <span class="optional">(optionnel)</span></label>
+          <input type="tel" name="notif_sms" placeholder="+32 470 00 00 00">
+        </div>
+        <div class="field full">
+          <label>Informations nécessaires avant de confirmer un RDV <span class="optional">(optionnel)</span></label>
+          <textarea name="infos_rdv_requises" placeholder="Ex: Type de problème, adresse d'intervention, marque de la chaudière, urgence ou non..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- SECTION 8c — IA VOCAL & DASHBOARD  -->
+    <!-- Visible: premium-ia only           -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="form-section section-ia hidden" id="s8c" data-show-for="premium-ia">
+      <div class="section-header">
+        <div class="section-icon">📞</div>
+        <div>
+          <div class="section-number">Section 8c — Premium IA</div>
+          <div class="section-title">Agent vocal IA & Dashboard analytique</div>
+          <div class="section-subtitle">Votre assistant téléphonique 24h/24 et tableau de bord</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="sub-section-label">Agent téléphonique IA (200 min/mois inclus)</div>
+        <div class="field">
+          <label>Nom de votre agent vocal <span class="required">*</span></label>
+          <input type="text" name="nom_agent_vocal" placeholder="Ex: Julie, Alex, Thomas, Assistant Dupont..." required>
+        </div>
+        <div class="field">
+          <label>Voix préférée <span class="optional">(optionnel)</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="voix_agent" value="Féminine française"><span>Féminine</span></label>
+            <label class="radio-item"><input type="radio" name="voix_agent" value="Masculine française"><span>Masculine</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Types d'appels les plus fréquents <span class="required">*</span></label>
+          <textarea name="types_appels" placeholder="Ex: Demandes de devis, urgences plomberie, prise de RDV entretien, renseignements tarifs..." required></textarea>
+        </div>
+        <div class="field full">
+          <label>Si le client veut parler à un humain <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="escalade_agent" value="Transfert immédiat vers mon numéro" required><span>Transfert vers mon numéro</span></label>
+            <label class="radio-item"><input type="radio" name="escalade_agent" value="Prendre un message et rappeler"><span>Prendre message + rappeler</span></label>
+            <label class="radio-item"><input type="radio" name="escalade_agent" value="Proposer un RDV téléphonique"><span>Proposer un RDV</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Numéro de transfert <span class="optional">(si transfert vers humain)</span></label>
+          <input type="tel" name="numero_transfert" placeholder="+32 470 00 00 00">
+        </div>
+        <div class="field-divider"></div>
+        <div class="sub-section-label">WhatsApp Business IA</div>
+        <div class="field full">
+          <label>Activer WhatsApp Business IA ? <span class="required">*</span></label>
+          <div class="radio-group">
+            <label class="radio-item"><input type="radio" name="whatsapp_agent" value="Oui" required><span>Oui</span></label>
+            <label class="radio-item"><input type="radio" name="whatsapp_agent" value="Non"><span>Non</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Numéro WhatsApp <span class="optional">(si activé — peut être votre numéro pro)</span></label>
+          <input type="tel" name="whatsapp_numero" placeholder="+32 470 00 00 00">
+        </div>
+        <div class="field-divider"></div>
+        <div class="sub-section-label">Dashboard analytique & Rapports</div>
+        <div class="field full">
+          <label>KPIs à afficher dans votre dashboard <span class="required">*</span></label>
+          <div class="checkbox-group">
+            <label class="checkbox-item"><input type="checkbox" name="kpis[]" value="Nombre de leads reçus"><span>Leads reçus</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="kpis[]" value="Visites sur le site"><span>Visites site</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="kpis[]" value="Appels traités par l'IA"><span>Appels IA</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="kpis[]" value="Avis Google reçus"><span>Avis Google</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="kpis[]" value="Conversations chatbot"><span>Chatbot</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="kpis[]" value="Messages WhatsApp traités"><span>WhatsApp</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="kpis[]" value="RDV pris automatiquement"><span>RDV auto</span></label>
+            <label class="checkbox-item"><input type="checkbox" name="kpis[]" value="Chiffre d'affaires estimé"><span>CA estimé</span></label>
+          </div>
+        </div>
+        <div class="field full">
+          <label>Email(s) pour les rapports hebdomadaires <span class="required">*</span></label>
+          <input type="text" name="rapport_email" placeholder="votre@email.be (plusieurs emails séparés par virgule)" required>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- SECTION 9 — DIVERS                 -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="form-section" id="s9">
+      <div class="section-header">
+        <div class="section-icon">⭐</div>
+        <div>
+          <div class="section-number">Section 9</div>
+          <div class="section-title">Informations complémentaires</div>
+          <div class="section-subtitle">Pour personnaliser encore plus votre projet</div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field full">
+          <label>Sujet du premier article de blog <span class="optional">(optionnel)</span></label>
+          <input type="text" name="sujet_article" placeholder="Ex: Comment choisir sa chaudière à condensation, 5 signes que votre installation est dangereuse...">
+        </div>
+        <div class="field full">
+          <label>Question / demande spéciale <span class="optional">(optionnel)</span></label>
+          <textarea name="question_speciale" placeholder="Une fonctionnalité spécifique ? Une contrainte particulière ? Quelque chose à nous communiquer ?"></textarea>
+        </div>
+        <div class="field full">
+          <label>Délai souhaité pour la mise en ligne <span class="optional">(optionnel)</span></label>
+          <select name="delai">
+            <option value="">Sélectionner...</option>
+            <option>Le plus tôt possible</option>
+            <option>Dans les 2 semaines</option>
+            <option>Dans le mois</option>
+            <option>Pas pressé</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="submit-section">
+      <h3>Tout est prêt !</h3>
+      <p>Votre questionnaire sera transmis à notre équipe.<br>Nous vous contacterons sous 24h pour confirmer le démarrage de votre projet.</p>
+      <button type="submit" class="btn-submit" id="submitBtn">Envoyer le questionnaire</button>
+    </div>
+
+    <!-- Success -->
+    <div class="success-message" id="successMessage">
+      <div class="check">✅</div>
+      <h3>Questionnaire envoyé !</h3>
+      <p>Merci ! Notre équipe a bien reçu vos informations et vous recontactera dans les 24 heures.</p>
+    </div>
+  </form>
 </div>
 
 <!-- Footer -->
@@ -1103,53 +1114,132 @@
 </div>
 
 <script>
-  // Progress bar
+  // ─── Progress bar ───
   window.addEventListener('scroll', () => {
     const scrollTop = document.documentElement.scrollTop;
     const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    const progress = (scrollTop / docHeight) * 100;
-    document.getElementById('progressBar').style.width = progress + '%';
+    document.getElementById('progressBar').style.width = (scrollTop / docHeight * 100) + '%';
   });
 
-  // Form submission
+  // ─── Formula selection ───
+  let selectedTier = null;
+
+  function selectFormula(card) {
+    // Deselect all
+    document.querySelectorAll('.formula-card').forEach(c => c.classList.remove('selected'));
+    // Select clicked
+    card.classList.add('selected');
+
+    selectedTier = card.dataset.tier;
+    const formulaValue = card.dataset.formula;
+
+    // Update hidden field & banner
+    document.getElementById('hiddenFormule').value = formulaValue;
+    document.getElementById('bannerName').textContent = card.querySelector('.formula-name').textContent + ' (' + card.querySelector('.formula-price').textContent + ')';
+
+    // Show/hide IA sections based on tier
+    document.querySelectorAll('[data-show-for]').forEach(section => {
+      const tiers = section.dataset.showFor.split(' ');
+      if (tiers.includes(selectedTier)) {
+        section.classList.remove('hidden');
+      } else {
+        section.classList.add('hidden');
+      }
+    });
+
+    // Make IA required fields only required for IA tiers
+    const isIA = ['essentiel-ia','business-ia','premium-ia'].includes(selectedTier);
+    document.querySelectorAll('#s8a [required], #s8b [required], #s8c [required]').forEach(el => {
+      el.required = false;
+    });
+    if (selectedTier === 'essentiel-ia' || selectedTier === 'business-ia' || selectedTier === 'premium-ia') {
+      document.querySelectorAll('#s8a [data-req]').forEach(el => el.required = true);
+    }
+
+    // Show form wrapper with animation
+    const formWrapper = document.getElementById('formWrapper');
+    formWrapper.classList.add('visible');
+
+    // Smooth scroll to form
+    setTimeout(() => {
+      formWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
+
+  function changeFormula() {
+    document.getElementById('formWrapper').classList.remove('visible');
+    document.querySelectorAll('.formula-card').forEach(c => c.classList.remove('selected'));
+    selectedTier = null;
+    document.getElementById('formulaSection').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function toggleWebOnly() {
+    const el = document.getElementById('webOnlyCards');
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  }
+
+  // ─── Form submission ───
   document.getElementById('clientForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
     btn.textContent = 'Envoi en cours...';
 
+    // Collect form data
     const formData = new FormData(this);
-    const object = {};
+    const data = {};
     formData.forEach((value, key) => {
-      if (object[key]) {
-        if (!Array.isArray(object[key])) object[key] = [object[key]];
-        object[key].push(value);
+      const cleanKey = key.replace('[]', '');
+      if (data[cleanKey]) {
+        if (!Array.isArray(data[cleanKey])) data[cleanKey] = [data[cleanKey]];
+        data[cleanKey].push(value);
       } else {
-        object[key] = value;
+        data[cleanKey] = value;
       }
     });
-    const json = JSON.stringify(object);
+    data.tier = selectedTier;
+    data.submitted_at = new Date().toISOString();
 
+    let success = false;
+
+    // 1. Save to Seolia CRM (Supabase via Worker)
     try {
-      const response = await fetch('https://api.web3forms.com/submit', {
+      const crmResp = await fetch('https://seolia-ai-chat.seolia.workers.dev/save-onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (crmResp.ok) success = true;
+    } catch(err) {
+      console.warn('CRM save failed:', err);
+    }
+
+    // 2. Send email via Web3Forms (fallback notification)
+    try {
+      const emailData = { ...data };
+      // Stringify complex fields for email readability
+      Object.keys(emailData).forEach(k => {
+        if (Array.isArray(emailData[k])) emailData[k] = emailData[k].join(', ');
+      });
+      const emailResp = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: json
+        body: JSON.stringify(emailData)
       });
-      const result = await response.json();
-      if (result.success) {
-        document.getElementById('successMessage').style.display = 'block';
-        document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
-        btn.style.display = 'none';
-      } else {
-        btn.disabled = false;
-        btn.textContent = 'Envoyer le questionnaire';
-        alert('Une erreur est survenue. Veuillez réessayer ou nous contacter directement.');
-      }
-    } catch (err) {
+      const result = await emailResp.json();
+      if (result.success) success = true;
+    } catch(err) {
+      console.warn('Email failed:', err);
+    }
+
+    if (success) {
+      document.getElementById('successMessage').style.display = 'block';
+      document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
+      btn.style.display = 'none';
+    } else {
       btn.disabled = false;
       btn.textContent = 'Envoyer le questionnaire';
-      alert('Erreur de connexion. Veuillez vérifier votre internet et réessayer.');
+      alert('Une erreur est survenue. Veuillez réessayer ou nous contacter directement au +32 470 92 21 88.');
     }
   });
 </script>

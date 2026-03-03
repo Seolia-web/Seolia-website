@@ -638,6 +638,20 @@
       <div id="commerciaux-list"></div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- VIEW: ONBOARDING                                       -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="view" id="view-onboarding">
+      <div class="page-header">
+        <div>
+          <h1>&#x1F4CB; Onboarding clients</h1>
+          <p>Questionnaires reçus — prêts à copier dans Tasklet</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="loadOnboarding()">&#x21BB; Rafraîchir</button>
+      </div>
+      <div id="onboarding-list"><div class="loading-center"><span class="spinner spinner-dark"></span></div></div>
+    </div>
+
   </main><!-- /main -->
 
   <!-- BOTTOM NAV (mobile) -->
@@ -929,6 +943,7 @@ const NAV_ADMIN = [
   { id: 'planning', icon: '📅', label: 'Planning' },
   { id: 'revenus', icon: '💰', label: 'Revenus' },
   { id: 'commerciaux', icon: '👤', label: 'Commerciaux' },
+  { id: 'onboarding', icon: '📋', label: 'Onboarding' },
 ];
 const NAV_COMMERCIAL = [
   { id: 'dashboard', icon: '🏠', label: 'Dashboard' },
@@ -987,6 +1002,7 @@ function showView(viewId) {
   else if (viewId === 'commissions') loadCommissions();
   else if (viewId === 'revenus') loadRevenus();
   else if (viewId === 'commerciaux') loadCommerciaux();
+  else if (viewId === 'onboarding') loadOnboarding();
 }
 
 function updateNavActive(viewId) {
@@ -2062,6 +2078,229 @@ async function loadRevenus() {
 }
 
 // ===== COMMERCIAUX (admin) =====
+// ═══════════════════════════════════════════════════════════════════════════
+// ONBOARDING
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadOnboarding() {
+  const el = document.getElementById('onboarding-list');
+  el.innerHTML = '<div class="loading-center"><span class="spinner spinner-dark"></span></div>';
+  try {
+    const contacts = await sbFetch('/rest/v1/contacts?source=eq.questionnaire&order=created_at.desc&select=*') || [];
+    if (!contacts.length) {
+      el.innerHTML = '<div class="empty-state"><div style="font-size:2.5rem;margin-bottom:12px">📭</div><p>Aucun questionnaire reçu pour l\'instant.</p><p style="font-size:12px;color:var(--text-light);margin-top:4px">Les questionnaires remplis sur seolia.be/questionnaire apparaîtront ici.</p></div>';
+      return;
+    }
+    let html = '';
+    // Store parsed data by contact id for brief generation
+    if (!window._onboardingData) window._onboardingData = {};
+
+    contacts.forEach((c, idx) => {
+      let data = {};
+      try {
+        const notes = c.notes_generales || '';
+        if (notes.startsWith('[QUESTIONNAIRE_ONBOARDING]')) {
+          data = JSON.parse(notes.replace('[QUESTIONNAIRE_ONBOARDING]\n', ''));
+        }
+      } catch(e) {}
+      window._onboardingData[c.id] = data;
+
+      const date = new Date(c.created_at).toLocaleDateString('fr-BE', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      const tierBadgeColor = {
+        'essentiel-ia': '#0ea5e9',
+        'business-ia': '#f59e0b',
+        'premium-ia': '#8b5cf6',
+        'web-essentiel': '#6b7280',
+        'web-business': '#6b7280',
+      }[data.tier] || '#6b7280';
+
+      html += `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:22px 24px;margin-bottom:16px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:200px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
+              <span style="font-size:18px;font-weight:800;color:var(--navy)">${c.entreprise || c.nom || 'Sans nom'}</span>
+              <span style="background:${tierBadgeColor};color:#fff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:50px">${data.formule || 'Formule non précisée'}</span>
+            </div>
+            <div style="display:flex;gap:16px;font-size:12px;color:var(--text-light);flex-wrap:wrap;">
+              <span>&#x1F4C5; ${date}</span>
+              ${c.telephone ? `<span>&#x1F4F1; ${c.telephone}</span>` : ''}
+              ${c.email ? `<span>&#x1F4E7; ${c.email}</span>` : ''}
+              ${data.zone_intervention ? `<span>&#x1F4CD; ${data.zone_intervention}</span>` : ''}
+              ${data.secteur ? `<span>&#x1F527; ${data.secteur}</span>` : ''}
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;">
+            <button onclick="copyBriefById('${c.id}')" style="background:var(--green);color:#0a0e1a;border:none;border-radius:8px;padding:9px 16px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;" id="brief-btn-${c.id}">&#x1F4CB; Copier brief Tasklet</button>
+            <button onclick="showView('contacts');setTimeout(()=>{const r=allContacts.find(x=>x.id==='${c.id}');if(r)openContactDetail(r)},600)" style="background:#f1f5f9;color:var(--navy);border:none;border-radius:8px;padding:9px 14px;font-size:12px;font-weight:600;cursor:pointer;">Voir fiche</button>
+          </div>
+        </div>
+        ${data.question_speciale ? `<div style="margin-top:12px;background:#fef3c7;border-radius:8px;padding:10px 14px;font-size:12px;"><strong>&#x26A0; Note :</strong> ${data.question_speciale}</div>` : ''}
+        ${data.delai ? `<div style="margin-top:8px;font-size:11px;color:var(--text-light)">Délai : <strong>${data.delai}</strong></div>` : ''}
+      </div>`;
+    });
+    el.innerHTML = `<p style="font-size:13px;color:var(--text-light);margin-bottom:16px">${contacts.length} questionnaire(s) reçu(s)</p>` + html;
+  } catch(err) {
+    el.innerHTML = `<div class="empty-state"><p style="color:red">Erreur: ${err.message}</p></div>`;
+  }
+}
+
+function generateBriefText(data) {
+  const f = (v) => (Array.isArray(v) ? v.join(', ') : (v || '—'));
+  const tier = data.tier || '';
+  const isIA = ['essentiel-ia','business-ia','premium-ia'].includes(tier);
+  const isBusiness = ['business-ia','premium-ia'].includes(tier);
+  const isPremium = tier === 'premium-ia';
+
+  let tierLabel = 'Essentiel';
+  if (tier === 'business-ia') tierLabel = 'Business';
+  if (tier === 'premium-ia') tierLabel = 'Premium';
+  if (tier === 'web-essentiel') tierLabel = 'Web Essentiel';
+  if (tier === 'web-business') tierLabel = 'Web Business';
+
+  const date = data.submitted_at ? new Date(data.submitted_at).toLocaleDateString('fr-BE') : new Date().toLocaleDateString('fr-BE');
+
+  let brief = `╔══════════════════════════════════════════════════════════╗
+║  BRIEF SEOLIA — CRÉATION SITE                            ║
+╚══════════════════════════════════════════════════════════╝
+
+📋 CLIENT    : ${f(data.nom_entreprise)}
+📦 FORMULE   : ${f(data.formule)}
+📅 SOUMIS LE : ${date}
+⏰ DÉLAI     : ${f(data.delai)}
+
+━━━ ENTREPRISE ━━━
+Nom         : ${f(data.nom_entreprise)}
+Téléphone   : ${f(data.telephone)}
+Email       : ${f(data.email)}
+TVA         : ${f(data.tva)}
+Adresse     : ${f(data.adresse)}
+Zone        : ${f(data.zone_intervention)}
+Créée en    : ${f(data.annee_creation)}
+Effectif    : ${f(data.nb_employes)}
+
+━━━ ACTIVITÉ ━━━
+Secteur     : ${f(data.secteur)}${data.secteur_autre ? ' — ' + data.secteur_autre : ''}
+Services    : ${f(data.services_liste)}
+Phare       : ${f(data.service_phare)}
+Urgences    : ${f(data.urgences)}
+Certifs     : ${f(data.certifications)}
+Avantages   : ${f(data.avantages)}
+Concurrents : ${f(data.concurrents)}
+
+━━━ IDENTITÉ VISUELLE ━━━
+Logo        : ${f(data.logo)}
+Couleurs    : ${f(data.couleurs)}
+Style       : ${f(data['style[]'] || data.style)}
+Inspiration : ${f(data.sites_inspiration)}
+Photos      : ${f(data.photos)}
+Avant/après : ${f(data.photos_avant_apres)}
+
+━━━ CONTENU ━━━
+Présentation: ${f(data.presentation)}
+Expérience  : ${f(data.annees_experience)} ans
+Chantiers   : ${f(data.nb_chantiers)}
+Témoignages : ${f(data.temoignages)}
+Chiffres    : ${f(data.chiffres_cles)}
+Labels      : ${f(data.labels)}
+Slogan      : ${f(data.slogan)}
+Histoire    : ${f(data.histoire)}
+
+━━━ TARIFS ━━━
+Affichage   : ${f(data.afficher_tarifs)}
+Détails     : ${f(data.tarifs_details)}
+Devis gratu : ${f(data.devis_gratuit)}
+
+━━━ SEO ━━━
+Site actuel : ${f(data.site_existant)} ${data.url_actuel ? '— ' + data.url_actuel : ''}
+Google Biz  : ${f(data.google_business)}
+Avis Google : ${f(data.nb_avis)} (note : ${f(data.note_google)})
+Mots-clés   : ${f(data.mots_cles)}
+Communes    : ${f(data.communes_seo)}
+
+━━━ TECHNIQUE ━━━
+Domaine     : ${f(data.domaine_existant)} ${data.nom_domaine ? '— ' + data.nom_domaine : ''}
+Email pro   : ${f(data.email_pro_souhaite)}
+Réseaux     : ${f(data.reseaux_sociaux)}
+RDV ligne   : ${f(data.rdv_en_ligne)}
+Horaires    : ${f(data.horaires)}
+`;
+
+  if (isIA) {
+    brief += `
+━━━ IA — CHATBOT & AVIS GOOGLE ━━━
+Langues     : ${f(data['langues_clients[]'] || data.langues_clients)}
+FAQ chatbot : ${f(data.faq_questions)}
+Ton IA      : ${f(data.ton_ia)}
+Notif email : ${f(data.notif_email_chatbot)}
+Auto-avis   : ${f(data.auto_avis_google)}
+Lien Google : ${f(data.lien_google_business)}
+`;
+  }
+
+  if (isBusiness) {
+    brief += `
+━━━ IA — RDV & AUTOMATISATION ━━━
+Outil RDV   : ${f(data.outil_rdv)}
+Types RDV   : ${f(data.types_rdv)}
+Services IA : ${f(data.types_services_chatbot)}
+Notif email : ${f(data.notif_email_commandes)}
+Notif SMS   : ${f(data.notif_sms)}
+Infos RDV   : ${f(data.infos_rdv_requises)}
+`;
+  }
+
+  if (isPremium) {
+    brief += `
+━━━ IA — AGENT VOCAL & DASHBOARD ━━━
+Nom agent   : ${f(data.nom_agent_vocal)}
+Voix        : ${f(data.voix_agent)}
+Types appels: ${f(data.types_appels)}
+Escalade    : ${f(data.escalade_agent)}
+Transfert   : ${f(data.numero_transfert)}
+WhatsApp    : ${f(data.whatsapp_agent)} ${data.whatsapp_numero ? '— ' + data.whatsapp_numero : ''}
+KPIs        : ${f(data['kpis[]'] || data.kpis)}
+Rapport à   : ${f(data.rapport_email)}
+`;
+  }
+
+  brief += `
+━━━ DIVERS ━━━
+Article blog: ${f(data.sujet_article)}
+Demande     : ${f(data.question_speciale)}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INSTRUCTIONS POUR TASKLET
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Créer un site ${tierLabel} pour "${f(data.nom_entreprise)}".
+Secteur : ${f(data.secteur)} | Zone : ${f(data.zone_intervention)}
+Style   : ${f(data['style[]'] || data.style)}
+Délai   : ${f(data.delai)}
+
+Référence technique : /agent/home/offre-web-liege/specifications-techniques-v2.html (tier ${tierLabel})
+`;
+
+  return brief;
+}
+
+function copyBriefById(contactId) {
+  const data = (window._onboardingData || {})[contactId] || {};
+  const brief = generateBriefText(data);
+  const btn = document.getElementById('brief-btn-' + contactId);
+  navigator.clipboard.writeText(brief).then(() => {
+    if (btn) {
+      btn.innerHTML = '&#x2705; Copié !';
+      btn.style.background = '#059669';
+      setTimeout(() => {
+        btn.innerHTML = '&#x1F4CB; Copier brief Tasklet';
+        btn.style.background = 'var(--green)';
+      }, 2500);
+    }
+  }).catch(() => {
+    // Fallback: text area modal
+    const w = window.open('', '_blank', 'width=750,height=620');
+    w.document.write(`<html><head><title>Brief Tasklet — ${data.nom_entreprise || 'Client'}</title></head><body style="margin:0;padding:12px;font-family:monospace;background:#0a0e1a;color:#fff"><h3 style="color:#00d68f;margin:0 0 8px">Brief Tasklet — ${data.nom_entreprise || ''}</h3><textarea id="t" style="width:100%;height:80vh;background:#141929;color:#fff;border:1px solid #333;padding:12px;font-family:monospace;font-size:12px;line-height:1.5">${brief}</textarea><br><button onclick="document.getElementById('t').select();document.execCommand('copy');document.title='✅ Copié !'" style="background:#00d68f;color:#000;border:none;padding:10px 24px;font-weight:700;cursor:pointer;border-radius:8px;margin-top:8px">Sélectionner & Copier</button></body></html>`);
+  });
+}
+
 async function loadCommerciaux() {
   const el = document.getElementById('commerciaux-list');
   el.innerHTML = '<div class="loading-center"><span class="spinner spinner-dark"></span></div>';

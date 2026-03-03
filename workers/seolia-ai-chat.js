@@ -1,8 +1,9 @@
-// Seolia AI Chat Worker - v3
+// Seolia AI Chat Worker - v4
 // Endpoints:
-//   POST /chat           - OpenAI chatbot bridge
-//   POST /create-contact - Create CRM contact from chatbot/form
-//   POST /vapi-webhook   - Receive end-of-call report from Vapi AI agent
+//   POST /chat            - OpenAI chatbot bridge
+//   POST /create-contact  - Create CRM contact from chatbot/form
+//   POST /vapi-webhook    - Receive end-of-call report from Vapi AI agent
+//   POST /save-onboarding - Save client questionnaire to CRM
 
 const SUPABASE_URL = 'https://tykjkpnlvuxwrurmacpx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5a2prcG5sdnV4d3J1cm1hY3B4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjQ0MTYwNywiZXhwIjoyMDg4MDE3NjA3fQ.HkOkAPAjf2RDkY6qa8bHcunS9QLcNNAanN94SIe5PHI';
@@ -59,7 +60,12 @@ export default {
       return handleVapiWebhook(request, env);
     }
 
-    return new Response('Seolia API v3', { status: 200 });
+    // ─── /save-onboarding ──────────────────────────────────────────────────
+    if (url.pathname === '/save-onboarding' && request.method === 'POST') {
+      return handleSaveOnboarding(request, env);
+    }
+
+    return new Response('Seolia API v4', { status: 200 });
   }
 };
 
@@ -128,7 +134,7 @@ async function handleCreateContact(request, env) {
         secteur: secteur || null,
         email: email || null,
         source: source || 'chatbot',
-        statut: 'nouveau',
+        statut: 'prospect',
         notes_generales: disponibilites ? `Disponibilités : ${disponibilites}` : null,
         created_by: 'chatbot',
       }),
@@ -190,14 +196,8 @@ async function handleVapiWebhook(request, env) {
     // Build contact name
     const nom = structured.nom || 'Appel IA';
 
-    // Determine statut based on interest level
-    const interetMap = {
-      'chaud': 'hot',
-      'tiede': 'warm',
-      'froid': 'froid',
-      'inconnu': 'nouveau'
-    };
-    const statut = interetMap[structured.interet] || 'nouveau';
+    // Determine statut based on interest level and RDV
+    const statut = structured.rdv_pris ? 'rdv' : 'prospect';
 
     // Build notes
     const notes = [
@@ -257,6 +257,87 @@ async function handleVapiWebhook(request, env) {
     return jsonResponse({ success: true, contact_id: contact?.id });
   } catch (err) {
     console.error('Vapi webhook error:', err);
+    return jsonResponse({ error: err.message }, 500);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SAVE ONBOARDING
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleSaveOnboarding(request, env) {
+  try {
+    const data = await request.json();
+
+    const {
+      nom_entreprise, telephone, email, secteur, adresse,
+      zone_intervention, formule, tier, submitted_at
+    } = data;
+
+    // Extract city from address (last part after last comma + zip)
+    let ville = '';
+    if (adresse) {
+      const parts = adresse.split(',');
+      const last = (parts[parts.length - 1] || '').trim();
+      // Remove leading zip code (4-5 digits)
+      ville = last.replace(/^\d{4,5}\s*/, '').trim() || last;
+    }
+    if (!ville && zone_intervention) {
+      ville = zone_intervention.split(',')[0].trim();
+    }
+
+    // Store full questionnaire JSON in notes_generales with marker
+    const notesJson = JSON.stringify(data, null, 2);
+    const notes = `[QUESTIONNAIRE_ONBOARDING]\n${notesJson}`;
+
+    // Build contact record
+    const contact = {
+      prenom: '',
+      nom: nom_entreprise || '',
+      entreprise: nom_entreprise || '',
+      telephone: telephone || '',
+      email: email || '',
+      secteur: secteur || '',
+      ville: ville || '',
+      statut: 'prospect',
+      source: 'questionnaire',
+      formule: formule || '',
+      notes_generales: notes,
+      created_by: 'questionnaire',
+    };
+
+    // Save to contacts table
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/contacts`, {
+      method: 'POST',
+      headers: supabaseHeaders(),
+      body: JSON.stringify(contact),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.text();
+      console.error('Supabase error:', err);
+      return jsonResponse({ success: false, error: err }, 500);
+    }
+
+    const [saved] = await resp.json();
+
+    // Also create a follow-up task for the team
+    if (saved?.id) {
+      await fetch(`${SUPABASE_URL}/rest/v1/followups`, {
+        method: 'POST',
+        headers: supabaseHeaders(),
+        body: JSON.stringify({
+          contact_id: saved.id,
+          type: 'questionnaire',
+          note: `Questionnaire reçu — Formule: ${formule || 'Non précisée'} — Démarrer la création du site`,
+          date_rappel: new Date(Date.now() + 86400000).toISOString().split('T')[0], // tomorrow
+          statut: 'en_attente',
+        }),
+      });
+    }
+
+    return jsonResponse({ success: true, contact_id: saved?.id });
+  } catch (err) {
+    console.error('Save onboarding error:', err);
     return jsonResponse({ error: err.message }, 500);
   }
 }

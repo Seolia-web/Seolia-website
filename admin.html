@@ -1410,7 +1410,27 @@ function renderContactForm(contact) {
           ${['prospect','rdv','client','perdu'].map(s=>'<option value="'+s+'"'+(contact?.statut===s?' selected':'')+'>'+s+'</option>').join('')}
         </select>
       </div>
-      <div class="form-group"><label>Formule</label><input type="text" id="cf-formule" value="${esc(contact?.formule||'')}"></div>
+      <div class="form-group"><label>Formule</label>
+        <select id="cf-formule" onchange="autoFillFormule(this.value)">
+          <option value="">-- Choisir une formule --</option>
+          <optgroup label="Web seul">
+            <option value="Web Essentiel" ${contact?.formule==='Web Essentiel'?'selected':''}>Web Essentiel (199€ setup + 69€/mois)</option>
+            <option value="Web Business" ${contact?.formule==='Web Business'?'selected':''}>Web Business (349€ setup + 119€/mois) ⭐</option>
+            <option value="Web Premium" ${contact?.formule==='Web Premium'?'selected':''}>Web Premium (499€ setup + 199€/mois)</option>
+          </optgroup>
+          <optgroup label="IA seul">
+            <option value="Starter IA" ${contact?.formule==='Starter IA'?'selected':''}>Starter IA (299€ setup + 50€/mois)</option>
+            <option value="Business IA" ${contact?.formule==='Business IA'?'selected':''}>Business IA (599€ setup + 150€/mois)</option>
+            <option value="Premium IA" ${contact?.formule==='Premium IA'?'selected':''}>Premium IA (999€ setup + 300€/mois)</option>
+          </optgroup>
+          <optgroup label="Bundles Web + IA">
+            <option value="Bundle Essentiel IA" ${contact?.formule==='Bundle Essentiel IA'?'selected':''}>Bundle Essentiel IA (499€ setup + 109€/mois)</option>
+            <option value="Bundle Business IA" ${contact?.formule==='Bundle Business IA'?'selected':''}>Bundle Business IA (949€ setup + 249€/mois) ⭐</option>
+            <option value="Bundle Premium IA" ${contact?.formule==='Bundle Premium IA'?'selected':''}>Bundle Premium IA (1499€ setup + 449€/mois)</option>
+          </optgroup>
+          <option value="Sur mesure" ${contact?.formule==='Sur mesure'?'selected':''}>Sur mesure</option>
+        </select>
+      </div>
     </div>
     <div class="form-row">
       <div class="form-group"><label>Prix setup TVAC (€)</label><input type="number" id="cf-setup" value="${contact?.prix_setup||''}"></div>
@@ -2109,6 +2129,26 @@ function noteTypeLabel(type) {
     doLogout();
   }
 })();
+
+function autoFillFormule(val) {
+  const map = {
+    'Web Essentiel':      { setup: 199, mensuel: 69 },
+    'Web Business':       { setup: 349, mensuel: 119 },
+    'Web Premium':        { setup: 499, mensuel: 199 },
+    'Starter IA':         { setup: 299, mensuel: 50 },
+    'Business IA':        { setup: 599, mensuel: 150 },
+    'Premium IA':         { setup: 999, mensuel: 300 },
+    'Bundle Essentiel IA':{ setup: 499, mensuel: 109 },
+    'Bundle Business IA': { setup: 949, mensuel: 249 },
+    'Bundle Premium IA':  { setup: 1499, mensuel: 449 },
+  };
+  if (map[val]) {
+    const s = document.getElementById('cf-setup');
+    const m = document.getElementById('cf-mensuel');
+    if (s) s.value = map[val].setup;
+    if (m) m.value = map[val].mensuel;
+  }
+}
 </script>
 </body>
 </html>

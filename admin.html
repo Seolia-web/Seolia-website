@@ -379,7 +379,7 @@
         <select class="filter-select" id="contacts-filter-sector" onchange="filterContacts()">
           <option value="">Tous les secteurs</option>
         </select>
-        <select class="filter-select" id="contacts-filter-assignee" onchange="filterContacts()" style="display:none">
+        <select class="filter-select" id="contacts-filter-assignee" onchange="filterContacts()">
           <option value="">Tous les commerciaux</option>
         </select>
       </div>
@@ -1022,13 +1022,12 @@ function renderKanban() {
 
   // Filters
   const filtersEl = document.getElementById('pipeline-filters');
-  if (currentProfile.role === 'admin') {
-    const assignees = [...new Set(allContacts.map(c => c.assignee).filter(Boolean))];
-    filtersEl.innerHTML = '<select class="filter-select" id="pipeline-filter-assignee" onchange="renderKanban()">' +
-      '<option value="">Tous les commerciaux</option>' +
-      assignees.map(a => '<option>' + esc(a) + '</option>').join('') +
-      '</select>';
-  }
+  // Filtre par commercial visible pour tous
+  const assignees = [...new Set(allContacts.map(c => c.assignee).filter(Boolean))];
+  filtersEl.innerHTML = '<select class="filter-select" id="pipeline-filter-assignee" onchange="renderKanban()">' +
+    '<option value="">Tous les commerciaux</option>' +
+    assignees.map(a => '<option>' + esc(a) + '</option>').join('') +
+    '</select>';
 
   const filterAssignee = document.getElementById('pipeline-filter-assignee');
   const assigneeFilter = filterAssignee ? filterAssignee.value : '';
@@ -1146,7 +1145,17 @@ async function recordSetupCommission(contact) {
 }
 
 // ===== CONTACTS LIST =====
+function populateAssigneeFilter() {
+  const sel = document.getElementById('contacts-filter-assignee');
+  if (!sel) return;
+  const assignees = [...new Set(allContacts.map(c => c.assignee).filter(Boolean))].sort();
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Tous les commerciaux</option>' +
+    assignees.map(a => '<option value="' + esc(a) + '"' + (a === current ? ' selected' : '') + '>' + esc(a) + '</option>').join('');
+}
+
 function renderContacts() {
+  populateAssigneeFilter();
   const filteredContacts = getFilteredContacts();
   document.getElementById('contacts-count').textContent = filteredContacts.length + ' contact' + (filteredContacts.length !== 1 ? 's' : '');
 
@@ -1375,12 +1384,16 @@ function openEditContactModalWithData(contact) {
 function renderContactForm(contact) {
   const isAdmin = currentProfile.role === 'admin';
   const commercials = allProfiles.filter(p => p.role === 'commercial');
+  // Admin: dropdown pour choisir le commercial
+  // Commercial: auto-assigné à lui-même (non modifiable)
+  const myAssignee = contact ? (contact.assignee || currentProfile.nom) : currentProfile.nom;
   const assigneeOpts = isAdmin
     ? '<select id="cf-assignee">' +
         '<option value="">-- Sélectionner --</option>' +
         commercials.map(p => '<option value="' + esc(p.nom) + '"' + (contact && contact.assignee === p.nom ? ' selected' : '') + '>' + esc(p.nom) + '</option>').join('') +
         '</select>'
-    : '<input type="text" id="cf-assignee" value="' + esc(contact ? contact.assignee || currentProfile.nom : currentProfile.nom) + '" readonly>';
+    : '<input type="hidden" id="cf-assignee" value="' + esc(myAssignee) + '">' +
+      '<span style="display:inline-block;padding:6px 12px;background:#f1f5f9;border-radius:6px;font-size:13px;color:#64748b;">👤 ' + esc(myAssignee) + ' <span style="font-size:11px;color:#94a3b8;">(auto)</span></span>';
 
   document.getElementById('modal-contact-form').innerHTML = `
     <div class="form-row">

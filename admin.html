@@ -477,17 +477,17 @@
         </div>
         <div class="flex-gap">
           <a id="btn-call" href="#" class="btn btn-green btn-sm" style="display:none;text-decoration:none">&#x1F4DE; Appeler</a>
-          <button class="btn btn-ghost btn-sm" onclick="openEditContactModal()">&#x270F;&#xFE0F; Modifier</button>
           <button class="btn btn-navy btn-sm" onclick="openQuoteModal()">&#x1F4C4; Devis PDF</button>
           <button class="btn btn-ghost btn-sm" onclick="openComposeModal()">&#x2709;&#xFE0F; Email</button>
+          <button class="btn btn-red btn-sm" onclick="deleteContact()">&#x1F5D1; Supprimer</button>
         </div>
       </div>
       <div class="detail-grid">
         <div>
           <div class="card" style="margin-bottom:16px">
-            <div class="section-title" style="justify-content:space-between">
+            <div class="section-title" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
               <span>&#x1F4CB; Informations</span>
-              <div class="flex-gap">
+              <div class="flex-gap" style="flex-wrap:wrap">
                 <span id="detail-statut-badge"></span>
                 <select class="status-select" id="detail-status-select" onchange="quickChangeStatus(this.value)">
                   <option value="prospect">Prospect</option>
@@ -495,9 +495,14 @@
                   <option value="client">Client</option>
                   <option value="perdu">Perdu</option>
                 </select>
+                <button id="btn-edit-inline" class="btn btn-ghost btn-sm" onclick="toggleDetailEdit(true)">&#x270F; Modifier</button>
+                <div id="btns-save-cancel" style="display:none" class="flex-gap">
+                  <button class="btn btn-green btn-sm" onclick="saveDetailInline()">&#x2713; Sauvegarder</button>
+                  <button class="btn btn-ghost btn-sm" onclick="toggleDetailEdit(false)">&#x2715; Annuler</button>
+                </div>
               </div>
             </div>
-            <div class="detail-info-grid" id="detail-info-grid"></div>
+            <div id="detail-info-grid"></div>
           </div>
           <div class="card" style="margin-bottom:16px">
             <div class="section-title" style="justify-content:space-between">
@@ -594,31 +599,27 @@
     <div class="view" id="view-revenus">
       <div class="page-header">
         <div>
-          <h1>Revenus</h1>
+          <h1>&#x1F4B0; Revenus</h1>
           <p id="rev-period">-</p>
         </div>
+        <button class="btn btn-ghost btn-sm" onclick="loadRevenus()">&#x21BB; Rafraîchir</button>
       </div>
-      <div class="revenus-highlight">
-        <h2>&#x1F4B0; Vue d'ensemble du mois</h2>
-        <div class="revenus-grid" id="rev-overview"></div>
+      <!-- 3 KPIs principaux -->
+      <div class="revenus-highlight" style="margin-bottom:24px">
+        <div class="revenus-grid" id="rev-kpis"></div>
       </div>
+      <!-- Par commercial -->
       <div class="card" style="margin-bottom:16px">
-        <div class="section-title">&#x1F4CA; Par commercial</div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr><th>Commercial</th><th>Clients actifs</th><th>MRR généré TVAC</th><th>MRR HTVA</th><th>Commission mensuelle</th><th>Setups ce mois</th><th>Commission setup</th></tr>
-            </thead>
-            <tbody id="rev-by-commercial"></tbody>
-          </table>
-        </div>
+        <div class="section-title">&#x1F465; Par commercial</div>
+        <div id="rev-by-commercial"></div>
       </div>
+      <!-- Historique simplifié -->
       <div class="card">
-        <div class="section-title">&#x1F4C5; Historique mensuel</div>
+        <div class="section-title">&#x1F4C5; Historique</div>
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Mois</th><th>Clients actifs</th><th>MRR TVAC</th><th>MRR HTVA</th><th>Commissions versées</th><th>Net Florian</th></tr>
+              <tr><th>Mois</th><th>Clients</th><th>MRR HTVA</th><th>Commissions</th><th>Net Florian</th></tr>
             </thead>
             <tbody id="rev-history-tbody"></tbody>
           </table>
@@ -1365,25 +1366,12 @@ async function openContactDetail(id) {
     btnCall.style.display = '';
   } else { btnCall.style.display = 'none'; }
 
-  const infoFields = [
-    { label: 'Nom', value: contact.nom }, { label: 'Entreprise', value: contact.entreprise },
-    { label: 'Email', value: contact.email }, { label: 'Téléphone', value: contact.telephone, isPhone: true },
-    { label: 'Ville', value: contact.ville }, { label: 'Code postal', value: contact.code_postal },
-    { label: 'Adresse', value: contact.adresse }, { label: 'Secteur', value: contact.secteur },
-    { label: 'Source', value: contact.source }, { label: 'Formule', value: contact.formule },
-    { label: 'Date début', value: contact.date_debut ? formatDate(contact.date_debut) : null },
-    { label: 'Date RDV', value: contact.date_rdv ? formatDateTime(contact.date_rdv) : null },
-    { label: 'Assigné à', value: contact.assignee },
-    { label: 'Créé par', value: contact.created_by },
-    { label: 'Notes', value: contact.notes_generales, full: true },
-  ];
-  document.getElementById('detail-info-grid').innerHTML = infoFields
-    .filter(f => f.value)
-    .map(f => '<div class="detail-field' + (f.full ? '" style="grid-column:1/-1' : '') + '">' +
-      '<label>' + f.label + '</label>' +
-      (f.isPhone ? '<span><a href="tel:' + f.value.replace(/[^0-9+]/g,'') + '" style="color:#00d68f;font-weight:600;text-decoration:none">' + esc(f.value) + '</a></span>' : '<span>' + esc(f.value) + '</span>') +
-      '</div>')
-    .join('');
+  // Reset edit mode buttons
+  const btnEI = document.getElementById('btn-edit-inline');
+  const btnsSC = document.getElementById('btns-save-cancel');
+  if (btnEI) btnEI.style.display = '';
+  if (btnsSC) btnsSC.style.display = 'none';
+  renderDetailInfoReadOnly(contact);
 
   // Pricing
   const setup_tvac = parseFloat(contact.prix_setup)||0;
@@ -1608,6 +1596,164 @@ function openNewContactModal() {
   renderContactForm(null);
   openModal('modal-contact');
   document.getElementById('btn-save-contact').onclick = saveContact;
+}
+
+// ── SUPPRESSION CONTACT ──────────────────────────────────────
+async function deleteContact() {
+  if (!currentContactId) return;
+  const contact = allContacts.find(c => c.id === currentContactId);
+  const name = contact ? (contact.nom || contact.entreprise || 'ce contact') : 'ce contact';
+  if (!confirm('Supprimer définitivement ' + name + ' ?\n\nCette action est irréversible.')) return;
+  try {
+    await sbFetch('/rest/v1/contacts?id=eq.' + currentContactId, { method: 'DELETE', headers: { 'Prefer': 'return=minimal' } });
+    allContacts = allContacts.filter(c => c.id !== currentContactId);
+    currentContactId = null;
+    showToast('Contact supprimé', 'success');
+    showView('contacts');
+    renderContacts();
+  } catch(e) {
+    showToast('Erreur suppression : ' + e.message, 'error');
+  }
+}
+
+// ── ÉDITION INLINE FICHE CONTACT ─────────────────────────────
+let _detailEditBackup = null;
+
+function toggleDetailEdit(enable) {
+  const contact = allContacts.find(c => c.id === currentContactId);
+  if (!contact) return;
+  const btnEdit = document.getElementById('btn-edit-inline');
+  const btnsActions = document.getElementById('btns-save-cancel');
+  if (enable) {
+    _detailEditBackup = { ...contact };
+    btnEdit.style.display = 'none';
+    btnsActions.style.display = '';
+    renderDetailInfoForm(contact);
+  } else {
+    btnEdit.style.display = '';
+    btnsActions.style.display = 'none';
+    renderDetailInfoReadOnly(contact);
+  }
+}
+
+function renderDetailInfoForm(contact) {
+  const isAdmin = currentProfile.role === 'admin';
+  const commercials = allProfiles.filter(p => p.role === 'commercial');
+  const assigneeOpts = isAdmin
+    ? '<select id="dif-assignee" class="status-select" style="min-width:140px">' +
+        '<option value="">-- Aucun --</option>' +
+        commercials.map(p => '<option value="' + esc(p.nom) + '"' + (contact.assignee === p.nom ? ' selected' : '') + '>' + esc(p.nom) + '</option>').join('') +
+        '</select>'
+    : '<span style="color:var(--text-secondary);font-size:13px">' + esc(contact.assignee||'-') + '</span>';
+
+  document.getElementById('detail-info-grid').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:4px 0">
+      <div class="form-group" style="margin:0"><label>Nom</label><input id="dif-nom" type="text" value="${esc(contact.nom||'')}"></div>
+      <div class="form-group" style="margin:0"><label>Entreprise</label><input id="dif-entreprise" type="text" value="${esc(contact.entreprise||'')}"></div>
+      <div class="form-group" style="margin:0"><label>Email</label><input id="dif-email" type="email" value="${esc(contact.email||'')}"></div>
+      <div class="form-group" style="margin:0"><label>Téléphone</label><input id="dif-telephone" type="tel" value="${esc(contact.telephone||'')}"></div>
+      <div class="form-group" style="margin:0"><label>Ville</label><input id="dif-ville" type="text" value="${esc(contact.ville||'')}"></div>
+      <div class="form-group" style="margin:0"><label>Code postal</label><input id="dif-cp" type="text" value="${esc(contact.code_postal||'')}"></div>
+      <div class="form-group" style="margin:0;grid-column:1/-1"><label>Adresse</label><input id="dif-adresse" type="text" value="${esc(contact.adresse||'')}"></div>
+      <div class="form-group" style="margin:0"><label>Secteur</label><input id="dif-secteur" type="text" value="${esc(contact.secteur||'')}"></div>
+      <div class="form-group" style="margin:0"><label>Source</label>
+        <select id="dif-source">
+          ${['','LinkedIn','Google','Referral','Appel froid','Site web','Autre'].map(s=>'<option value="'+s+'"'+(contact.source===s?' selected':'')+'>'+s+'</option>').join('')}
+        </select>
+      </div>
+      <div class="form-group" style="margin:0"><label>Formule</label>
+        <select id="dif-formule" onchange="autoFillFormule(this.value)">
+          <option value="">-- Choisir --</option>
+          <optgroup label="Bundles Web + IA">
+            <option value="Bundle Essentiel IA" ${contact.formule==='Bundle Essentiel IA'?'selected':''}>Bundle Essentiel IA — 109€/mois</option>
+            <option value="Bundle Business IA" ${contact.formule==='Bundle Business IA'?'selected':''}>Bundle Business IA — 249€/mois ⭐</option>
+            <option value="Bundle Premium IA" ${contact.formule==='Bundle Premium IA'?'selected':''}>Bundle Premium IA — 449€/mois</option>
+          </optgroup>
+          <optgroup label="Web seul">
+            <option value="Web Essentiel" ${contact.formule==='Web Essentiel'?'selected':''}>Web Essentiel — 69€/mois</option>
+            <option value="Web Business" ${contact.formule==='Web Business'?'selected':''}>Web Business — 119€/mois</option>
+            <option value="Web Premium" ${contact.formule==='Web Premium'?'selected':''}>Web Premium — 199€/mois</option>
+          </optgroup>
+          <option value="Sur mesure" ${contact.formule==='Sur mesure'?'selected':''}>Sur mesure</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin:0"><label>Prix setup TVAC (€)</label><input id="dif-setup" type="number" value="${contact.prix_setup||''}"></div>
+      <div class="form-group" style="margin:0"><label>Prix mensuel TVAC (€)</label><input id="dif-mensuel" type="number" value="${contact.prix_mensuel||''}"></div>
+      <div class="form-group" style="margin:0"><label>Date début</label><input id="dif-date_debut" type="date" value="${contact.date_debut||''}"></div>
+      <div class="form-group" style="margin:0"><label>Date RDV</label><input id="dif-date_rdv" type="datetime-local" value="${contact.date_rdv ? contact.date_rdv.substring(0,16) : ''}"></div>
+      <div class="form-group" style="margin:0"><label>Assigné à</label>${assigneeOpts}</div>
+      <div class="form-group" style="margin:0;grid-column:1/-1"><label>Notes générales</label><textarea id="dif-notes" rows="3">${esc(contact.notes_generales||'')}</textarea></div>
+    </div>`;
+}
+
+function renderDetailInfoReadOnly(contact) {
+  const infoFields = [
+    { label: 'Nom', value: contact.nom },
+    { label: 'Entreprise', value: contact.entreprise },
+    { label: 'Email', value: contact.email },
+    { label: 'Téléphone', value: contact.telephone, isPhone: true },
+    { label: 'Ville', value: contact.ville },
+    { label: 'Code postal', value: contact.code_postal },
+    { label: 'Adresse', value: contact.adresse },
+    { label: 'Secteur', value: contact.secteur },
+    { label: 'Source', value: contact.source },
+    { label: 'Formule', value: contact.formule },
+    { label: 'Date début', value: contact.date_debut ? formatDate(contact.date_debut) : null },
+    { label: 'Date RDV', value: contact.date_rdv ? formatDateTime(contact.date_rdv) : null },
+    { label: 'Assigné à', value: contact.assignee },
+    { label: 'Créé par', value: contact.created_by },
+    { label: 'Notes', value: contact.notes_generales, full: true },
+  ];
+  document.getElementById('detail-info-grid').className = 'detail-info-grid';
+  document.getElementById('detail-info-grid').innerHTML = infoFields
+    .filter(f => f.value)
+    .map(f => '<div class="detail-field' + (f.full ? '" style="grid-column:1/-1' : '') + '">' +
+      '<label>' + f.label + '</label>' +
+      (f.isPhone ? '<span><a href="tel:' + f.value.replace(/[^0-9+]/g,'') + '" style="color:#00d68f;font-weight:600;text-decoration:none">' + esc(f.value) + '</a></span>' : '<span>' + esc(f.value) + '</span>') +
+      '</div>')
+    .join('');
+}
+
+async function saveDetailInline() {
+  if (!currentContactId) return;
+  const btn = document.querySelector('#btns-save-cancel .btn-green');
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+  try {
+    const payload = {
+      nom: document.getElementById('dif-nom')?.value.trim()||null,
+      entreprise: document.getElementById('dif-entreprise')?.value.trim()||null,
+      email: document.getElementById('dif-email')?.value.trim()||null,
+      telephone: document.getElementById('dif-telephone')?.value.trim()||null,
+      ville: document.getElementById('dif-ville')?.value.trim()||null,
+      code_postal: document.getElementById('dif-cp')?.value.trim()||null,
+      adresse: document.getElementById('dif-adresse')?.value.trim()||null,
+      secteur: document.getElementById('dif-secteur')?.value.trim()||null,
+      source: document.getElementById('dif-source')?.value||null,
+      formule: document.getElementById('dif-formule')?.value||null,
+      prix_setup: document.getElementById('dif-setup')?.value ? parseFloat(document.getElementById('dif-setup').value) : null,
+      prix_mensuel: document.getElementById('dif-mensuel')?.value ? parseFloat(document.getElementById('dif-mensuel').value) : null,
+      date_debut: document.getElementById('dif-date_debut')?.value||null,
+      date_rdv: document.getElementById('dif-date_rdv')?.value||null,
+      assignee: document.getElementById('dif-assignee')?.value||null,
+      notes_generales: document.getElementById('dif-notes')?.value.trim()||null,
+      updated_at: new Date().toISOString(),
+    };
+    await sbFetch('/rest/v1/contacts?id=eq.' + currentContactId, {
+      method: 'PATCH', headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify(payload)
+    });
+    const idx = allContacts.findIndex(c => c.id === currentContactId);
+    if (idx !== -1) Object.assign(allContacts[idx], payload);
+    const updatedContact = allContacts.find(c => c.id === currentContactId);
+    // Update header
+    document.getElementById('detail-name').textContent = (updatedContact.nom||'') + (updatedContact.entreprise ? ' — ' + updatedContact.entreprise : '');
+    toggleDetailEdit(false);
+    showToast('Contact mis à jour', 'success');
+  } catch(e) {
+    showToast('Erreur : ' + e.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '✓ Sauvegarder'; }
+  }
 }
 
 function openEditContactModal() {
@@ -1976,105 +2122,96 @@ async function loadCommissions() {
 async function loadRevenus() {
   const now = new Date();
   const moisKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
-  document.getElementById('rev-period').textContent = 'Mois courant : ' + now.toLocaleString('fr',{month:'long',year:'numeric'});
+  document.getElementById('rev-period').textContent = now.toLocaleString('fr',{month:'long',year:'numeric'});
 
   const clients = allContacts.filter(c => c.statut === 'client');
   const totalMRR_TVAC = clients.reduce((s,c) => s+(parseFloat(c.prix_mensuel)||0),0);
   const totalMRR_HTVA = totalMRR_TVAC / TVA_RATE;
   const totalCommMensuelle = totalMRR_HTVA * TAUX_COMMISSION;
 
-  // Setup fees + commissions this month
-  let totalSetupComm = 0, totalSetupTVAC = 0, totalSetupHTVA = 0;
+  // Setups + commissions ce mois
+  let totalSetupComm = 0, totalSetupHTVA = 0;
+  let setupsByComm = {};
   try {
     const setups = await sbFetch('/rest/v1/commission_history?mois=eq.' + moisKey + '&type=eq.setup&select=*') || [];
-    totalSetupComm = setups.reduce((s,c) => s+(parseFloat(c.commission)||0), 0);
-    totalSetupTVAC = setups.reduce((s,c) => s+(parseFloat(c.montant_tvac)||0), 0);
-    totalSetupHTVA = setups.reduce((s,c) => s+(parseFloat(c.montant_htva)||0), 0);
+    setups.forEach(s => {
+      totalSetupComm += parseFloat(s.commission)||0;
+      totalSetupHTVA += parseFloat(s.montant_htva)||0;
+      if (!setupsByComm[s.commercial_email]) setupsByComm[s.commercial_email] = { htva:0, comm:0 };
+      setupsByComm[s.commercial_email].htva += parseFloat(s.montant_htva)||0;
+      setupsByComm[s.commercial_email].comm += parseFloat(s.commission)||0;
+    });
   } catch(e) {}
 
   const totalComm = totalCommMensuelle + totalSetupComm;
   const totalRevenusHTVA = totalMRR_HTVA + totalSetupHTVA;
   const netFlorian = totalRevenusHTVA - totalComm;
 
-  document.getElementById('rev-overview').innerHTML = [
-    { label: 'MRR Total TVAC', value: fmtEur(totalMRR_TVAC) },
-    { label: 'MRR Total HTVA', value: fmtEur(totalMRR_HTVA) },
-    { label: 'Setups encaissés ce mois TVAC', value: fmtEur(totalSetupTVAC) },
-    { label: 'Setups encaissés ce mois HTVA', value: fmtEur(totalSetupHTVA) },
-    { label: 'Revenus totaux HTVA', value: fmtEur(totalRevenusHTVA) },
-    { label: 'Commissions versées ce mois', value: fmtEur(totalComm) },
-    { label: 'Net Florian ce mois', value: fmtEur(netFlorian), accent: true },
+  // ── 3 KPIs principaux
+  document.getElementById('rev-kpis').innerHTML = [
+    { label: 'MRR mensuel HTVA', value: fmtEur(totalMRR_HTVA), sub: clients.length + ' client(s) actif(s)' },
+    { label: 'Commissions totales', value: fmtEur(totalComm), sub: 'mensuel + setups' },
+    { label: 'Net Florian ce mois', value: fmtEur(netFlorian), accent: true, sub: 'après commissions' },
   ].map(m =>
     '<div class="revenus-metric' + (m.accent?' accent':'') + '">' +
     '<div class="label">' + m.label + '</div>' +
     '<div class="value">' + m.value + '</div>' +
+    '<div style="font-size:11px;color:' + (m.accent?'rgba(255,255,255,.7)':'var(--text-secondary)') + ';margin-top:2px">' + m.sub + '</div>' +
     '</div>'
   ).join('');
 
-  // Per commercial
+  // ── Par commercial (cards simples)
   const commercials = allProfiles.filter(p => p.role === 'commercial');
   const revByComm = document.getElementById('rev-by-commercial');
-  let setupsByComm = {};
-  try {
-    const setups = await sbFetch('/rest/v1/commission_history?mois=eq.' + moisKey + '&type=eq.setup&select=*') || [];
-    setups.forEach(s => {
-      if (!setupsByComm[s.commercial_email]) setupsByComm[s.commercial_email] = { tvac: 0, comm: 0, count: 0 };
-      setupsByComm[s.commercial_email].tvac += parseFloat(s.montant_tvac)||0;
-      setupsByComm[s.commercial_email].comm += parseFloat(s.commission)||0;
-      setupsByComm[s.commercial_email].count++;
-    });
-  } catch(e) {}
+  if (!commercials.length) {
+    revByComm.innerHTML = '<div class="empty-state" style="padding:24px"><p style="color:var(--text-secondary)">Aucun commercial enregistré</p></div>';
+  } else {
+    revByComm.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;padding:4px 0">' +
+      commercials.map(comm => {
+        const myClients = clients.filter(c => c.created_by === comm.email || c.assignee === comm.nom);
+        const mrr_htva = myClients.reduce((s,c) => s+(parseFloat(c.prix_mensuel)||0),0) / TVA_RATE;
+        const commMens = mrr_htva * (parseFloat(comm.taux_commission)||TAUX_COMMISSION);
+        const sData = setupsByComm[comm.email] || { htva:0, comm:0 };
+        const totalCommComm = commMens + sData.comm;
+        return '<div class="card" style="padding:16px;cursor:pointer;border:2px solid var(--border)" onclick="showCommercialDetail(' + JSON.stringify(comm.email) + ')">' +
+          '<div style="font-weight:700;font-size:15px;margin-bottom:12px">' + esc(comm.nom) + ' <span style="font-size:11px;color:var(--text-secondary);font-weight:400">↗ voir détail</span></div>' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">' +
+            '<div><div style="color:var(--text-secondary);font-size:11px">Clients actifs</div><div style="font-weight:600">' + myClients.length + '</div></div>' +
+            '<div><div style="color:var(--text-secondary);font-size:11px">MRR HTVA</div><div style="font-weight:600">' + fmtEur(mrr_htva) + '</div></div>' +
+            '<div><div style="color:var(--text-secondary);font-size:11px">Comm. mensuelle</div><div style="font-weight:600;color:var(--orange)">' + fmtEur(commMens) + '</div></div>' +
+            '<div><div style="color:var(--text-secondary);font-size:11px">Total ce mois</div><div style="font-weight:700;color:var(--green)">' + fmtEur(totalCommComm) + '</div></div>' +
+          '</div>' +
+        '</div>';
+      }).join('') +
+    '</div>';
+  }
 
-  revByComm.innerHTML = commercials.map(comm => {
-    const myClients = clients.filter(c => c.created_by === comm.email || c.assignee === comm.nom);
-    const mrr_tvac = myClients.reduce((s,c) => s+(parseFloat(c.prix_mensuel)||0),0);
-    const mrr_htva = mrr_tvac / TVA_RATE;
-    const commMens = mrr_htva * (parseFloat(comm.taux_commission)||TAUX_COMMISSION);
-    const setupData = setupsByComm[comm.email] || { tvac:0, comm:0, count:0 };
-    return '<tr style="cursor:pointer" onclick="showCommercialDetail(' + JSON.stringify(comm.email) + ')">' +
-      '<td class="fw700">' + esc(comm.nom) + ' <span style="font-size:11px;color:var(--text-light)">↗</span></td>' +
-      '<td>' + myClients.length + '</td>' +
-      '<td>' + fmtEur(mrr_tvac) + '</td>' +
-      '<td>' + fmtEur(mrr_htva) + '</td>' +
-      '<td>' + fmtEur(commMens) + '</td>' +
-      '<td>' + setupData.count + ' (' + fmtEur(setupData.tvac) + ')</td>' +
-      '<td class="fw700" style="color:var(--green)">' + fmtEur(setupData.comm) + '</td>' +
-      '</tr>';
-  }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-light)">Aucun commercial</td></tr>';
-
-  // Monthly history
+  // ── Historique mensuel simplifié
   try {
     const allSetups = await sbFetch('/rest/v1/commission_history?type=eq.setup&order=mois.desc&select=*') || [];
     const byMonth = {};
     allSetups.forEach(s => {
-      if (!byMonth[s.mois]) byMonth[s.mois] = { mois: s.mois, commSetup: 0 };
-      byMonth[s.mois].commSetup += parseFloat(s.commission)||0;
+      if (!byMonth[s.mois]) byMonth[s.mois] = { comm: 0, htva: 0 };
+      byMonth[s.mois].comm += parseFloat(s.commission)||0;
+      byMonth[s.mois].htva += parseFloat(s.montant_htva)||0;
     });
-    // Use current month + history months
-    const months = Object.keys(byMonth).sort().reverse();
-    if (!byMonth[moisKey]) byMonth[moisKey] = { mois: moisKey, commSetup: totalSetupComm };
-    const allMonths = [...new Set([moisKey, ...months])].sort().reverse();
-    const histTbody = document.getElementById('rev-history-tbody');
-    histTbody.innerHTML = allMonths.map(m => {
-      const isCurrentMonth = m === moisKey;
-      const monthClients = isCurrentMonth ? clients.length : '-';
-      const monthMRR_TVAC = isCurrentMonth ? fmtEur(totalMRR_TVAC) : '-';
-      const monthMRR_HTVA = isCurrentMonth ? fmtEur(totalMRR_HTVA) : '-';
-      const setupData = byMonth[m] || { commSetup: 0 };
-      const monthCommMens = isCurrentMonth ? fmtEur(totalCommMensuelle) : '-';
-      const monthSetupComm = fmtEur(setupData.commSetup);
-      const monthComm = isCurrentMonth ? fmtEur(totalComm) : fmtEur(setupData.commSetup);
-      const monthNet = isCurrentMonth ? fmtEur(netFlorian) : '-';
-      return '<tr>' +
-        '<td class="fw700">' + formatMois(m) + '</td>' +
-        '<td>' + monthClients + '</td>' +
-        '<td>' + monthMRR_TVAC + '</td>' +
-        '<td>' + monthMRR_HTVA + '</td>' +
-        '<td>' + monthComm + '</td>' +
-        '<td class="fw700" style="color:var(--green)">' + monthNet + '</td>' +
-        '</tr>';
-    }).join('') || '<tr><td colspan="6" style="text-align:center">Aucune donnée</td></tr>';
-  } catch(e) {}
+    if (!byMonth[moisKey]) byMonth[moisKey] = { comm: totalSetupComm, htva: totalSetupHTVA };
+    const allMonths = [...new Set([moisKey, ...Object.keys(byMonth)])].sort().reverse();
+    document.getElementById('rev-history-tbody').innerHTML = allMonths.map(m => {
+      const isCurrent = m === moisKey;
+      const sData = byMonth[m] || { comm:0, htva:0 };
+      const mrrHtva = isCurrent ? fmtEur(totalMRR_HTVA) : '-';
+      const comm = isCurrent ? fmtEur(totalComm) : fmtEur(sData.comm);
+      const net = isCurrent ? '<span style="color:var(--green);font-weight:700">' + fmtEur(netFlorian) + '</span>' : '-';
+      return '<tr><td class="fw700">' + formatMois(m) + (isCurrent?' <span style="font-size:10px;background:var(--green);color:#fff;padding:1px 6px;border-radius:8px">En cours</span>':'') + '</td>' +
+        '<td>' + (isCurrent ? clients.length : '-') + '</td>' +
+        '<td>' + mrrHtva + '</td>' +
+        '<td>' + comm + '</td>' +
+        '<td>' + net + '</td></tr>';
+    }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary)">Aucune donnée</td></tr>';
+  } catch(e) {
+    document.getElementById('rev-history-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary)">Erreur chargement</td></tr>';
+  }
 }
 
 // ===== COMMERCIAUX (admin) =====

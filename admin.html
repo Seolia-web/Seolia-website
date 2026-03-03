@@ -1295,8 +1295,31 @@ function makeKanbanCard(contact) {
     (contact.ville ? '<span>📍 ' + esc(contact.ville) + '</span>' : '') +
     (contact.formule ? '<span>📦 ' + esc(contact.formule) + '</span>' : '') +
     '</div>' +
-    (contact.assignee ? '<div class="kcard-assignee">👤 ' + esc(contact.assignee) + '</div>' : '') +
+    (currentProfile?.role === 'admin'
+      ? '<div class="kcard-assignee" onclick="event.stopPropagation()">' +
+        '<select style="border:none;background:#f1f5f9;font-size:11px;font-weight:500;color:#64748b;padding:2px 4px;border-radius:20px;cursor:pointer;max-width:120px" ' +
+        'onchange="quickUpdateAssignee(\'' + contact.id + '\',this.value);renderKanban()">' +
+        '<option value="">👤 Non assigné</option>' +
+        commercials.map(p => '<option value="' + esc(p.nom) + '"' + (contact.assignee === p.nom ? ' selected' : '') + '>👤 ' + esc(p.nom) + '</option>').join('') +
+        '</select></div>'
+      : (contact.assignee ? '<div class="kcard-assignee">👤 ' + esc(contact.assignee) + '</div>' : '')) +
     '</div>';
+}
+
+async function quickUpdateAssignee(contactId, newAssignee) {
+  try {
+    await sbFetch('/rest/v1/contacts?id=eq.' + contactId, {
+      method: 'PATCH',
+      headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ assignee: newAssignee || null, updated_at: new Date().toISOString() })
+    });
+    const contact = allContacts.find(c => c.id === contactId);
+    if (contact) contact.assignee = newAssignee || null;
+    showToast('Assignation mise à jour ✅', 'success');
+    if (activeView === 'contacts') renderContacts();
+  } catch(e) {
+    showToast('Erreur mise à jour assignation', 'error');
+  }
 }
 
 async function updateContactStatus(id, newStatus) {
@@ -1934,18 +1957,28 @@ function renderDetailInfoReadOnly(contact) {
     { label: 'Formule', value: contact.formule },
     { label: 'Date début', value: contact.date_debut ? formatDate(contact.date_debut) : null },
     { label: 'Date RDV', value: contact.date_rdv ? formatDateTime(contact.date_rdv) : null },
-    { label: 'Assigné à', value: contact.assignee },
     { label: 'Créé par', value: contact.created_by },
     { label: 'Notes', value: contact.notes_generales, full: true },
   ];
   document.getElementById('detail-info-grid').className = 'detail-info-grid';
-  document.getElementById('detail-info-grid').innerHTML = infoFields
+  let gridHtml = infoFields
     .filter(f => f.value)
     .map(f => '<div class="detail-field' + (f.full ? '" style="grid-column:1/-1' : '') + '">' +
       '<label>' + f.label + '</label>' +
       (f.isPhone ? '<span><a href="tel:' + f.value.replace(/[^0-9+]/g,'') + '" style="color:#00d68f;font-weight:600;text-decoration:none">' + esc(f.value) + '</a></span>' : '<span>' + esc(f.value) + '</span>') +
       '</div>')
     .join('');
+  // Champ "Assigné à" — dropdown inline pour admin, texte pour commercial
+  if (currentProfile?.role === 'admin') {
+    const opts = commercials.map(p => '<option value="' + esc(p.nom) + '"' + (contact.assignee === p.nom ? ' selected' : '') + '>' + esc(p.nom) + '</option>').join('');
+    gridHtml += '<div class="detail-field"><label>Assigné à</label>' +
+      '<select id="inline-assignee-select" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:13px;color:var(--text-primary);background:#fff;cursor:pointer" ' +
+      'onchange="quickUpdateAssignee(\'' + contact.id + '\',this.value)">' +
+      '<option value="">— Non assigné —</option>' + opts + '</select></div>';
+  } else if (contact.assignee) {
+    gridHtml += '<div class="detail-field"><label>Assigné à</label><span>' + esc(contact.assignee) + '</span></div>';
+  }
+  document.getElementById('detail-info-grid').innerHTML = gridHtml;
 }
 
 async function saveDetailInline() {

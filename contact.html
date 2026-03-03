@@ -417,7 +417,7 @@
   <div style="position:relative;z-index:1;">
     <div class="section-tag" data-aos>Assistant IA disponible 24h/24</div>
     <h1 data-aos data-aos-delay="100">Discutons de <span class="highlight">votre projet</span></h1>
-    <p data-aos data-aos-delay="200">Notre assistant répond à toutes vos questions instantanément et peut planifier un rendez-vous avec Florian en 2 minutes.</p>
+    <p data-aos data-aos-delay="200">Notre assistant répond à toutes vos questions instantanément et peut planifier un rendez-vous en 2 minutes.</p>
   </div>
 </div>
 
@@ -504,7 +504,7 @@
               <div class="step-num">1</div>
               <div class="step-body">
                 <div class="step-title">On vous rappelle</div>
-                <div class="step-desc">Florian vous contacte dans les 4h pour fixer un créneau d'audit.</div>
+                <div class="step-desc">Notre équipe vous contacte dans les 4h pour fixer un créneau d'audit.</div>
               </div>
             </div>
             <div class="step">
@@ -544,7 +544,7 @@
 <!-- FALLBACK SECTION -->
 <div class="fallback-section">
   <div class="divider-label">Vous préférez un contact direct ?</div>
-  <p style="font-size:0.9rem;color:var(--grey);max-width:420px;margin:0 auto;">Pas de problème — appelez Florian directement, envoyez un WhatsApp ou un email.</p>
+  <p style="font-size:0.9rem;color:var(--grey);max-width:420px;margin:0 auto;">Pas de problème — appelez-nous directement, envoyez un WhatsApp ou un email.</p>
   <div class="direct-actions">
     <a href="tel:+32470922188" class="action-pill phone">
       &#128222; Appeler maintenant
@@ -727,7 +727,7 @@ async function embedRdvFlow(text) {
       embedRdvData.nom = text;
       embedRdvState = 'tel';
       setTimeout(() => {
-        embedAddMsg(`Merci ${text.split(' ')[0]} ! Votre numéro de téléphone pour que Florian vous rappelle ?`, 'bot');
+        embedAddMsg(`Merci ${text.split(' ')[0]} ! Votre numéro de téléphone pour qu'on vous rappelle ?`, 'bot');
       }, 400);
       break;
 
@@ -769,7 +769,7 @@ async function embedSubmitRdv() {
   embedHideTyping();
   const prenom = embedRdvData.nom ? embedRdvData.nom.split(' ')[0] : '';
   embedAddMsg(
-    `Super ${prenom} ! Votre demande a bien été enregistrée. Florian vous rappellera dans les 4 heures ouvrées pour confirmer le rendez-vous. À très bientôt !`,
+    `Super ${prenom} ! Votre demande a bien été enregistrée. Notre équipe vous rappellera dans les 4 heures ouvrées pour confirmer le rendez-vous. À très bientôt !`,
     'bot'
   );
   embedSetQR(['Autres questions', 'Voir les formules']);
@@ -781,7 +781,7 @@ window.addEventListener('load', () => {
   setTimeout(() => {
     embedAddMsg("Bonjour ! Je suis l'assistant Seolia. Je peux répondre à toutes vos questions sur nos formules, nos délais ou nos tarifs.", 'bot');
     setTimeout(() => {
-      embedAddMsg("Vous pouvez aussi me demander de planifier un rendez-vous avec Florian directement ici. Comment puis-je vous aider ?", 'bot');
+      embedAddMsg("Vous pouvez aussi me demander de planifier un rendez-vous directement ici. Comment puis-je vous aider ?", 'bot');
       embedSetQR(['Prendre un RDV', 'Voir les formules', 'Nos tarifs', 'C\'est quoi Seolia ?']);
     }, 800);
   }, 600);

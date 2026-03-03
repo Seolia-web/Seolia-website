@@ -289,7 +289,7 @@ async function handleValidateId(request, env) {
       { headers: supabaseHeaders() }
     );
     const rows = await resp.json();
-    if (!rows || rows.length === 0) {
+    if (!resp.ok || !Array.isArray(rows) || rows.length === 0) {
       return jsonResponse({ found: false });
     }
     const c = rows[0];
@@ -318,7 +318,7 @@ async function handleSaveOnboarding(request, env) {
       { headers: supabaseHeaders() }
     );
     const rows = await findResp.json();
-    if (!rows || rows.length === 0) {
+    if (!findResp.ok || !Array.isArray(rows) || rows.length === 0) {
       return jsonResponse({ success: false, error: 'ID client inconnu' }, 404);
     }
     const contact = rows[0];
@@ -380,7 +380,7 @@ async function handleSaveModification(request, env) {
       { headers: supabaseHeaders() }
     );
     const rows = await findResp.json();
-    if (!rows || rows.length === 0) {
+    if (!findResp.ok || !Array.isArray(rows) || rows.length === 0) {
       return jsonResponse({ success: false, error: 'ID client inconnu' }, 404);
     }
     const contact = rows[0];

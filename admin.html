@@ -1716,6 +1716,7 @@ async function saveFollowup() {
       body: JSON.stringify({
         contact_id: currentContactId,
         date_prevue: new Date(date).toISOString(),
+        date_rappel: new Date(date).toISOString(),
         description: document.getElementById('followup-desc').value.trim(),
         fait: false,
         assignee: currentProfile.nom || currentUser.email,

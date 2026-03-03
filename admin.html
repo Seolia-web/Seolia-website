@@ -1034,7 +1034,10 @@ function renderKanban() {
   const filtersEl = document.getElementById('pipeline-filters');
   // Filtre par commercial visible pour tous
   const assignees = [...new Set(allContacts.map(c => c.assignee).filter(Boolean))];
-  filtersEl.innerHTML = '<select class="filter-select" id="pipeline-filter-assignee" onchange="renderKanban()">' +
+  filtersEl.innerHTML = 
+    '<input type="text" id="pipeline-search" class="filter-select" placeholder="🔍 Rechercher nom, entreprise, ville..." ' +
+    'oninput="renderKanban()" style="min-width:220px">' +
+    '<select class="filter-select" id="pipeline-filter-assignee" onchange="renderKanban()">' +
     '<option value="">Tous les commerciaux</option>' +
     assignees.map(a => '<option>' + esc(a) + '</option>').join('') +
     '</select>';
@@ -1050,8 +1053,16 @@ function renderKanban() {
     if (filterAssignee) filterAssignee.style.display = '';
   }
   const assigneeFilter = currentProfile.role === 'commercial' ? currentProfile.nom : (filterAssignee ? filterAssignee.value : '');
+  const searchEl = document.getElementById('pipeline-search');
+  const searchText = (searchEl ? searchEl.value : '').toLowerCase().trim();
   let contacts = allContacts;
   if (assigneeFilter) contacts = contacts.filter(c => c.assignee === assigneeFilter);
+  if (searchText) contacts = contacts.filter(c =>
+    (c.nom||'').toLowerCase().includes(searchText) ||
+    (c.entreprise||'').toLowerCase().includes(searchText) ||
+    (c.ville||'').toLowerCase().includes(searchText) ||
+    (c.telephone||'').toLowerCase().includes(searchText)
+  );
 
   const cols = [
     { id: 'prospect', label: 'Prospect', color: '#3b82f6' },
@@ -1439,8 +1450,11 @@ async function loadDetailFollowups(contactId) {
         '<div class="planning-info">' +
         '<span class="type-badge rappel">Rappel</span>' +
         '<div class="planning-desc">' + esc(f.description||'') + '</div>' +
+        '<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">' +
         (f.fait ? '<span style="color:var(--green);font-size:12px">✅ Fait</span>' :
-          '<button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="markFollowupDone(\'' + f.id + '\')">Marquer fait</button>') +
+          '<button class="btn btn-ghost btn-sm" onclick="markFollowupDone(\'' + f.id + '\')">✅ Marquer fait</button>') +
+        '<button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;border:none" onclick="deleteFollowup(\'' + f.id + '\')">🗑️ Supprimer</button>' +
+        '</div>' +
         '</div></div>'
       ).join('');
     }
@@ -1456,6 +1470,15 @@ async function markFollowupDone(id) {
       body: JSON.stringify({ fait: true })
     });
     showToast('Rappel marqué comme fait', 'success');
+    loadDetailFollowups(currentContactId);
+  } catch(e) { showToast('Erreur: ' + e.message, 'error'); }
+}
+
+async function deleteFollowup(id) {
+  if (!confirm('Supprimer ce rappel ?')) return;
+  try {
+    await sbFetch('/rest/v1/followups?id=eq.' + id, { method: 'DELETE', headers: { 'Prefer': 'return=minimal' } });
+    showToast('Rappel supprimé', 'success');
     loadDetailFollowups(currentContactId);
   } catch(e) { showToast('Erreur: ' + e.message, 'error'); }
 }

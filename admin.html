@@ -333,6 +333,34 @@
     .flex-gap { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     a { color: var(--green); text-decoration: none; }
     a:hover { text-decoration: underline; }
+
+    /* === PAIEMENT SECTION === */
+    .paiement-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-top: 16px; }
+    .paiement-card h4 { font-size: 14px; font-weight: 700; color: #1e293b; margin: 0 0 16px; display: flex; align-items: center; gap: 8px; }
+    .paiement-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+    .paiement-status.non-configure { background: #f1f5f9; color: #64748b; }
+    .paiement-status.client-cree { background: #dbeafe; color: #1d4ed8; }
+    .paiement-status.mandat-en-cours { background: #fef3c7; color: #d97706; }
+    .paiement-status.mandat-actif { background: #dcfce7; color: #15803d; }
+    .paiement-status.abonnement-actif { background: #dcfce7; color: #15803d; }
+    .paiement-status.echec { background: #fee2e2; color: #dc2626; }
+    .paiement-info-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+    .paiement-info-row:last-child { border-bottom: none; }
+    .paiement-info-row label { color: #64748b; }
+    .paiement-info-row span { font-weight: 600; color: #1e293b; }
+    .paiement-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .btn-mollie { padding: 9px 16px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+    .btn-mollie-primary { background: #2563eb; color: white; }
+    .btn-mollie-primary:hover { background: #1d4ed8; }
+    .btn-mollie-green { background: #16a34a; color: white; }
+    .btn-mollie-green:hover { background: #15803d; }
+    .btn-mollie-copy { background: #f1f5f9; color: #1e293b; border: 1px solid #e2e8f0; }
+    .btn-mollie-copy:hover { background: #e2e8f0; }
+    .paiement-link-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; margin-top: 12px; font-size: 12px; color: #3b82f6; word-break: break-all; font-family: monospace; }
+    .paiement-amount-row { display: flex; gap: 10px; margin: 12px 0; }
+    .paiement-amount-field { flex: 1; }
+    .paiement-amount-field label { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; }
+    .paiement-amount-field input { width: 100%; padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; box-sizing: border-box; }
   </style>
 </head>
 <body>
@@ -560,6 +588,9 @@
             </div>
             <div id="detail-questionnaire"><p style="color:#8892a4;font-size:13px">Pas encore reçu.</p></div>
           </div>
+
+          <!-- PAIEMENT -->
+          <div id="detail-paiement"></div>
         </div>
       </div>
     </div>
@@ -1477,6 +1508,7 @@ async function openContactDetail(id) {
   loadDetailDocs(id);
   loadDetailModifications(id, contact);
   loadDetailQuestionnaire(contact);
+  loadDetailPaiement(contact);
 }
 
 function copyClientId() {
@@ -3341,6 +3373,242 @@ function markAllRead() {
 }
 
 // initNotifications() est appelé depuis loadProfile() après le login
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MOLLIE — PAIEMENT SECTION
+// ═══════════════════════════════════════════════════════════════════════════
+const WORKER_URL = 'https://seolia-ai-chat.seolia.workers.dev';
+
+function loadDetailPaiement(contact) {
+  const el = document.getElementById('detail-paiement');
+  if (!el) return;
+  el.innerHTML = renderPaiementSection(contact);
+}
+
+function renderPaiementSection(contact) {
+  // Only visible to admin role
+  if (currentProfile?.role !== 'admin') return '';
+
+  const statut = contact.paiement_statut || 'non_configure';
+  const pricing = {
+    'Essentiel IA': { setup: '499', mensuel: '109' },
+    'Business IA':  { setup: '949', mensuel: '249' },
+    'Premium IA':   { setup: '1499', mensuel: '449' },
+    'Web Essentiel':{ setup: '149', mensuel: '69' },
+    'Web Business': { setup: '299', mensuel: '119' },
+    'Web Premium':  { setup: '499', mensuel: '199' },
+  };
+  const p = pricing[contact.formule] || { setup: '499', mensuel: '109' };
+
+  const statusLabels = {
+    'non_configure': { label: '⚪ Non configuré', cls: 'non-configure' },
+    'client_cree': { label: '🔵 Profil Mollie créé', cls: 'client-cree' },
+    'mandat_en_cours': { label: '🟡 En attente signature SEPA', cls: 'mandat-en-cours' },
+    'mandat_actif': { label: '🟢 Mandat SEPA actif', cls: 'mandat-actif' },
+    'abonnement_actif': { label: '✅ Abonnement actif', cls: 'abonnement-actif' },
+    'echec_paiement': { label: '🔴 Échec paiement', cls: 'echec' },
+  };
+  const s = statusLabels[statut] || statusLabels['non_configure'];
+
+  const nomEsc = (contact.nom||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const emailEsc = (contact.email||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const formuleEsc = (contact.formule||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const mollieCustomerId = contact.mollie_customer_id || '';
+  const mollieMandateId = contact.mollie_mandate_id || '';
+
+  let content = `
+    <div class="paiement-card" id="paiement-section">
+      <h4>💳 Paiement & Abonnement</h4>
+      <div class="paiement-status ${s.cls}">${s.label}</div>`;
+
+  if (statut === 'non_configure') {
+    content += `
+      <p style="font-size:13px;color:#64748b;margin:0 0 12px;">Créez d'abord le profil Mollie du client pour pouvoir générer un lien de paiement SEPA.</p>
+      <div class="paiement-actions">
+        <button class="btn-mollie btn-mollie-primary" onclick="mollieCreateCustomer(${contact.id}, '${nomEsc}', '${emailEsc}')">
+          + Créer profil Mollie
+        </button>
+      </div>`;
+  } else if (statut === 'client_cree' || statut === 'echec_paiement') {
+    content += `
+      <div class="paiement-info-row"><label>Client Mollie</label><span style="font-size:11px;color:#64748b">${mollieCustomerId || '-'}</span></div>
+      <p style="font-size:13px;color:#64748b;margin:12px 0 4px;">Montants à facturer :</p>
+      <div class="paiement-amount-row">
+        <div class="paiement-amount-field">
+          <label>Setup (€ TVAC)</label>
+          <input type="number" id="mol-setup-amt" value="${p.setup}" min="0" step="0.01" placeholder="ex: 499">
+        </div>
+        <div class="paiement-amount-field">
+          <label>Mensuel (€ TVAC)</label>
+          <input type="number" id="mol-mensuel-amt" value="${p.mensuel}" min="0" step="0.01" placeholder="ex: 109">
+        </div>
+      </div>
+      <div class="paiement-actions">
+        <button class="btn-mollie btn-mollie-green" onclick="mollieSetupPayment(${contact.id}, '${mollieCustomerId}', '${formuleEsc}')">
+          Générer lien paiement SEPA →
+        </button>
+      </div>`;
+  } else if (statut === 'mandat_en_cours') {
+    content += `
+      <p style="font-size:13px;color:#64748b;margin:0 0 12px;">Lien envoyé au client — en attente de la signature du mandat SEPA.</p>
+      <div id="mol-link-display"></div>
+      <div class="paiement-actions">
+        <button class="btn-mollie btn-mollie-copy" onclick="mollieSetupPayment(${contact.id}, '${mollieCustomerId}', '${formuleEsc}')">
+          🔁 Renvoyer un lien
+        </button>
+      </div>`;
+  } else if (statut === 'mandat_actif') {
+    content += `
+      <div class="paiement-info-row"><label>Mandat SEPA</label><span style="color:#16a34a">✅ Signé</span></div>
+      <div class="paiement-info-row"><label>Mandat ID</label><span style="font-size:11px;color:#64748b">${mollieMandateId || '-'}</span></div>
+      <p style="font-size:13px;color:#64748b;margin:12px 0 4px;">Montant abonnement mensuel :</p>
+      <div class="paiement-amount-row">
+        <div class="paiement-amount-field">
+          <label>Mensuel (€ TVAC)</label>
+          <input type="number" id="mol-sub-amt" value="${p.mensuel}" min="0" step="0.01" placeholder="ex: 109">
+        </div>
+      </div>
+      <div class="paiement-actions">
+        <button class="btn-mollie btn-mollie-green" onclick="mollieCreateSubscription(${contact.id}, '${mollieCustomerId}', '${mollieMandateId}', '${formuleEsc}')">
+          ▶ Activer abonnement mensuel
+        </button>
+      </div>`;
+  } else if (statut === 'abonnement_actif') {
+    const startDate = contact.date_debut_abonnement
+      ? new Date(contact.date_debut_abonnement).toLocaleDateString('fr-BE', { day: '2-digit', month: 'long', year: 'numeric' })
+      : '-';
+    const mollieSubId = contact.mollie_subscription_id || '-';
+    content += `
+      <div class="paiement-info-row"><label>Abonnement</label><span style="color:#16a34a">✅ Actif</span></div>
+      <div class="paiement-info-row"><label>Mensuel</label><span>${p.mensuel}€/mois</span></div>
+      <div class="paiement-info-row"><label>Début</label><span>${startDate}</span></div>
+      <div class="paiement-info-row"><label>Sub. Mollie</label><span style="font-size:11px;color:#64748b">${mollieSubId}</span></div>`;
+  }
+
+  content += `</div>`;
+  return content;
+}
+
+async function mollieCreateCustomer(contactId, nom, email) {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Création...';
+  try {
+    const res = await fetch(`${WORKER_URL}/mollie-create-customer`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contact_id: contactId, nom, email }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('✅ Profil Mollie créé !', 'success');
+      await loadContact(contactId);
+    } else {
+      showToast('Erreur: ' + (data.error || 'Inconnue'), 'error');
+      btn.disabled = false;
+      btn.textContent = '+ Créer profil Mollie';
+    }
+  } catch (err) {
+    showToast('Erreur réseau: ' + err.message, 'error');
+    btn.disabled = false;
+    btn.textContent = '+ Créer profil Mollie';
+  }
+}
+
+async function mollieSetupPayment(contactId, mollieCustomerId, formule) {
+  const setupInput = document.getElementById('mol-setup-amt');
+  const setupAmount = setupInput ? parseFloat(setupInput.value).toFixed(2) : null;
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Génération...';
+  try {
+    const res = await fetch(`${WORKER_URL}/mollie-setup-payment`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contact_id: contactId,
+        mollie_customer_id: mollieCustomerId,
+        formule,
+        setup_amount: setupAmount,
+      }),
+    });
+    const data = await res.json();
+    if (data.checkout_url) {
+      const linkDiv = document.getElementById('mol-link-display') || document.querySelector('#paiement-section');
+      const checkoutUrl = data.checkout_url;
+      const waText = encodeURIComponent('Voici votre lien de paiement sécurisé Seolia : ' + checkoutUrl);
+      const linkBox = `
+        <div class="paiement-link-box" id="mol-checkout-link">${checkoutUrl}</div>
+        <div class="paiement-actions" style="margin-top:8px;">
+          <button class="btn-mollie btn-mollie-copy" onclick="navigator.clipboard.writeText('${checkoutUrl.replace(/'/g,"\\'")}').then(()=>showToast('Lien copié !','success'))">
+            📋 Copier le lien
+          </button>
+          <a href="https://wa.me/?text=${waText}" target="_blank" class="btn-mollie btn-mollie-green" style="text-decoration:none;display:inline-flex;align-items:center;">
+            💬 Envoyer WhatsApp
+          </a>
+        </div>`;
+      if (linkDiv) linkDiv.innerHTML = linkBox;
+      showToast('✅ Lien de paiement généré !', 'success');
+      await loadContact(contactId);
+    } else {
+      showToast('Erreur: ' + (data.error || 'Inconnue'), 'error');
+      btn.disabled = false;
+      btn.textContent = 'Générer lien paiement SEPA →';
+    }
+  } catch (err) {
+    showToast('Erreur réseau: ' + err.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Générer lien paiement SEPA →';
+  }
+}
+
+async function mollieCreateSubscription(contactId, mollieCustomerId, mollieMandateId, formule) {
+  const amtInput = document.getElementById('mol-sub-amt');
+  const mensuelAmount = amtInput ? parseFloat(amtInput.value).toFixed(2) : null;
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Activation...';
+  try {
+    const res = await fetch(`${WORKER_URL}/mollie-create-subscription`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contact_id: contactId,
+        mollie_customer_id: mollieCustomerId,
+        mollie_mandate_id: mollieMandateId,
+        formule,
+        mensuel_amount: mensuelAmount,
+      }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(`✅ Abonnement actif à partir du ${data.start_date} !`, 'success');
+      await loadContact(contactId);
+    } else {
+      showToast('Erreur: ' + (data.error || 'Inconnue'), 'error');
+      btn.disabled = false;
+      btn.textContent = '▶ Activer abonnement mensuel';
+    }
+  } catch (err) {
+    showToast('Erreur réseau: ' + err.message, 'error');
+    btn.disabled = false;
+    btn.textContent = '▶ Activer abonnement mensuel';
+  }
+}
+
+async function loadContact(contactId) {
+  try {
+    const rows = await sbFetch('/rest/v1/contacts?id=eq.' + contactId + '&select=*');
+    if (rows && rows[0]) {
+      const idx = allContacts.findIndex(c => c.id === contactId);
+      if (idx >= 0) allContacts[idx] = rows[0];
+      else allContacts.push(rows[0]);
+      await openContactDetail(contactId);
+    }
+  } catch (e) {
+    console.error('loadContact error:', e);
+  }
+}
 </script>
 
 <!-- Modal détail commercial -->

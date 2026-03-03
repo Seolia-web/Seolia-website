@@ -1,9 +1,15 @@
-// Seolia AI Chat Worker - v4
+// Seolia AI Chat Worker - v6
 // Endpoints:
-//   POST /chat            - OpenAI chatbot bridge
-//   POST /create-contact  - Create CRM contact from chatbot/form
-//   POST /vapi-webhook    - Receive end-of-call report from Vapi AI agent
-//   POST /save-onboarding - Save client questionnaire to CRM
+//   POST /chat                        - OpenAI chatbot bridge
+//   POST /create-contact              - Create CRM contact from chatbot/form
+//   POST /vapi-webhook                - Receive end-of-call report from Vapi AI agent
+//   POST /save-onboarding             - Save client questionnaire to CRM
+//   GET  /validate-id                 - Validate client ID
+//   POST /save-modification           - Save modification request
+//   POST /mollie-create-customer      - Create Mollie customer profile
+//   POST /mollie-setup-payment        - Generate SEPA mandate + setup payment link
+//   POST /mollie-create-subscription  - Activate monthly subscription
+//   POST /mollie-webhook              - Handle Mollie payment/subscription webhooks
 
 const SUPABASE_URL = 'https://tykjkpnlvuxwrurmacpx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5a2prcG5sdnV4d3J1cm1hY3B4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjQ0MTYwNywiZXhwIjoyMDg4MDE3NjA3fQ.HkOkAPAjf2RDkY6qa8bHcunS9QLcNNAanN94SIe5PHI';
@@ -75,7 +81,27 @@ export default {
       return handleSaveModification(request, env);
     }
 
-    return new Response('Seolia API v5', { status: 200 });
+    // ─── /mollie-create-customer ────────────────────────────────────────────────
+    if (url.pathname === '/mollie-create-customer' && request.method === 'POST') {
+      return handleMollieCreateCustomer(request, env);
+    }
+
+    // ─── /mollie-setup-payment ──────────────────────────────────────────────────
+    if (url.pathname === '/mollie-setup-payment' && request.method === 'POST') {
+      return handleMollieSetupPayment(request, env);
+    }
+
+    // ─── /mollie-create-subscription ────────────────────────────────────────────
+    if (url.pathname === '/mollie-create-subscription' && request.method === 'POST') {
+      return handleMollieCreateSubscription(request, env);
+    }
+
+    // ─── /mollie-webhook ────────────────────────────────────────────────────────
+    if (url.pathname === '/mollie-webhook' && request.method === 'POST') {
+      return handleMollieWebhook(request, env);
+    }
+
+    return new Response('Seolia API v6', { status: 200 });
   }
 };
 
@@ -423,6 +449,235 @@ async function handleSaveModification(request, env) {
   } catch (err) {
     console.error('Save modification error:', err);
     return jsonResponse({ error: err.message }, 500);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MOLLIE — PRICING MAP
+// ═══════════════════════════════════════════════════════════════════════════
+const SEOLIA_PRICING = {
+  'Essentiel IA': { setup: '499.00', mensuel: '109.00' },
+  'Business IA':  { setup: '949.00', mensuel: '249.00' },
+  'Premium IA':   { setup: '1499.00', mensuel: '449.00' },
+  'Web Essentiel':{ setup: '149.00', mensuel: '69.00' },
+  'Web Business': { setup: '299.00', mensuel: '119.00' },
+  'Web Premium':  { setup: '499.00', mensuel: '199.00' },
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MOLLIE — CREATE CUSTOMER
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleMollieCreateCustomer(request, env) {
+  try {
+    const { contact_id, nom, email } = await request.json();
+    if (!contact_id || !nom) return jsonResponse({ error: 'contact_id and nom required' }, 400);
+
+    // Create Mollie customer
+    const mollieRes = await fetch('https://api.mollie.com/v2/customers', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.MOLLIE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: nom,
+        email: email || undefined,
+        locale: 'fr_BE',
+        metadata: { seolia_contact_id: String(contact_id) },
+      }),
+    });
+
+    const mollieData = await mollieRes.json();
+    if (!mollieRes.ok) return jsonResponse({ error: mollieData.detail || 'Mollie error', mollieData }, 500);
+
+    // Save mollie_customer_id to Supabase
+    await fetch(`${SUPABASE_URL}/rest/v1/contacts?id=eq.${contact_id}`, {
+      method: 'PATCH',
+      headers: { ...supabaseHeaders(), 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        mollie_customer_id: mollieData.id,
+        paiement_statut: 'client_cree',
+        updated_at: new Date().toISOString(),
+      }),
+    });
+
+    return jsonResponse({ success: true, mollie_customer_id: mollieData.id });
+  } catch (err) {
+    return jsonResponse({ error: err.message }, 500);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MOLLIE — SETUP PAYMENT (setup fee + SEPA mandate collection)
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleMollieSetupPayment(request, env) {
+  try {
+    const { contact_id, mollie_customer_id, formule, setup_amount, nom } = await request.json();
+    if (!contact_id || !mollie_customer_id) return jsonResponse({ error: 'contact_id and mollie_customer_id required' }, 400);
+
+    const pricing = SEOLIA_PRICING[formule] || {};
+    const amount = setup_amount || pricing.setup || '1.00';
+    const isZeroSetup = parseFloat(amount) === 0;
+    
+    // If setup is 0 (launch offer), charge 0.01 to collect mandate, then refund
+    // Actually use 0.01 as minimum for mandate collection
+    const chargeAmount = isZeroSetup ? '0.01' : amount;
+    const description = isZeroSetup
+      ? `Seolia - Autorisation SEPA (${formule || 'abonnement'})`
+      : `Seolia - Frais de mise en place (${formule || 'abonnement'})`;
+
+    const mollieRes = await fetch(`https://api.mollie.com/v2/payments`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.MOLLIE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        amount: { currency: 'EUR', value: chargeAmount },
+        customerId: mollie_customer_id,
+        sequenceType: 'first',
+        method: 'directdebit',
+        description,
+        redirectUrl: 'https://seolia.be/merci',
+        webhookUrl: 'https://seolia-ai-chat.seolia.workers.dev/mollie-webhook',
+        metadata: {
+          seolia_contact_id: String(contact_id),
+          formule: formule || '',
+          is_zero_setup: String(isZeroSetup),
+        },
+      }),
+    });
+
+    const mollieData = await mollieRes.json();
+    if (!mollieRes.ok) return jsonResponse({ error: mollieData.detail || 'Mollie error', mollieData }, 500);
+
+    // Update contact status
+    await fetch(`${SUPABASE_URL}/rest/v1/contacts?id=eq.${contact_id}`, {
+      method: 'PATCH',
+      headers: { ...supabaseHeaders(), 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        paiement_statut: 'mandat_en_cours',
+        updated_at: new Date().toISOString(),
+      }),
+    });
+
+    return jsonResponse({
+      success: true,
+      payment_id: mollieData.id,
+      checkout_url: mollieData._links?.checkout?.href,
+    });
+  } catch (err) {
+    return jsonResponse({ error: err.message }, 500);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MOLLIE — CREATE SUBSCRIPTION (monthly recurring)
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleMollieCreateSubscription(request, env) {
+  try {
+    const { contact_id, mollie_customer_id, mollie_mandate_id, formule, mensuel_amount } = await request.json();
+    if (!contact_id || !mollie_customer_id || !mollie_mandate_id) {
+      return jsonResponse({ error: 'contact_id, mollie_customer_id, and mollie_mandate_id required' }, 400);
+    }
+
+    const pricing = SEOLIA_PRICING[formule] || {};
+    const amount = mensuel_amount || pricing.mensuel || '109.00';
+
+    // Start subscription on the 1st of next month
+    const now = new Date();
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const startDate = nextMonth.toISOString().split('T')[0];
+
+    const mollieRes = await fetch(`https://api.mollie.com/v2/customers/${mollie_customer_id}/subscriptions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.MOLLIE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        amount: { currency: 'EUR', value: amount },
+        interval: '1 month',
+        startDate,
+        mandateId: mollie_mandate_id,
+        description: `Seolia - Abonnement ${formule || 'mensuel'}`,
+        webhookUrl: 'https://seolia-ai-chat.seolia.workers.dev/mollie-webhook',
+        metadata: {
+          seolia_contact_id: String(contact_id),
+          formule: formule || '',
+        },
+      }),
+    });
+
+    const mollieData = await mollieRes.json();
+    if (!mollieRes.ok) return jsonResponse({ error: mollieData.detail || 'Mollie error', mollieData }, 500);
+
+    // Update contact
+    await fetch(`${SUPABASE_URL}/rest/v1/contacts?id=eq.${contact_id}`, {
+      method: 'PATCH',
+      headers: { ...supabaseHeaders(), 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        mollie_subscription_id: mollieData.id,
+        paiement_statut: 'abonnement_actif',
+        date_debut_abonnement: startDate,
+        actif: true,
+        updated_at: new Date().toISOString(),
+      }),
+    });
+
+    return jsonResponse({ success: true, subscription_id: mollieData.id, start_date: startDate });
+  } catch (err) {
+    return jsonResponse({ error: err.message }, 500);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MOLLIE — WEBHOOK (payment/subscription status updates)
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleMollieWebhook(request, env) {
+  try {
+    const body = await request.text();
+    const params = new URLSearchParams(body);
+    const paymentId = params.get('id');
+
+    if (!paymentId) return new Response('ok', { status: 200 });
+
+    // Fetch payment details from Mollie
+    const payRes = await fetch(`https://api.mollie.com/v2/payments/${paymentId}`, {
+      headers: { 'Authorization': `Bearer ${env.MOLLIE_API_KEY}` },
+    });
+    const payment = await payRes.json();
+
+    const contactId = payment.metadata?.seolia_contact_id;
+    if (!contactId) return new Response('ok', { status: 200 });
+
+    if (payment.status === 'paid' && payment.sequenceType === 'first') {
+      // First payment paid = mandate created, update contact
+      const mandateId = payment.mandateId;
+      await fetch(`${SUPABASE_URL}/rest/v1/contacts?id=eq.${contactId}`, {
+        method: 'PATCH',
+        headers: { ...supabaseHeaders(), 'Prefer': 'return=minimal' },
+        body: JSON.stringify({
+          mollie_mandate_id: mandateId || null,
+          paiement_statut: 'mandat_actif',
+          updated_at: new Date().toISOString(),
+        }),
+      });
+    } else if (payment.status === 'failed' || payment.status === 'canceled' || payment.status === 'expired') {
+      await fetch(`${SUPABASE_URL}/rest/v1/contacts?id=eq.${contactId}`, {
+        method: 'PATCH',
+        headers: { ...supabaseHeaders(), 'Prefer': 'return=minimal' },
+        body: JSON.stringify({
+          paiement_statut: 'echec_paiement',
+          updated_at: new Date().toISOString(),
+        }),
+      });
+    }
+
+    return new Response('ok', { status: 200 });
+  } catch (err) {
+    console.error('Mollie webhook error:', err);
+    return new Response('error', { status: 500 });
   }
 }
 

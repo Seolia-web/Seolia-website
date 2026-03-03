@@ -7,11 +7,11 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Seolia — Sites web & SEO local pour artisans en Belgique</title>
+  <title>Seolia — Sites web &amp; SEO local pour artisans en Belgique</title>
   <meta name="description" content="Seolia crée des sites web professionnels et optimisés Google pour les artisans et PME de Belgique. Plus de visibilité, plus d'appels, plus de clients. Dès 69€/mois."/>
-  <meta name="keywords" content="site web artisan belgique, SEO local belgique, référencement google belgique, agence web belgique, site web plombier namur, site web artisan charleroi, agence web namur, site web pme belgique"/>
+  <meta name="keywords" content="site web artisan belgique, SEO local belgique, référencement google belgique, agence web belgique, site web plombier, site web artisan charleroi, agence web namur, site web pme belgique"/>
   <meta name="author" content="Seolia"/>
-  <meta property="og:title" content="Seolia — Sites web & SEO local pour artisans en Belgique"/>
+  <meta property="og:title" content="Seolia — Sites web &amp; SEO local pour artisans en Belgique"/>
   <meta property="og:description" content="Plus de visibilité. Plus d'appels. Plus de clients. Seolia transforme votre présence en ligne en machine à appels."/>
   <meta property="og:type" content="website"/>
   <meta property="og:url" content="https://seolia.be"/>
@@ -34,60 +34,51 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/style.css"/>
   <style>
-    /* ---- HERO ---- */
+    /* ── HERO ── */
     .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
+      padding: 140px 40px 100px;
       position: relative;
       overflow: hidden;
-      padding: 120px 40px 80px;
     }
     @media (max-width: 768px) {
-      .hero {
-        min-height: auto;
-        padding: 100px 20px 60px;
-      }
+      .hero { padding: 110px 20px 70px; }
     }
     .hero-bg {
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(0,214,143,0.08) 0%, transparent 60%),
-                  radial-gradient(ellipse 60% 80% at 20% 80%, rgba(99,102,241,0.08) 0%, transparent 60%);
+      background:
+        radial-gradient(ellipse 80% 60% at 60% 40%, rgba(0,214,143,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 20% 80%, rgba(99,102,241,0.07) 0%, transparent 60%);
+      pointer-events: none;
     }
     .hero-grid {
       position: absolute;
       inset: 0;
-      background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
       background-size: 50px 50px;
-    }
-    .hero-blob1 {
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(0,214,143,0.12), transparent 70%);
-      top: -100px; right: -100px;
-    }
-    .hero-blob2 {
-      width: 400px; height: 400px;
-      background: radial-gradient(circle, rgba(99,102,241,0.1), transparent 70%);
-      bottom: -50px; left: -100px;
+      pointer-events: none;
     }
     .hero-inner {
       position: relative;
       z-index: 1;
       max-width: 1200px;
       margin: 0 auto;
-      width: 100%;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 80px;
       align-items: center;
     }
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr; gap: 0; }
+      .hero-visual { display: none; }
+    }
     .hero-tag {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: var(--green-glow);
+      background: rgba(0,214,143,0.1);
       color: var(--green);
       border: 1px solid rgba(0,214,143,0.3);
       padding: 8px 18px;
@@ -102,14 +93,14 @@
       width: 8px; height: 8px;
       background: var(--green);
       border-radius: 50%;
-      animation: pulse 2s infinite;
+      animation: pulse-dot 2s infinite;
     }
-    @keyframes pulse {
+    @keyframes pulse-dot {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.5; transform: scale(0.8); }
     }
     .hero-title { margin-bottom: 24px; }
-    .hero-title .typed-wrapper {
+    .typed-wrapper {
       color: var(--green);
       display: block;
       min-height: 1.3em;
@@ -117,23 +108,30 @@
     .typed-cursor {
       display: inline-block;
       width: 3px;
-      height: 1em;
+      height: 0.9em;
       background: var(--green);
-      margin-left: 4px;
+      margin-left: 3px;
       vertical-align: middle;
       animation: blink 1s infinite;
     }
     @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
-    .hero-subtitle { font-size: 1.1rem; margin-bottom: 36px; max-width: 480px; }
-    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 48px; }
+    .hero-subtitle {
+      font-size: 1.1rem;
+      margin-bottom: 36px;
+      max-width: 480px;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+    }
     .hero-social-proof {
       display: flex;
       align-items: center;
       gap: 16px;
     }
-    .hero-avatars {
-      display: flex;
-    }
+    .hero-avatars { display: flex; }
     .hero-avatars span {
       width: 38px; height: 38px;
       border-radius: 50%;
@@ -141,7 +139,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       margin-left: -10px;
     }
     .hero-avatars span:first-child { margin-left: 0; background: #2d3a5e; }
@@ -151,7 +149,7 @@
     .hero-sp-text strong { color: var(--white); }
     .hero-sp-stars { color: var(--gold); font-size: 0.9rem; }
 
-    /* Hero phone mockup */
+    /* ── PHONE MOCKUP ── */
     .hero-visual { position: relative; }
     .phone-mockup {
       width: 260px;
@@ -164,7 +162,6 @@
       border-radius: 40px;
       padding: 16px 12px;
       box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
-      position: relative;
     }
     .phone-notch {
       width: 100px; height: 28px;
@@ -190,13 +187,13 @@
       gap: 8px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    .google-logo { font-size: 1.1rem; font-weight: 900; }
-    .google-logo .G { color: #4285f4; }
-    .google-logo .o1 { color: #ea4335; }
-    .google-logo .o2 { color: #fbbc05; }
-    .google-logo .g { color: #4285f4; }
-    .google-logo .l { color: #34a853; }
-    .google-logo .e { color: #ea4335; }
+    .google-logo { font-size: 1rem; font-weight: 900; }
+    .g-G { color: #4285f4; }
+    .g-o1 { color: #ea4335; }
+    .g-o2 { color: #fbbc05; }
+    .g-g { color: #4285f4; }
+    .g-l { color: #34a853; }
+    .g-e { color: #ea4335; }
     .search-bar {
       flex: 1;
       background: #f1f3f4;
@@ -215,8 +212,8 @@
       box-shadow: 0 1px 4px rgba(0,0,0,0.08);
       position: relative;
     }
-    .g-result.highlighted { border: 2px solid var(--green); }
-    .g-result.highlighted::before {
+    .g-result.top { border: 2px solid var(--green); }
+    .g-result.top::before {
       content: '#1';
       position: absolute;
       top: -8px; right: 8px;
@@ -230,7 +227,7 @@
     .g-result .r-url { font-size: 0.5rem; color: #1a0dab; margin-bottom: 2px; }
     .g-result .r-title { font-size: 0.6rem; color: #1a0dab; font-weight: 600; margin-bottom: 2px; }
     .g-result .r-desc { font-size: 0.5rem; color: #545454; line-height: 1.4; }
-    .g-result .stars { color: var(--gold); font-size: 0.6rem; }
+    .g-result .r-stars { color: var(--gold); font-size: 0.55rem; }
     .call-badge {
       position: absolute;
       right: -20px; top: 30%;
@@ -242,9 +239,8 @@
       font-weight: 800;
       box-shadow: 0 8px 24px rgba(0,214,143,0.4);
       white-space: nowrap;
-      animation: float 3s ease-in-out infinite;
+      animation: float-badge 3s ease-in-out infinite;
     }
-    .call-badge::before { content: '📞 '; }
     .rival-badge {
       position: absolute;
       left: -20px; bottom: 20%;
@@ -256,22 +252,53 @@
       font-size: 0.68rem;
       font-weight: 700;
       white-space: nowrap;
-      animation: float 3s ease-in-out infinite 1.5s;
+      animation: float-badge 3s ease-in-out infinite 1.5s;
     }
-    @keyframes float {
+    @keyframes float-badge {
       0%,100% { transform: translateY(0); }
       50% { transform: translateY(-8px); }
     }
 
-    /* ---- PROBLEM ---- */
-    .problem-section { background: var(--navy-light); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    /* ── STATS ── */
+    .big-stats {
+      background: linear-gradient(135deg, var(--navy-light), var(--navy-card));
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 80px 40px;
+    }
+    .big-stats-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      text-align: center;
+    }
+    @media (max-width: 768px) {
+      .big-stats { padding: 60px 20px; }
+      .big-stats-inner { grid-template-columns: repeat(2, 1fr); gap: 30px; }
+    }
+    .big-stat-val {
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--green), #00b4d8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .big-stat p { font-size: 0.9rem; color: var(--grey); }
+
+    /* ── PROBLEM ── */
     .problem-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 80px;
       align-items: center;
     }
-    .problem-scenarios { display: flex; flex-direction: column; gap: 16px; }
+    @media (max-width: 900px) { .problem-grid { grid-template-columns: 1fr; gap: 50px; } }
+    .scenarios { display: flex; flex-direction: column; gap: 16px; }
     .scenario {
       background: var(--navy-card);
       border: 1px solid var(--border);
@@ -296,19 +323,17 @@
     }
     .scenario-icon.red { background: rgba(239,68,68,0.15); }
     .scenario-icon.green { background: rgba(0,214,143,0.15); }
-    .scenario h4 { font-size: 0.9rem; margin-bottom: 4px; }
+    .scenario h4 { font-size: 0.92rem; margin-bottom: 4px; }
     .scenario p { font-size: 0.82rem; color: var(--grey); margin: 0; }
 
-    /* ---- HOW IT WORKS ---- */
+    /* ── HOW IT WORKS ── */
     .steps-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 32px;
     }
-    .step {
-      text-align: center;
-      position: relative;
-    }
+    @media (max-width: 900px) { .steps-grid { grid-template-columns: 1fr; } }
+    .step { text-align: center; position: relative; }
     .step::after {
       content: '';
       position: absolute;
@@ -317,6 +342,7 @@
       background: linear-gradient(90deg, var(--border), transparent);
     }
     .step:last-child::after { display: none; }
+    @media (max-width: 900px) { .step::after { display: none; } }
     .step-number {
       width: 56px; height: 56px;
       border-radius: 50%;
@@ -328,362 +354,25 @@
       font-weight: 800;
       color: var(--green);
       margin: 0 auto 20px;
-      background: var(--green-glow);
+      background: rgba(0,214,143,0.1);
     }
     .step h3 { margin-bottom: 10px; font-size: 1rem; }
     .step p { font-size: 0.85rem; }
 
-    /* ---- FORMULES ---- */
-    .formules-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      margin-bottom: 40px;
-    }
-    .formule-card {
-      background: var(--navy-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 36px 28px;
-      display: flex;
-      flex-direction: column;
-      transition: var(--transition);
-      position: relative;
+    /* ── IA SECTION ── */
+    .ia-section {
+      background: var(--navy);
       overflow: hidden;
-    }
-    .formule-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 4px;
-    }
-    .formule-card.essentiel::before { background: var(--grey); }
-    .formule-card.business::before { background: linear-gradient(90deg, var(--green), #00b4d8); }
-    .formule-card.premium::before { background: linear-gradient(90deg, var(--gold), #f97316); }
-    .formule-card.business {
-      border-color: rgba(0,214,143,0.3);
-      transform: translateY(-8px);
-      box-shadow: 0 30px 60px rgba(0,0,0,0.3), var(--shadow-green);
-    }
-    .formule-card:hover { transform: translateY(-12px); box-shadow: 0 40px 70px rgba(0,0,0,0.35); }
-    .formule-card.business:hover { transform: translateY(-16px); }
-    .formule-badge {
-      display: inline-block;
-      background: var(--green);
-      color: var(--navy);
-      font-size: 0.7rem;
-      font-weight: 800;
-      padding: 4px 12px;
-      border-radius: 50px;
-      margin-bottom: 20px;
-      align-self: flex-start;
-    }
-    .formule-name {
-      font-size: 1.3rem;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-    .formule-desc { font-size: 0.85rem; color: var(--grey); margin-bottom: 24px; }
-    .formule-price { margin-bottom: 24px; }
-    .formule-setup {
-      font-size: 0.8rem;
-      color: var(--grey);
-      text-decoration: line-through;
-      margin-bottom: 4px;
-    }
-    .formule-setup.free { text-decoration: none; color: var(--green); font-weight: 700; }
-    .formule-monthly {
-      display: flex;
-      align-items: baseline;
-      gap: 6px;
-    }
-    .formule-monthly .amount {
-      font-size: 2.4rem;
-      font-weight: 900;
-      color: var(--white);
-    }
-    .formule-monthly .currency {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--green);
-    }
-    .formule-monthly .period { font-size: 0.8rem; color: var(--grey); }
-    .formule-features {
-      list-style: none;
-      flex: 1;
-      margin-bottom: 28px;
-    }
-    .formule-features li {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 0.85rem;
-      color: var(--grey-light);
-      padding: 7px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .formule-features li:last-child { border-bottom: none; }
-    .formule-features li::before {
-      content: '✓';
-      color: var(--green);
-      font-weight: 800;
-      flex-shrink: 0;
-    }
-    .formule-cta {
-      display: block;
-      text-align: center;
-      padding: 14px;
-      border-radius: 50px;
-      font-weight: 700;
-      font-size: 0.9rem;
-      transition: var(--transition);
-    }
-    .essentiel .formule-cta {
-      border: 2px solid var(--border);
-      color: var(--white);
-    }
-    .essentiel .formule-cta:hover { border-color: var(--green); color: var(--green); }
-    .business .formule-cta {
-      background: var(--green);
-      color: var(--navy);
-    }
-    .business .formule-cta:hover {
-      background: var(--green-dark);
-      box-shadow: 0 8px 25px rgba(0,214,143,0.35);
-    }
-    .premium .formule-cta {
-      background: linear-gradient(135deg, var(--gold), #f97316);
-      color: var(--white);
-    }
-    .premium .formule-cta:hover {
-      box-shadow: 0 8px 25px rgba(245,166,35,0.35);
-    }
-    .formules-note {
-      text-align: center;
-      background: var(--green-glow);
-      border: 1px solid rgba(0,214,143,0.2);
-      border-radius: var(--radius);
-      padding: 20px 32px;
-      font-size: 0.9rem;
-      color: var(--green);
-    }
-    .formules-note strong { color: var(--white); }
-
-    /* ---- STATS ---- */
-    .big-stats {
-      background: linear-gradient(135deg, var(--navy-light), var(--navy-card));
+      position: relative;
       border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 80px 40px;
     }
-    .big-stats-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 40px;
-      text-align: center;
-    }
-    .big-stat h2 {
-      font-size: clamp(2.5rem, 5vw, 4rem);
-      font-weight: 900;
-      background: linear-gradient(135deg, var(--green), #00b4d8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 8px;
-    }
-    .big-stat p { font-size: 0.9rem; color: var(--grey); }
-
-    /* ---- PORTFOLIO ---- */
-    .portfolio-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 32px;
-    }
-    .portfolio-card {
-      background: var(--navy-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      transition: var(--transition);
-    }
-    .portfolio-card:hover { border-color: rgba(0,214,143,0.3); transform: translateY(-6px); box-shadow: var(--shadow-green); }
-    .portfolio-browser {
-      background: #1e2a3a;
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .browser-dots { display: flex; gap: 5px; }
-    .browser-dots span {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-    }
-    .browser-dots span:nth-child(1) { background: #ef4444; }
-    .browser-dots span:nth-child(2) { background: var(--gold); }
-    .browser-dots span:nth-child(3) { background: #22c55e; }
-    .browser-url {
-      flex: 1;
-      background: rgba(255,255,255,0.05);
-      border-radius: 6px;
-      padding: 5px 12px;
-      font-size: 0.72rem;
-      color: var(--grey);
-    }
-    .portfolio-preview {
-      height: 200px;
-      overflow: hidden;
-      position: relative;
-    }
-    .portfolio-preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .portfolio-preview .preview-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, transparent 50%, rgba(10,14,26,0.9) 100%);
-    }
-    .portfolio-placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 4rem;
-    }
-    .portfolio-content { padding: 24px; }
-    .portfolio-content h3 { margin-bottom: 8px; font-size: 1.1rem; }
-    .portfolio-content p { font-size: 0.85rem; color: var(--grey); margin-bottom: 16px; }
-    .portfolio-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-    .portfolio-tag {
-      background: var(--green-glow);
-      color: var(--green);
-      border: 1px solid rgba(0,214,143,0.2);
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 0.72rem;
-      font-weight: 600;
-    }
-
-    /* ---- GUARANTEE ---- */
-    .guarantee-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 24px;
-    }
-    .guarantee-card {
-      background: var(--navy-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px;
-      text-align: center;
-    }
-    .guarantee-icon { font-size: 2.5rem; margin-bottom: 16px; }
-    .guarantee-card h3 { font-size: 1rem; margin-bottom: 8px; }
-    .guarantee-card p { font-size: 0.83rem; }
-
-    /* ---- FAQ ---- */
-    .faq-list { max-width: 800px; margin: 0 auto; }
-    .faq-item {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      margin-bottom: 12px;
-      overflow: hidden;
-      transition: var(--transition);
-    }
-    .faq-item.open { border-color: rgba(0,214,143,0.3); }
-    .faq-question {
-      padding: 20px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.95rem;
-      gap: 16px;
-    }
-    .faq-question:hover { color: var(--green); }
-    .faq-arrow {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      background: var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      font-size: 0.8rem;
-      transition: var(--transition);
-    }
-    .faq-item.open .faq-arrow { transform: rotate(180deg); background: var(--green-glow); color: var(--green); }
-    .faq-answer {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.4s ease, padding 0.3s ease;
-    }
-    .faq-item.open .faq-answer { max-height: 300px; }
-    .faq-answer-inner {
-      padding: 0 24px 20px;
-      font-size: 0.88rem;
-      color: var(--grey-light);
-      line-height: 1.8;
-    }
-
-    /* ---- CTA FINAL ---- */
-    .cta-section {
-      text-align: center;
-      background: linear-gradient(135deg, rgba(0,214,143,0.08), rgba(99,102,241,0.05));
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 100px 40px;
-      position: relative;
-      overflow: hidden;
-    }
-    .cta-section h2 { margin-bottom: 20px; }
-    .cta-section p { font-size: 1.1rem; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; }
-    .cta-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-    .cta-phone {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: var(--green);
-      margin-top: 24px;
-      justify-content: center;
-    }
-
-    @media (max-width: 900px) {
-      .hero-inner { grid-template-columns: 1fr; gap: 50px; }
-      .hero-visual { display: none; }
-      .problem-grid { grid-template-columns: 1fr; }
-      .steps-grid { grid-template-columns: 1fr; }
-      .step::after { display: none; }
-      .formules-grid { grid-template-columns: 1fr; }
-      .formule-card.business { transform: none; }
-      .big-stats-inner { grid-template-columns: repeat(2, 1fr); }
-      .portfolio-grid { grid-template-columns: 1fr; }
-      .guarantee-grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 600px) {
-      .hero { padding: 100px 20px 60px; }
-      .big-stats { padding: 60px 20px; }
-      .big-stats-inner { grid-template-columns: repeat(2, 1fr); gap: 24px; }
-      .cta-section { padding: 70px 20px; }
-    }
-
-    /* ---- IA SECTION ---- */
-    .ia-section { background: var(--navy); overflow: hidden; position: relative; }
     .ia-section::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse 70% 60% at 80% 50%, rgba(0,214,143,0.06) 0%, transparent 60%),
-                  radial-gradient(ellipse 50% 70% at 10% 60%, rgba(99,102,241,0.06) 0%, transparent 60%);
+      background:
+        radial-gradient(ellipse 70% 60% at 80% 50%, rgba(0,214,143,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 70% at 10% 60%, rgba(99,102,241,0.06) 0%, transparent 60%);
       pointer-events: none;
     }
     .ia-grid {
@@ -692,7 +381,8 @@
       gap: 80px;
       align-items: center;
     }
-    .ia-features { display: flex; flex-direction: column; gap: 24px; }
+    @media (max-width: 900px) { .ia-grid { grid-template-columns: 1fr; gap: 60px; } }
+    .ia-features { display: flex; flex-direction: column; gap: 20px; }
     .ia-feature {
       display: flex;
       align-items: flex-start;
@@ -705,21 +395,22 @@
     }
     .ia-feature:hover { border-color: rgba(0,214,143,0.3); transform: translateX(6px); }
     .ia-feature-icon {
-      font-size: 1.6rem;
-      width: 48px; height: 48px;
-      background: var(--green-glow);
+      font-size: 1.5rem;
+      width: 46px; height: 46px;
+      background: rgba(0,214,143,0.1);
       border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .ia-feature h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+    .ia-feature h4 { font-size: 0.93rem; font-weight: 700; margin-bottom: 4px; }
     .ia-feature p { font-size: 0.82rem; color: var(--grey); margin: 0; line-height: 1.6; }
+
+    /* ── IA DEMO CARD ── */
     .ia-demo { position: relative; }
     .ia-demo-card {
       background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 20px;
-      backdrop-filter: blur(20px);
       overflow: hidden;
       box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,214,143,0.1);
     }
@@ -733,7 +424,7 @@
     }
     .ia-demo-avatar {
       width: 40px; height: 40px;
-      background: var(--green-glow);
+      background: rgba(0,214,143,0.15);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 1.2rem;
@@ -753,9 +444,7 @@
       border-radius: 16px;
       font-size: 0.82rem;
       line-height: 1.5;
-      animation: fadeInMsg 0.3s ease;
     }
-    @keyframes fadeInMsg { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
     .ia-msg.bot {
       background: rgba(0,214,143,0.1);
       border: 1px solid rgba(0,214,143,0.2);
@@ -778,11 +467,14 @@
       width: 7px; height: 7px;
       background: var(--green);
       border-radius: 50%;
-      animation: typing 1.2s infinite;
+      animation: typing-dots 1.2s infinite;
     }
     .ia-msg.typing span:nth-child(2) { animation-delay: 0.2s; }
     .ia-msg.typing span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes typing { 0%,100% { transform:translateY(0); opacity:0.4; } 50% { transform:translateY(-5px); opacity:1; } }
+    @keyframes typing-dots {
+      0%,100% { transform: translateY(0); opacity: 0.4; }
+      50% { transform: translateY(-5px); opacity: 1; }
+    }
     .ia-demo-input {
       display: flex;
       align-items: center;
@@ -821,26 +513,23 @@
       align-items: center;
       gap: 12px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-      animation: float 3s ease-in-out infinite;
+      animation: float-badge 3s ease-in-out infinite;
+      z-index: 2;
     }
-    .ia-vocal-wave {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      height: 24px;
-    }
+    @media (max-width: 600px) { .ia-vocal-badge { display: none; } }
+    .ia-vocal-wave { display: flex; align-items: center; gap: 3px; height: 24px; }
     .ia-vocal-wave span {
       width: 3px;
       background: #6366f1;
       border-radius: 2px;
-      animation: wave 1s ease-in-out infinite;
+      animation: wave-bar 1s ease-in-out infinite;
     }
-    .ia-vocal-wave span:nth-child(1) { height: 8px; animation-delay: 0s; }
+    .ia-vocal-wave span:nth-child(1) { height: 8px; }
     .ia-vocal-wave span:nth-child(2) { height: 16px; animation-delay: 0.1s; }
     .ia-vocal-wave span:nth-child(3) { height: 24px; animation-delay: 0.2s; }
     .ia-vocal-wave span:nth-child(4) { height: 14px; animation-delay: 0.3s; }
     .ia-vocal-wave span:nth-child(5) { height: 8px; animation-delay: 0.4s; }
-    @keyframes wave { 0%,100% { transform:scaleY(0.5); } 50% { transform:scaleY(1); } }
+    @keyframes wave-bar { 0%,100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }
     .btn-vocal-demo {
       display: flex;
       align-items: center;
@@ -859,7 +548,133 @@
     }
     .btn-vocal-demo:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(99,102,241,0.45); color: white; }
 
-    /* ---- FLOATING BUTTONS ---- */
+    /* ── FORMULES TEASER ── */
+    .formules-teaser-grid {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+    .formule-mini {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 36px;
+      min-width: 160px;
+      text-align: center;
+      transition: var(--transition);
+    }
+    .formule-mini:hover { transform: translateY(-4px); border-color: rgba(0,214,143,0.3); }
+    .formule-mini.featured { border-color: rgba(0,214,143,0.4); }
+    .formule-mini-name {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--grey);
+      margin-bottom: 8px;
+    }
+    .formule-mini.featured .formule-mini-name { color: var(--green); }
+    .formule-mini-price {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--white);
+    }
+    .formule-mini-price span { font-size: 1rem; font-weight: 600; }
+    .formule-mini-setup { font-size: 0.78rem; color: var(--grey); margin-top: 4px; }
+    .formules-note {
+      text-align: center;
+      background: rgba(0,214,143,0.07);
+      border: 1px solid rgba(0,214,143,0.2);
+      border-radius: var(--radius);
+      padding: 20px 32px;
+      font-size: 0.9rem;
+      color: var(--green);
+      margin-top: 32px;
+    }
+    .formules-note strong { color: var(--white); }
+
+    /* ── PORTFOLIO ── */
+    .portfolio-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: var(--transition);
+      max-width: 600px;
+    }
+    .portfolio-card:hover { border-color: rgba(0,214,143,0.3); transform: translateY(-6px); box-shadow: 0 0 40px rgba(0,214,143,0.2); }
+    .portfolio-browser {
+      background: #1e2a3a;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .browser-dots { display: flex; gap: 5px; }
+    .browser-dots span { width: 10px; height: 10px; border-radius: 50%; }
+    .browser-dots span:nth-child(1) { background: #ef4444; }
+    .browser-dots span:nth-child(2) { background: var(--gold); }
+    .browser-dots span:nth-child(3) { background: #22c55e; }
+    .browser-url {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 0.72rem;
+      color: var(--grey);
+    }
+    .portfolio-preview {
+      height: 200px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      background: linear-gradient(135deg, #0a0a0a, #1a2035);
+    }
+    .portfolio-content { padding: 24px; }
+    .portfolio-content h3 { margin-bottom: 8px; font-size: 1.1rem; }
+    .portfolio-content p { font-size: 0.85rem; color: var(--grey); margin-bottom: 16px; }
+    .portfolio-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .portfolio-tag {
+      background: rgba(0,214,143,0.1);
+      color: var(--green);
+      border: 1px solid rgba(0,214,143,0.2);
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    /* ── CTA FINAL ── */
+    .cta-section {
+      text-align: center;
+      background: linear-gradient(135deg, rgba(0,214,143,0.07), rgba(99,102,241,0.04));
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 100px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    @media (max-width: 768px) { .cta-section { padding: 70px 20px; } }
+    .cta-section h2 { margin-bottom: 20px; }
+    .cta-section p { font-size: 1.05rem; margin-bottom: 40px; max-width: 580px; margin-left: auto; margin-right: auto; }
+    .cta-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .cta-phone {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--green);
+      margin-top: 28px;
+      justify-content: center;
+    }
+    .cta-phone a { color: var(--green); }
+
+    /* ── FLOATING BUTTONS ── */
     .floating-buttons {
       position: fixed;
       bottom: 28px;
@@ -898,31 +713,13 @@
     .float-btn.whatsapp { background: #25d366; }
     .float-btn.call { background: var(--green); }
     .float-btn svg { width: 26px; height: 26px; fill: white; }
-
-    /* Scroll animations */
-    [data-aos] {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-    [data-aos].aos-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Navbar scrolled */
-    .navbar.scrolled {
-      background: rgba(10,22,40,0.98);
-      box-shadow: 0 2px 20px rgba(0,0,0,0.3);
-    }
-
   </style>
 </head>
 <body>
 
 <!-- NAV OVERLAY MOBILE -->
-<div class="nav-overlay">
-  <span class="close-btn">&#x2715;</span>
+<div class="nav-overlay" id="navOverlay">
+  <span class="close-btn" id="closeNav">&#x2715;</span>
   <a href="index.html">Accueil</a>
   <a href="formules.html">Formules</a>
   <a href="portfolio.html">Portfolio</a>
@@ -932,32 +729,33 @@
 </div>
 
 <!-- NAVBAR -->
-<nav class="navbar">
+<nav class="navbar" id="navbar">
   <a href="index.html" class="nav-logo">Seo<span>lia</span></a>
   <ul class="nav-links">
-    <li><a href="index.html">Accueil</a></li>
+    <li><a href="index.html" class="active">Accueil</a></li>
     <li><a href="formules.html">Formules</a></li>
     <li><a href="portfolio.html">Portfolio</a></li>
     <li><a href="blog/index.html">Blog</a></li>
     <li><a href="contact.html">Contact</a></li>
     <li><a href="contact.html" class="nav-cta">Appel gratuit</a></li>
   </ul>
-  <div class="burger"><span></span><span></span><span></span></div>
+  <div class="burger" id="burger">
+    <span></span><span></span><span></span>
+  </div>
 </nav>
 
 <!-- ====== HERO ====== -->
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-grid"></div>
-  <div class="bg-blob hero-blob1"></div>
-  <div class="bg-blob hero-blob2"></div>
   <div class="hero-inner">
+
     <div class="hero-content">
       <div class="hero-tag"><span class="dot"></span>Agence web #1 pour artisans en Belgique</div>
       <h1 class="hero-title">
         Votre prochain client cherche un
         <span class="typed-wrapper">
-          <span data-typed data-words='["plombier à Liège","électricien à Namur","chauffagiste à Charleroi","serrurier à Mons","carreleur à Bruxelles","plombier à Verviers","électricien à Liège","chauffagiste à Seraing","serrurier à Herstal","détailer à Namur","plombier à Wavre","électricien à Arlon"]'></span><span class="typed-cursor"></span>
+          <span id="typedText"></span><span class="typed-cursor"></span>
         </span>
         sur Google.
       </h1>
@@ -974,7 +772,7 @@
         </div>
         <div>
           <div class="hero-sp-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-          <div class="hero-sp-text"><strong>Des artisans belges</strong> recoivent plus d'appels chaque semaine</div>
+          <div class="hero-sp-text"><strong>Des artisans belges</strong> reçoivent plus d'appels chaque semaine</div>
         </div>
       </div>
     </div>
@@ -986,15 +784,15 @@
           <div class="phone-screen">
             <div class="google-bar">
               <div class="google-logo">
-                <span class="G">G</span><span class="o1">o</span><span class="o2">o</span><span class="g">g</span><span class="l">l</span><span class="e">e</span>
+                <span class="g-G">G</span><span class="g-o1">o</span><span class="g-o2">o</span><span class="g-g">g</span><span class="g-l">l</span><span class="g-e">e</span>
               </div>
               <div class="search-bar">plombier liège urgence</div>
             </div>
             <div class="google-results">
-              <div class="g-result highlighted">
-                <div class="r-url">seolia.be/client/plombier-liege</div>
+              <div class="g-result top">
+                <div class="r-url">votrenom.be/plombier-liege</div>
                 <div class="r-title">Plombier Liège — Urgence 24h/7j</div>
-                <div class="stars">★★★★★</div>
+                <div class="r-stars">★★★★★</div>
                 <div class="r-desc">Intervention rapide à Liège. Devis gratuit. Appelez maintenant !</div>
               </div>
               <div class="g-result">
@@ -1014,32 +812,33 @@
         <div class="rival-badge">Concurrent introuvable</div>
       </div>
     </div>
+
   </div>
 </section>
 
-<!-- ====== STATS BAR ====== -->
+<!-- ====== STATS ====== -->
 <div class="big-stats">
   <div class="big-stats-inner">
-    <div class="big-stat" data-aos>
-      <h2><span data-target="97" data-suffix="%">0%</span></h2>
+    <div data-aos>
+      <span class="big-stat-val" data-target="97" data-suffix="%">0%</span>
       <p>des recherches locales se font sur Google</p>
     </div>
-    <div class="big-stat" data-aos data-aos-delay="100">
-      <h2><span data-target="500" data-suffix="+">0+</span></h2>
+    <div data-aos data-aos-delay="100">
+      <span class="big-stat-val" data-target="500" data-suffix="+">0+</span>
       <p>artisans sans site web en Belgique</p>
     </div>
-    <div class="big-stat" data-aos data-aos-delay="200">
-      <h2><span data-target="76" data-suffix="%">0%</span></h2>
+    <div data-aos data-aos-delay="200">
+      <span class="big-stat-val" data-target="76" data-suffix="%">0%</span>
       <p>cliquent sur les 3 premiers résultats Google</p>
     </div>
-    <div class="big-stat" data-aos data-aos-delay="300">
-      <h2><span data-target="4" data-suffix="x">0x</span></h2>
+    <div data-aos data-aos-delay="300">
+      <span class="big-stat-val" data-target="4" data-suffix="x">0x</span>
       <p>plus d'appels avec un site optimisé vs sans</p>
     </div>
   </div>
 </div>
 
-<!-- ====== PROBLEM ====== -->
+<!-- ====== PROBLÈME ====== -->
 <section style="background: var(--navy-light); border-bottom: 1px solid var(--border);">
   <div class="section">
     <div class="problem-grid">
@@ -1050,29 +849,29 @@
         <a href="formules.html" class="btn btn-primary">Voir comment on résout ça</a>
       </div>
       <div data-aos="fade-left">
-        <div class="problem-scenarios">
-          <div class="scenario" data-aos data-aos-delay="100">
+        <div class="scenarios">
+          <div class="scenario">
             <div class="scenario-icon red">&#128683;</div>
             <div>
               <h4>Vous êtes invisible sur Google</h4>
-              <p>Recherche "plombier Liège" — vous n'apparaissez pas. Le client appelle le premier résultat.</p>
+              <p>Recherche "plombier Namur" — vous n'apparaissez pas. Le client appelle le premier résultat.</p>
             </div>
           </div>
-          <div class="scenario" data-aos data-aos-delay="200">
+          <div class="scenario">
             <div class="scenario-icon red">&#128683;</div>
             <div>
               <h4>Vous payez des leads partagés</h4>
               <p>TrustUp, Bobex... 50-200€/mois pour des leads que vous partagez avec 3 concurrents.</p>
             </div>
           </div>
-          <div class="scenario" data-aos data-aos-delay="300">
+          <div class="scenario">
             <div class="scenario-icon red">&#128683;</div>
             <div>
               <h4>Votre site date de 2010</h4>
               <p>Lent, non-mobile, invisible sur Google. Vos clients potentiels repartent en 3 secondes.</p>
             </div>
           </div>
-          <div class="scenario win" data-aos data-aos-delay="400">
+          <div class="scenario win">
             <div class="scenario-icon green">&#9989;</div>
             <div>
               <h4>La solution Seolia</h4>
@@ -1085,7 +884,7 @@
   </div>
 </section>
 
-<!-- ====== HOW IT WORKS ====== -->
+<!-- ====== COMMENT CA MARCHE ====== -->
 <section>
   <div class="section" style="text-align:center;">
     <div class="section-tag" data-aos>Comment ça marche</div>
@@ -1112,7 +911,7 @@
 </section>
 
 <!-- ====== IA SECTION ====== -->
-<section class="ia-section" style="border-top: 1px solid var(--border);">
+<section class="ia-section">
   <div class="section">
     <div style="text-align:center; margin-bottom:70px;">
       <div class="section-tag" data-aos>Intelligence Artificielle</div>
@@ -1152,11 +951,12 @@
         <div class="ia-feature" data-aos data-aos-delay="400">
           <div class="ia-feature-icon">&#128202;</div>
           <div>
-            <h4>Dashboard & rapports hebdo</h4>
+            <h4>Dashboard &amp; rapports hebdo</h4>
             <p>Tableau de bord Looker Studio : leads, appels, avis, revenus. Rapport automatique chaque semaine.</p>
           </div>
         </div>
       </div>
+
       <div class="ia-demo" data-aos="fade-left">
         <div class="ia-vocal-badge">
           <div class="ia-vocal-wave">
@@ -1176,11 +976,11 @@
             </div>
           </div>
           <div class="ia-demo-messages" id="iaDemoMessages">
-            <div class="ia-msg bot" id="iaMsg1">Bonjour ! Je suis l'assistant de Plomberie Dupont. Comment puis-je vous aider ? &#128075;</div>
+            <div class="ia-msg bot" id="iaMsg1">Bonjour ! Je suis l'assistant de Plomberie Dupont. Comment puis-je vous aider ?</div>
             <div class="ia-msg user" id="iaMsg2" style="display:none;">J'ai une fuite d'eau urgente</div>
             <div class="ia-msg bot" id="iaMsg3" style="display:none;">Urgence comprise ! Notre équipe intervient sous 2h à Liège. Votre adresse ?</div>
             <div class="ia-msg user" id="iaMsg4" style="display:none;">Rue de la Paix 15, Liège</div>
-            <div class="ia-msg bot" id="iaMsg5" style="display:none;">Parfait ! Un technicien sera chez vous avant 18h. Nous vous appelons dans 5 min pour confirmer. &#9989;</div>
+            <div class="ia-msg bot" id="iaMsg5" style="display:none;">Parfait ! Un technicien sera chez vous avant 18h. Nous vous appelons dans 5 min pour confirmer.</div>
             <div class="ia-msg typing" id="iaMsgTyping" style="display:none;"><span></span><span></span><span></span></div>
           </div>
           <div class="ia-demo-input">
@@ -1188,8 +988,8 @@
             <button class="ia-demo-send">&#10148;</button>
           </div>
         </div>
-        <a href="tel:+32470922188" class="btn-vocal-demo" style="text-decoration:none;">
-          &#127897;&#65039; Tester l'agent vocal en live
+        <a href="tel:+32470922188" class="btn-vocal-demo">
+          &#127897; Tester l'agent vocal en live
         </a>
       </div>
     </div>
@@ -1202,67 +1002,61 @@
     <div class="section-tag" data-aos>Tarifs transparents</div>
     <h2 class="section-title" data-aos data-aos-delay="100">À partir de <span class="highlight">69€/mois</span> tout compris</h2>
     <p class="section-subtitle" style="margin: 0 auto 40px;" data-aos data-aos-delay="200">3 formules web + options IA. Engagement 6 mois, puis résiliable avec 1 mois de préavis.</p>
-    <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap; margin-bottom:40px;">
-      <div class="card" style="padding:28px 36px; min-width:160px;" data-aos data-aos-delay="100">
-        <div style="font-size:0.8rem; color:var(--grey); margin-bottom:8px; text-transform:uppercase; letter-spacing:.05em;">Essentiel</div>
-        <div style="font-size:1.8rem; font-weight:800; color:var(--white);">69<span style="font-size:1rem;">€/mois</span></div>
-        <div style="font-size:0.8rem; color:var(--grey); margin-top:4px;">199€ mise en place</div>
+    <div class="formules-teaser-grid">
+      <div class="formule-mini" data-aos data-aos-delay="100">
+        <div class="formule-mini-name">Essentiel</div>
+        <div class="formule-mini-price">69<span>€/mois</span></div>
+        <div class="formule-mini-setup">199€ mise en place</div>
       </div>
-      <div class="card" style="padding:28px 36px; min-width:160px; border-color:rgba(0,214,143,0.4);" data-aos data-aos-delay="200">
-        <div style="font-size:0.8rem; color:var(--green); margin-bottom:8px; text-transform:uppercase; letter-spacing:.05em;">Business ⭐</div>
-        <div style="font-size:1.8rem; font-weight:800; color:var(--white);">119<span style="font-size:1rem;">€/mois</span></div>
-        <div style="font-size:0.8rem; color:var(--grey); margin-top:4px;">349€ mise en place</div>
+      <div class="formule-mini featured" data-aos data-aos-delay="200">
+        <div class="formule-mini-name">Business ⭐</div>
+        <div class="formule-mini-price">119<span>€/mois</span></div>
+        <div class="formule-mini-setup">349€ mise en place</div>
       </div>
-      <div class="card" style="padding:28px 36px; min-width:160px;" data-aos data-aos-delay="300">
-        <div style="font-size:0.8rem; color:var(--grey); margin-bottom:8px; text-transform:uppercase; letter-spacing:.05em;">Premium</div>
-        <div style="font-size:1.8rem; font-weight:800; color:var(--white);">199<span style="font-size:1rem;">€/mois</span></div>
-        <div style="font-size:0.8rem; color:var(--grey); margin-top:4px;">499€ mise en place</div>
+      <div class="formule-mini" data-aos data-aos-delay="300">
+        <div class="formule-mini-name">Premium</div>
+        <div class="formule-mini-price">199<span>€/mois</span></div>
+        <div class="formule-mini-setup">499€ mise en place</div>
       </div>
     </div>
     <a href="formules.html" class="btn btn-primary" data-aos>Voir toutes les formules &amp; options IA</a>
-    <div class="formules-note" style="margin-top:32px;" data-aos>
+    <div class="formules-note" data-aos>
       <strong>Offre de lancement — 3 clients uniquement :</strong> Les frais de mise en place sont offerts. Vous ne payez que le mensuel, dès le premier mois.
     </div>
   </div>
 </section>
 
-<!-- ====== PORTFOLIO PREVIEW ====== -->
+<!-- ====== PORTFOLIO ====== -->
 <section>
   <div class="section">
-    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 50px; flex-wrap: wrap; gap: 20px;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:50px; flex-wrap:wrap; gap:20px;">
       <div>
         <div class="section-tag" data-aos>Réalisations</div>
         <h2 class="section-title" data-aos data-aos-delay="100">Sites qui <span class="highlight">génèrent des appels</span></h2>
       </div>
       <a href="portfolio.html" class="btn btn-outline" data-aos>Voir tout le portfolio</a>
     </div>
-    <div class="portfolio-grid">
-      <div class="portfolio-card" data-aos data-aos-delay="100">
+    <div style="display:flex; justify-content:center;">
+      <div class="portfolio-card" data-aos>
         <div class="portfolio-browser">
           <div class="browser-dots"><span></span><span></span><span></span></div>
           <div class="browser-url">mldetailing.be</div>
         </div>
-        <div class="portfolio-preview" style="background: linear-gradient(135deg, #0a0a0a, #1a2035);">
-          <div class="portfolio-placeholder">&#128663;</div>
-        </div>
+        <div class="portfolio-preview">&#128663;</div>
         <div class="portfolio-content">
-          <h3>ML Detailing — Liège</h3>
-          <p>Site premium 9 pages pour service de detailing automobile. Galerie avant/après, tarifs, réservation en ligne.</p>
+          <h3>ML Detailing — Clavier &amp; Province de Liège</h3>
+          <p>Site premium 9 pages pour service de detailing automobile. Galerie avant/après, tarifs, réservation en ligne, SEO local optimisé.</p>
           <div class="portfolio-tags">
             <span class="portfolio-tag">Premium</span>
             <span class="portfolio-tag">9 pages</span>
             <span class="portfolio-tag">Detailing auto</span>
+            <span class="portfolio-tag">SEO local</span>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </section>
-
-
-
-
 
 <!-- ====== CTA FINAL ====== -->
 <section class="cta-section">
@@ -1276,7 +1070,7 @@
       <a href="formules.html" class="btn btn-secondary">Voir les formules</a>
     </div>
     <div class="cta-phone" data-aos data-aos-delay="400">
-      <span>&#128222;</span> <a href="tel:+32470922188" style="color:var(--green);">+32 470 92 21 88</a>
+      <span>&#128222;</span> <a href="tel:+32470922188">+32 470 92 21 88</a>
     </div>
   </div>
 </section>
@@ -1294,7 +1088,7 @@
         <h4>Navigation</h4>
         <ul>
           <li><a href="index.html">Accueil</a></li>
-          <li><a href="formules.html">Formules & tarifs</a></li>
+          <li><a href="formules.html">Formules &amp; tarifs</a></li>
           <li><a href="portfolio.html">Portfolio</a></li>
           <li><a href="blog/index.html">Blog SEO</a></li>
           <li><a href="contact.html">Contact</a></li>
@@ -1304,19 +1098,18 @@
         <h4>Contact</h4>
         <ul>
           <li><a href="tel:+32470922188">+32 470 92 21 88</a></li>
-          <li><a href="mailto:hello@seolia.be">hello@seolia.be</a></li>
-          <li><a href="#">Liège, Belgique</a></li>
+          <li><a href="mailto:contact@seolia.be">contact@seolia.be</a></li>
+          <li><a href="#">Belgique</a></li>
           <li><a href="contact.html">Audit gratuit</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2025 Seolia — Tous droits réservés</p>
+      <p>&copy; 2025 Seolia — Tous droits réservés</p>
       <p>TVA : BE 0727.941.547</p>
     </div>
   </div>
 </footer>
-
 
 <!-- FLOATING BUTTONS -->
 <div class="floating-buttons">
@@ -1330,35 +1123,46 @@
   </a>
 </div>
 
-<!-- MAIN JS -->
+<!-- ====== JAVASCRIPT ====== -->
 <script>
 // ── Navigation mobile ──
-const navToggle = document.querySelector('.nav-toggle');
-const navMenu = document.querySelector('.nav-menu');
-if (navToggle && navMenu) {
-  navToggle.addEventListener('click', () => {
-    navMenu.classList.toggle('open');
-    navToggle.classList.toggle('open');
-  });
-  document.querySelectorAll('.nav-menu a').forEach(a => {
-    a.addEventListener('click', () => { navMenu.classList.remove('open'); navToggle.classList.remove('open'); });
+const burger = document.getElementById('burger');
+const navOverlay = document.getElementById('navOverlay');
+const closeNav = document.getElementById('closeNav');
+const navbar = document.getElementById('navbar');
+
+if (burger && navOverlay) {
+  burger.addEventListener('click', () => navOverlay.classList.add('open'));
+  closeNav.addEventListener('click', () => navOverlay.classList.remove('open'));
+  navOverlay.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => navOverlay.classList.remove('open'));
   });
 }
 
-// ── Sticky nav ──
-const navbar = document.querySelector('.navbar');
+// ── Sticky navbar ──
 window.addEventListener('scroll', () => {
   if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 50);
 });
 
 // ── Typing animation ──
-const typedEl = document.querySelector('[data-typed]');
+const typedEl = document.getElementById('typedText');
 if (typedEl) {
-  const words = JSON.parse(typedEl.dataset.words || '[]');
+  const words = [
+    'plombier à Liège',
+    'électricien à Namur',
+    'chauffagiste à Charleroi',
+    'serrurier à Mons',
+    'carreleur à Bruxelles',
+    'plombier à Verviers',
+    'électricien à Liège',
+    'chauffagiste à Seraing',
+    'détailer à Namur',
+    'plombier à Wavre',
+    'électricien à Arlon'
+  ];
   let wi = 0, ci = 0, deleting = false;
-  const cursor = typedEl.nextElementSibling;
   function tick() {
-    const word = words[wi] || '';
+    const word = words[wi];
     if (!deleting) {
       typedEl.textContent = word.slice(0, ++ci);
       if (ci === word.length) { deleting = true; setTimeout(tick, 1800); return; }
@@ -1371,42 +1175,80 @@ if (typedEl) {
   tick();
 }
 
-// ── Scroll animations (data-aos) ──
+// ── Scroll animations (AOS) ──
 const aosEls = document.querySelectorAll('[data-aos]');
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('aos-visible'); } });
+const aosObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const delay = parseInt(e.target.dataset.aosDelay || 0);
+      setTimeout(() => e.target.classList.add('aos-animate'), delay);
+      aosObserver.unobserve(e.target);
+    }
+  });
 }, { threshold: 0.1 });
-aosEls.forEach(el => {
-  const delay = el.dataset.aosDelay || 0;
-  el.style.transitionDelay = delay + 'ms';
-  observer.observe(el);
-});
+aosEls.forEach(el => aosObserver.observe(el));
 
 // ── Counter animation ──
 function animateCounter(el) {
-  const target = parseInt(el.dataset.count || el.textContent);
+  const target = parseInt(el.dataset.target);
   if (isNaN(target)) return;
+  const suffix = el.dataset.suffix || '';
   const duration = 1500;
   const start = performance.now();
-  const suffix = el.dataset.suffix || '';
-  const step = (now) => {
-    const elapsed = now - start;
-    const progress = Math.min(elapsed / duration, 1);
-    const val = Math.round(progress * target);
-    el.textContent = val + suffix;
+  (function step(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(ease * target) + suffix;
     if (progress < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
+  })(start);
 }
 const counterObserver = new IntersectionObserver((entries) => {
   entries.forEach(e => {
     if (e.isIntersecting && !e.target.dataset.counted) {
       e.target.dataset.counted = '1';
       animateCounter(e.target);
+      counterObserver.unobserve(e.target);
     }
   });
 }, { threshold: 0.5 });
-document.querySelectorAll('[data-count]').forEach(el => counterObserver.observe(el));
+document.querySelectorAll('[data-target]').forEach(el => counterObserver.observe(el));
+
+// ── IA Demo chat animation ──
+const demoSteps = [
+  { id: 'iaMsg2', delay: 2000 },
+  { id: 'iaMsgTyping', delay: 3200, hide: true },
+  { id: 'iaMsg3', delay: 3200 },
+  { id: 'iaMsg4', delay: 5200 },
+  { id: 'iaMsgTyping', delay: 6400, hide: true },
+  { id: 'iaMsg5', delay: 6400 }
+];
+let demoStarted = false;
+const demoCard = document.querySelector('.ia-demo-card');
+if (demoCard) {
+  const demoObs = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && !demoStarted) {
+      demoStarted = true;
+      const typingEl = document.getElementById('iaMsgTyping');
+      let prevTyping = false;
+      demoSteps.forEach((s, i) => {
+        setTimeout(() => {
+          if (prevTyping) { typingEl.style.display = 'none'; prevTyping = false; }
+          const el = document.getElementById(s.id);
+          if (!el) return;
+          if (s.id === 'iaMsgTyping') {
+            el.style.display = 'flex';
+            prevTyping = true;
+          } else {
+            el.style.display = 'block';
+          }
+          const msgs = document.getElementById('iaDemoMessages');
+          if (msgs) msgs.scrollTop = msgs.scrollHeight;
+        }, s.delay);
+      });
+    }
+  }, { threshold: 0.3 });
+  demoObs.observe(demoCard);
+}
 </script>
 
 <!-- TYPEBOT CHATBOT -->

@@ -6,7 +6,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Questionnaire Client — Seolia</title>
+  <title>Espace Client — Seolia</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,6 @@
       --navy-card: #1a2035;
       --green: #00d68f;
       --green-dark: #00b876;
-      --green-glow: rgba(0, 214, 143, 0.15);
       --gold: #f5a623;
       --white: #ffffff;
       --grey: #8892a4;
@@ -26,1222 +25,859 @@
       --border: rgba(255,255,255,0.07);
       --font: 'Inter', sans-serif;
       --radius: 16px;
-      --radius-sm: 10px;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; font-size: 16px; }
+    html { scroll-behavior: smooth; }
     body {
       font-family: var(--font);
       background: var(--navy);
       color: var(--white);
       line-height: 1.6;
-      overflow-x: hidden;
+      min-height: 100vh;
     }
 
-    /* Progress bar */
-    #progressBar {
-      position: fixed; top: 0; left: 0; height: 3px;
-      background: var(--green); width: 0%; z-index: 1000;
-      transition: width 0.1s ease;
-    }
-
-    /* Header */
+    /* ─── HEADER ─────────────────────────────────────────────────────────── */
     .header {
       background: var(--navy-light);
       border-bottom: 1px solid var(--border);
-      padding: 20px 0;
-      text-align: center;
-    }
-    .header .logo { font-size: 1.8rem; font-weight: 800; color: var(--white); }
-    .header .logo span { color: var(--green); }
-    .header p { color: var(--grey); margin-top: 6px; font-size: 0.95rem; }
-
-    /* Hero */
-    .hero {
-      background: linear-gradient(135deg, var(--navy-light) 0%, #0d1526 100%);
-      padding: 50px 20px 40px;
-      text-align: center;
-      border-bottom: 1px solid var(--border);
-    }
-    .hero h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); margin-bottom: 12px; }
-    .hero h1 span { color: var(--green); }
-    .hero p { color: var(--grey-light); max-width: 560px; margin: 0 auto; font-size: 1rem; }
-    .badge {
-      display: inline-block;
-      background: var(--green-glow);
-      border: 1px solid rgba(0,214,143,0.3);
-      color: var(--green);
-      padding: 5px 14px;
-      border-radius: 50px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      margin-bottom: 16px;
-    }
-
-    /* Container */
-    .container { max-width: 820px; margin: 0 auto; padding: 0 20px; }
-
-    /* Formula selector */
-    .formula-selector-section {
-      padding: 50px 20px 20px;
-      max-width: 820px;
-      margin: 0 auto;
-    }
-    .formula-selector-section h2 {
-      text-align: center;
-      font-size: 1.4rem;
-      margin-bottom: 8px;
-    }
-    .formula-selector-section .subtitle {
-      text-align: center;
-      color: var(--grey);
-      font-size: 0.93rem;
-      margin-bottom: 32px;
-    }
-    .formula-cards {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    @media (max-width: 680px) {
-      .formula-cards { grid-template-columns: 1fr; }
-    }
-    .formula-card {
-      background: var(--navy-card);
-      border: 2px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px 20px;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      text-align: center;
-      position: relative;
-      user-select: none;
-    }
-    .formula-card:hover {
-      border-color: rgba(0,214,143,0.4);
-      transform: translateY(-2px);
-    }
-    .formula-card.selected {
-      border-color: var(--green);
-      background: rgba(0,214,143,0.07);
-      box-shadow: 0 0 0 3px rgba(0,214,143,0.15);
-    }
-    .formula-card .check {
-      position: absolute;
-      top: 12px; right: 12px;
-      width: 22px; height: 22px;
-      border-radius: 50%;
-      background: var(--green);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.75rem;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    .formula-card.selected .check { opacity: 1; }
-    .formula-card .formula-icon {
-      font-size: 2rem;
-      margin-bottom: 12px;
-      display: block;
-    }
-    .formula-card .formula-name {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .formula-card .formula-price {
-      color: var(--green);
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-    .formula-card .formula-desc {
-      color: var(--grey);
-      font-size: 0.8rem;
-      line-height: 1.4;
-    }
-    .formula-card .popular-badge {
-      display: inline-block;
-      background: var(--gold);
-      color: #000;
-      font-size: 0.68rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 50px;
-      margin-bottom: 8px;
-      letter-spacing: 0.5px;
-    }
-    .web-only-note {
-      text-align: center;
-      color: var(--grey);
-      font-size: 0.82rem;
-      margin-top: 8px;
-    }
-    .web-only-note a {
-      color: var(--grey-light);
-      text-decoration: underline;
-      cursor: pointer;
-    }
-    .formula-card.web-only {
-      padding: 16px;
-      opacity: 0.7;
-    }
-    .formula-card.web-only .formula-name { font-size: 0.95rem; }
-
-    /* Form sections */
-    .form-wrapper {
-      max-width: 820px;
-      margin: 0 auto;
-      padding: 0 20px 60px;
-      display: none;
-    }
-    .form-wrapper.visible { display: block; }
-
-    /* Section reveal animation */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .form-section {
-      background: var(--navy-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 30px;
-      margin-bottom: 20px;
-      animation: fadeInUp 0.4s ease forwards;
-    }
-    .form-section.hidden { display: none; }
-
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    .section-icon {
-      width: 44px; height: 44px;
-      background: var(--green-glow);
-      border: 1px solid rgba(0,214,143,0.3);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem;
-      flex-shrink: 0;
-    }
-    .section-number {
-      color: var(--green);
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-    .section-title { font-size: 1.1rem; font-weight: 700; }
-    .section-subtitle { color: var(--grey); font-size: 0.85rem; margin-top: 2px; }
-
-    /* IA section color */
-    .section-ia .section-icon {
-      background: rgba(245, 166, 35, 0.12);
-      border-color: rgba(245,166,35,0.3);
-    }
-    .section-ia .section-number { color: var(--gold); }
-
-    /* Fields */
-    .field-group {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    @media (max-width: 600px) {
-      .field-group { grid-template-columns: 1fr; }
-    }
-    .field { display: flex; flex-direction: column; gap: 6px; }
-    .field.full { grid-column: 1 / -1; }
-
-    label {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--grey-light);
-    }
-    .required { color: var(--green); }
-    .optional { color: var(--grey); font-weight: 400; font-size: 0.8rem; }
-
-    input[type="text"], input[type="tel"], input[type="email"], input[type="url"],
-    input[type="number"], select, textarea {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--white);
-      font-family: var(--font);
-      font-size: 0.9rem;
-      padding: 10px 14px;
-      transition: border-color 0.2s;
-      width: 100%;
-    }
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: var(--green);
-    }
-    textarea { resize: vertical; min-height: 90px; }
-    select option { background: var(--navy-card); }
-    input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.25); font-size: 0.85rem; }
-
-    /* Radio & Checkbox */
-    .radio-group, .checkbox-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .radio-item, .checkbox-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 14px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: all 0.15s;
-    }
-    .radio-item:hover, .checkbox-item:hover {
-      border-color: rgba(0,214,143,0.4);
-      background: rgba(0,214,143,0.05);
-    }
-    .radio-item input, .checkbox-item input { accent-color: var(--green); }
-
-    .field-divider {
-      grid-column: 1 / -1;
-      height: 1px;
-      background: var(--border);
-      margin: 8px 0;
-    }
-
-    /* Section divider label */
-    .sub-section-label {
-      grid-column: 1 / -1;
-      background: rgba(245,166,35,0.1);
-      border: 1px solid rgba(245,166,35,0.25);
-      border-radius: 8px;
-      padding: 8px 14px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--gold);
-      letter-spacing: 0.3px;
-    }
-
-    /* Submit */
-    .submit-section {
-      text-align: center;
-      padding: 40px 20px;
-    }
-    .submit-section h3 { font-size: 1.3rem; margin-bottom: 10px; }
-    .submit-section p { color: var(--grey-light); margin-bottom: 24px; font-size: 0.95rem; }
-    .btn-submit {
-      background: var(--green);
-      color: #0a0e1a;
-      border: none;
-      border-radius: 12px;
-      padding: 16px 40px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-submit:hover { background: var(--green-dark); transform: translateY(-1px); }
-    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-    /* Success */
-    .success-message {
-      display: none;
-      text-align: center;
-      padding: 50px 20px;
-      background: var(--navy-card);
-      border: 1px solid rgba(0,214,143,0.3);
-      border-radius: var(--radius);
-      margin: 20px 0;
-    }
-    .success-message .check { font-size: 3rem; margin-bottom: 16px; }
-    .success-message h3 { font-size: 1.4rem; margin-bottom: 10px; color: var(--green); }
-    .success-message p { color: var(--grey-light); }
-
-    /* Footer */
-    .footer {
-      background: var(--navy-light);
-      border-top: 1px solid var(--border);
-      padding: 24px 20px;
-      text-align: center;
-      color: var(--grey);
-      font-size: 0.85rem;
-    }
-    .footer span { color: var(--green); font-weight: 600; }
-
-    /* Scroll-to-form button */
-    .scroll-hint {
-      text-align: center;
-      padding: 30px 20px 0;
-    }
-    .scroll-hint p {
-      color: var(--grey);
-      font-size: 0.88rem;
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
-
-    /* Selected formula banner */
-    .selected-formula-banner {
-      background: rgba(0,214,143,0.08);
-      border: 1px solid rgba(0,214,143,0.25);
-      border-radius: 12px;
-      padding: 14px 20px;
-      margin-bottom: 24px;
+      padding: 16px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
     }
-    .selected-formula-banner .name {
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo img { height: 36px; }
+    .logo-text { font-size: 22px; font-weight: 800; }
+    .logo-text span { color: var(--green); }
+
+    /* ─── LAYOUT ─────────────────────────────────────────────────────────── */
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* ─── SCREENS ────────────────────────────────────────────────────────── */
+    .screen { display: none; }
+    .screen.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ─── HERO ───────────────────────────────────────────────────────────── */
+    .hero { text-align: center; margin-bottom: 40px; }
+    .hero h1 { font-size: 28px; font-weight: 800; margin-bottom: 10px; }
+    .hero p { color: var(--grey); font-size: 15px; }
+
+    /* ─── CHOICE CARDS ───────────────────────────────────────────────────── */
+    .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 520px) { .choice-grid { grid-template-columns: 1fr; } }
+    .choice-card {
+      background: var(--navy-card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 22px;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+    .choice-card:hover { border-color: var(--green); transform: translateY(-2px); }
+    .choice-card .icon { font-size: 40px; margin-bottom: 14px; }
+    .choice-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .choice-card p { font-size: 13px; color: var(--grey); }
+
+    /* ─── ID ENTRY ───────────────────────────────────────────────────────── */
+    .id-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+    }
+    .id-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .id-card p { color: var(--grey); font-size: 14px; margin-bottom: 24px; }
+    .id-input-row { display: flex; gap: 12px; }
+    .id-input {
+      flex: 1;
+      background: var(--navy-light);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 18px;
+      color: var(--white);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+    .id-input:focus { outline: none; border-color: var(--green); }
+    .id-input.error { border-color: #f87171; }
+    .id-input.success { border-color: var(--green); }
+    .id-msg {
+      margin-top: 14px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+    .id-msg.error { background: rgba(248,113,113,0.1); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+    .id-msg.success { background: rgba(0,214,143,0.1); color: var(--green); border: 1px solid rgba(0,214,143,0.3); }
+    .id-contact-info { display: none; background: rgba(0,214,143,0.07); border: 1px solid rgba(0,214,143,0.2); border-radius: 10px; padding: 14px 18px; margin-top: 14px; }
+    .id-contact-info .name { font-size: 18px; font-weight: 700; color: var(--green); }
+    .id-contact-info .formule { font-size: 13px; color: var(--grey); margin-top: 4px; }
+
+    /* ─── FORM SECTIONS ──────────────────────────────────────────────────── */
+    .section-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .section-card h3 {
+      font-size: 16px;
       font-weight: 700;
       color: var(--green);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .selected-formula-banner .change-btn {
-      color: var(--grey);
-      font-size: 0.8rem;
-      cursor: pointer;
-      text-decoration: underline;
-      background: none;
-      border: none;
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--grey-light); margin-bottom: 6px; }
+    .form-group label .req { color: var(--green); margin-left: 2px; }
+    .form-control {
+      width: 100%;
+      background: var(--navy-light);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--white);
       font-family: var(--font);
+      font-size: 14px;
+      transition: border-color 0.2s;
     }
-    .selected-formula-banner .change-btn:hover { color: var(--grey-light); }
+    .form-control:focus { outline: none; border-color: var(--green); }
+    textarea.form-control { resize: vertical; min-height: 90px; }
+    select.form-control option { background: var(--navy-card); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 520px) { .form-row { grid-template-columns: 1fr; } }
+    .hint { font-size: 12px; color: var(--grey); margin-top: 5px; }
+
+    /* ─── IA BADGE ───────────────────────────────────────────────────────── */
+    .ia-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,214,143,0.12);
+      color: var(--green);
+      border: 1px solid rgba(0,214,143,0.25);
+      border-radius: 20px;
+      padding: 3px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    /* ─── BUTTONS ────────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-green { background: var(--green); color: #0a0e1a; }
+    .btn-green:hover { background: var(--green-dark); }
+    .btn-green:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-ghost { background: transparent; color: var(--grey); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.2); color: var(--white); }
+    .btn-full { width: 100%; }
+    .btn-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 24px; }
+
+    /* ─── PROGRESS ───────────────────────────────────────────────────────── */
+    .progress-bar { height: 3px; background: rgba(255,255,255,0.1); border-radius: 99px; margin-bottom: 32px; }
+    .progress-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width 0.3s ease; }
+
+    /* ─── SUCCESS ────────────────────────────────────────────────────────── */
+    .success-screen { text-align: center; padding: 60px 20px; }
+    .success-icon { font-size: 64px; margin-bottom: 20px; }
+    .success-screen h2 { font-size: 26px; font-weight: 800; margin-bottom: 12px; }
+    .success-screen p { color: var(--grey); font-size: 15px; max-width: 400px; margin: 0 auto; }
+
+    /* ─── SPINNER ────────────────────────────────────────────────────────── */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(0,0,0,0.2);
+      border-top-color: #0a0e1a;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── BACK LINK ──────────────────────────────────────────────────────── */
+    .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--grey); font-size: 13px; cursor: pointer; margin-bottom: 24px; background: none; border: none; font-family: var(--font); }
+    .back-link:hover { color: var(--white); }
+
+    /* ─── MODIFICATION SPECIFIC ──────────────────────────────────────────── */
+    .modif-textarea { min-height: 160px; font-size: 15px; }
+    .modif-hint-list { margin: 12px 0 0 0; padding-left: 20px; }
+    .modif-hint-list li { font-size: 13px; color: var(--grey); margin-bottom: 4px; }
   </style>
 </head>
 <body>
-<div id="progressBar"></div>
 
-<!-- Header -->
-<div class="header">
-  <p class="logo">Seo<span>lia</span></p>
-  <p>Questionnaire de démarrage — Confidentiel</p>
-</div>
+  <!-- HEADER -->
+  <header class="header">
+    <a href="/" class="logo">
+      <img src="/seolia-logo.png" alt="Seolia" onerror="this.style.display='none'">
+      <span class="logo-text">Seo<span>lia</span></span>
+    </a>
+    <span style="font-size:13px;color:var(--grey)">Espace client</span>
+  </header>
 
-<!-- Hero -->
-<div class="hero">
-  <div class="badge">ESPACE CLIENT</div>
-  <h1>Bienvenue dans votre espace <span>Seolia</span></h1>
-  <p>Complétez ce questionnaire pour que notre équipe puisse démarrer votre projet avec tous les éléments nécessaires.</p>
-</div>
-
-<!-- STEP 1: Formula Selector -->
-<div class="formula-selector-section" id="formulaSection">
-  <h2>Quelle formule avez-vous choisie ?</h2>
-  <p class="subtitle">Sélectionnez votre formule pour voir les questions adaptées à votre projet.</p>
-
-  <div class="formula-cards">
-    <!-- Essentiel IA -->
-    <div class="formula-card" data-formula="Essentiel IA — 499€ setup + 109€/mois" data-tier="essentiel-ia" onclick="selectFormula(this)">
-      <div class="check">✓</div>
-      <span class="formula-icon">⚡</span>
-      <div class="formula-name">Essentiel IA</div>
-      <div class="formula-price">499€ + 109€/mois</div>
-      <div class="formula-desc">Site vitrine · Chatbot IA · FAQ auto · Avis Google</div>
-    </div>
-
-    <!-- Business IA -->
-    <div class="formula-card" data-formula="Business IA — 949€ setup + 249€/mois" data-tier="business-ia" onclick="selectFormula(this)">
-      <div class="check">✓</div>
-      <span class="popular-badge">LE PLUS POPULAIRE</span>
-      <span class="formula-icon">⭐</span>
-      <div class="formula-name">Business IA</div>
-      <div class="formula-price">949€ + 249€/mois</div>
-      <div class="formula-desc">Site multi-pages SEO · RDV auto · Commandes · Notifications</div>
-    </div>
-
-    <!-- Premium IA -->
-    <div class="formula-card" data-formula="Premium IA — 1499€ setup + 449€/mois" data-tier="premium-ia" onclick="selectFormula(this)">
-      <div class="check">✓</div>
-      <span class="formula-icon">👑</span>
-      <div class="formula-name">Premium IA</div>
-      <div class="formula-price">1 499€ + 449€/mois</div>
-      <div class="formula-desc">Site premium · Agent vocal 200min · WhatsApp · Dashboard</div>
-    </div>
-  </div>
-
-  <!-- Web only options (collapsed) -->
-  <div class="web-only-note">
-    Formule web uniquement ?
-    <a onclick="toggleWebOnly()">Cliquez ici</a>
-  </div>
-  <div id="webOnlyCards" style="display:none; margin-top:16px;">
-    <div class="formula-cards" style="grid-template-columns: 1fr 1fr; max-width: 500px; margin: 0 auto;">
-      <div class="formula-card web-only" data-formula="Web Essentiel — 149€ setup + 69€/mois" data-tier="web-essentiel" onclick="selectFormula(this)">
-        <div class="check">✓</div>
-        <div class="formula-name">Web Essentiel</div>
-        <div class="formula-price">149€ + 69€/mois</div>
-        <div class="formula-desc">Site vitrine simple</div>
-      </div>
-      <div class="formula-card web-only" data-formula="Web Business — 299€ setup + 119€/mois" data-tier="web-business" onclick="selectFormula(this)">
-        <div class="check">✓</div>
-        <div class="formula-name">Web Business</div>
-        <div class="formula-price">299€ + 119€/mois</div>
-        <div class="formula-desc">Site multi-pages SEO</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- STEP 2: Form (appears after formula selection) -->
-<div class="form-wrapper" id="formWrapper">
-  <div class="selected-formula-banner" id="selectedBanner">
-    <div>Formule sélectionnée : <span class="name" id="bannerName"></span></div>
-    <button class="change-btn" onclick="changeFormula()">Modifier</button>
-  </div>
-
-  <form id="clientForm">
-    <!-- Hidden fields -->
-    <input type="hidden" name="access_key" value="ba868ed8-1796-456e-ba13-b7d0e0b4f2cf">
-    <input type="hidden" name="subject" value="Nouveau questionnaire client — Seolia">
-    <input type="hidden" name="from_name" value="Seolia Questionnaire">
-    <input type="hidden" name="formule" id="hiddenFormule" value="">
-
-    <!-- ═══════════════════════════════════ -->
-    <!-- SECTION 1 — ENTREPRISE             -->
-    <!-- ═══════════════════════════════════ -->
-    <div class="form-section" id="s1">
-      <div class="section-header">
-        <div class="section-icon">🏢</div>
-        <div>
-          <div class="section-number">Section 1</div>
-          <div class="section-title">Votre entreprise</div>
-          <div class="section-subtitle">Les informations de base sur votre société</div>
-        </div>
-      </div>
-      <div class="field-group">
-        <div class="field full">
-          <label>Nom de l'entreprise <span class="required">*</span></label>
-          <input type="text" name="nom_entreprise" placeholder="Plomberie Dupont" required>
-        </div>
-        <div class="field">
-          <label>Téléphone <span class="required">*</span></label>
-          <input type="tel" name="telephone" placeholder="+32 470 00 00 00" required>
-        </div>
-        <div class="field">
-          <label>Email professionnel <span class="required">*</span></label>
-          <input type="email" name="email" placeholder="info@votreentreprise.be" required>
-        </div>
-        <div class="field">
-          <label>Numéro BCE / TVA <span class="optional">(optionnel)</span></label>
-          <input type="text" name="tva" placeholder="BE 0123.456.789">
-        </div>
-        <div class="field">
-          <label>Année de création <span class="optional">(optionnel)</span></label>
-          <input type="number" name="annee_creation" placeholder="2015" min="1950" max="2026">
-        </div>
-        <div class="field full">
-          <label>Adresse complète <span class="required">*</span></label>
-          <input type="text" name="adresse" placeholder="Rue de la Paix 12, 4000 Liège" required>
-        </div>
-        <div class="field full">
-          <label>Zone d'intervention <span class="required">*</span></label>
-          <input type="text" name="zone_intervention" placeholder="Ex: Province de Liège, toute la Wallonie..." required>
-        </div>
-        <div class="field">
-          <label>Nombre d'employés <span class="optional">(optionnel)</span></label>
-          <select name="nb_employes">
-            <option value="">Sélectionner...</option>
-            <option>Indépendant seul</option>
-            <option>2-5 personnes</option>
-            <option>6-10 personnes</option>
-            <option>Plus de 10</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════ -->
-    <!-- SECTION 2 — ACTIVITÉ               -->
-    <!-- ═══════════════════════════════════ -->
-    <div class="form-section" id="s2">
-      <div class="section-header">
-        <div class="section-icon">🔧</div>
-        <div>
-          <div class="section-number">Section 2</div>
-          <div class="section-title">Activité & Services</div>
-          <div class="section-subtitle">Ce que vous faites — la base de votre référencement</div>
-        </div>
-      </div>
-      <div class="field-group">
-        <div class="field">
-          <label>Secteur d'activité principal <span class="required">*</span></label>
-          <select name="secteur" required>
-            <option value="">Sélectionner...</option>
-            <option>Plomberie</option>
-            <option>Electricité</option>
-            <option>Chauffage / HVAC</option>
-            <option>Serrurerie</option>
-            <option>Toiture / Couverture</option>
-            <option>Peinture</option>
-            <option>Carrelage</option>
-            <option>Menuiserie</option>
-            <option>Maçonnerie</option>
-            <option>Nettoyage / Detailing</option>
-            <option>Autre</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Si autre, précisez</label>
-          <input type="text" name="secteur_autre" placeholder="Votre secteur...">
-        </div>
-        <div class="field full">
-          <label>Listez tous vos services <span class="required">*</span></label>
-          <textarea name="services_liste" placeholder="Ex: Installation chauffage central, dépannage urgent 24h/24, entretien chaudière, pompe à chaleur..." required></textarea>
-        </div>
-        <div class="field full">
-          <label>Votre service phare / best-seller <span class="required">*</span></label>
-          <input type="text" name="service_phare" placeholder="Ex: Dépannage plomberie urgent 24h/24" required>
-        </div>
-        <div class="field full">
-          <label>Faites-vous des interventions d'urgence ? <span class="required">*</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="urgences" value="Oui, 24h/24 7j/7"><span>Oui, 24h/24 7j/7</span></label>
-            <label class="radio-item"><input type="radio" name="urgences" value="Oui, en heures ouvrables"><span>Oui, en heures ouvrables</span></label>
-            <label class="radio-item"><input type="radio" name="urgences" value="Non"><span>Non</span></label>
-          </div>
-        </div>
-        <div class="field full">
-          <label>Certifications / agréments <span class="optional">(optionnel)</span></label>
-          <input type="text" name="certifications" placeholder="Ex: Certibeau, agréé Techlink, certifié Viessmann, membre Confédération Construction...">
-        </div>
-        <div class="field full">
-          <label>Votre avantage sur les concurrents <span class="required">*</span></label>
-          <textarea name="avantages" placeholder="Pourquoi un client vous choisirait-il ? Ex: Réponse en moins d'1h, 15 ans d'expérience, devis gratuit sous 24h..." required></textarea>
-        </div>
-        <div class="field full">
-          <label>Vos 3 principaux concurrents <span class="optional">(optionnel — utile pour le SEO)</span></label>
-          <input type="text" name="concurrents" placeholder="Noms d'entreprises concurrentes dans votre région...">
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════ -->
-    <!-- SECTION 3 — IDENTITÉ VISUELLE      -->
-    <!-- ═══════════════════════════════════ -->
-    <div class="form-section" id="s3">
-      <div class="section-header">
-        <div class="section-icon">🎨</div>
-        <div>
-          <div class="section-number">Section 3</div>
-          <div class="section-title">Identité visuelle</div>
-          <div class="section-subtitle">Le look de votre site — couleurs, style, logo</div>
-        </div>
-      </div>
-      <div class="field-group">
-        <div class="field full">
-          <label>Avez-vous un logo ? <span class="required">*</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="logo" value="Oui, je l'enverrai par email" required><span>Oui, j'enverrai par email</span></label>
-            <label class="radio-item"><input type="radio" name="logo" value="Non, à créer"><span>Non, à créer</span></label>
-            <label class="radio-item"><input type="radio" name="logo" value="À refaire"><span>À refaire</span></label>
-          </div>
-        </div>
-        <div class="field full">
-          <label>Couleurs de votre entreprise <span class="optional">(optionnel)</span></label>
-          <input type="text" name="couleurs" placeholder="Ex: Bleu et blanc, rouge et noir, couleurs libres...">
-        </div>
-        <div class="field full">
-          <label>Style visuel souhaité <span class="required">*</span></label>
-          <div class="checkbox-group">
-            <label class="checkbox-item"><input type="checkbox" name="style[]" value="Moderne et minimaliste"><span>Moderne et minimaliste</span></label>
-            <label class="checkbox-item"><input type="checkbox" name="style[]" value="Dynamique et coloré"><span>Dynamique et coloré</span></label>
-            <label class="checkbox-item"><input type="checkbox" name="style[]" value="Sérieux et professionnel"><span>Sérieux et professionnel</span></label>
-            <label class="checkbox-item"><input type="checkbox" name="style[]" value="Chaleureux et artisanal"><span>Chaleureux et artisanal</span></label>
-            <label class="checkbox-item"><input type="checkbox" name="style[]" value="Sombre et premium"><span>Sombre et premium</span></label>
-            <label class="checkbox-item"><input type="checkbox" name="style[]" value="Clair et épuré"><span>Clair et épuré</span></label>
-          </div>
-        </div>
-        <div class="field full">
-          <label>Sites web que vous aimez <span class="optional">(optionnel — URLs pour inspiration)</span></label>
-          <textarea name="sites_inspiration" placeholder="Collez des URLs de sites que vous trouvez beaux ou inspirants..."></textarea>
-        </div>
-        <div class="field full">
-          <label>Avez-vous des photos de votre travail ? <span class="required">*</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="photos" value="Oui, beaucoup (j'enverrai par email)" required><span>Oui, beaucoup</span></label>
-            <label class="radio-item"><input type="radio" name="photos" value="Quelques-unes"><span>Quelques-unes</span></label>
-            <label class="radio-item"><input type="radio" name="photos" value="Non (photos de stock)"><span>Non (photos de stock)</span></label>
-          </div>
-        </div>
-        <div class="field full">
-          <label>Photos avant/après de vos chantiers ? <span class="optional">(optionnel)</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="photos_avant_apres" value="Oui, plusieurs"><span>Oui, plusieurs</span></label>
-            <label class="radio-item"><input type="radio" name="photos_avant_apres" value="Quelques-unes"><span>Quelques-unes</span></label>
-            <label class="radio-item"><input type="radio" name="photos_avant_apres" value="Non"><span>Non</span></label>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════ -->
-    <!-- SECTION 4 — CONTENU & TEXTES       -->
-    <!-- ═══════════════════════════════════ -->
-    <div class="form-section" id="s4">
-      <div class="section-header">
-        <div class="section-icon">✍️</div>
-        <div>
-          <div class="section-number">Section 4</div>
-          <div class="section-title">Contenu & Textes</div>
-          <div class="section-subtitle">Ce qui sera écrit sur votre site</div>
-        </div>
-      </div>
-      <div class="field-group">
-        <div class="field full">
-          <label>Présentez-vous en quelques phrases <span class="required">*</span></label>
-          <textarea name="presentation" placeholder="Qui êtes-vous ? Votre parcours, votre expertise, ce qui vous a poussé à créer votre entreprise..." required></textarea>
-        </div>
-        <div class="field">
-          <label>Années d'expérience <span class="required">*</span></label>
-          <input type="number" name="annees_experience" placeholder="Ex: 12" min="0" max="60" required>
-        </div>
-        <div class="field">
-          <label>Nombre de chantiers réalisés <span class="optional">(approx.)</span></label>
-          <input type="text" name="nb_chantiers" placeholder="Ex: 500+ chantiers">
-        </div>
-        <div class="field full">
-          <label>Avez-vous des témoignages clients ? <span class="required">*</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="temoignages" value="Oui, j'en enverrai" required><span>Oui, j'en enverrai</span></label>
-            <label class="radio-item"><input type="radio" name="temoignages" value="Quelques avis Google"><span>Avis Google</span></label>
-            <label class="radio-item"><input type="radio" name="temoignages" value="Non pas encore"><span>Pas encore</span></label>
-          </div>
-        </div>
-        <div class="field full">
-          <label>Chiffres clés à mettre en avant <span class="optional">(optionnel)</span></label>
-          <input type="text" name="chiffres_cles" placeholder="Ex: 500+ clients, 15 ans d'expérience, intervention en moins d'1h...">
-        </div>
-        <div class="field full">
-          <label>Labels / récompenses <span class="optional">(optionnel)</span></label>
-          <input type="text" name="labels" placeholder="Ex: Meilleur artisan 2023, certifié ISO, partenaire officiel...">
-        </div>
-        <div class="field full">
-          <label>Votre slogan <span class="optional">(optionnel — on peut en créer un)</span></label>
-          <input type="text" name="slogan" placeholder="Ex: Votre urgence, notre priorité">
-        </div>
-        <div class="field full">
-          <label>L'histoire de votre entreprise <span class="optional">(optionnel — crée de la confiance)</span></label>
-          <textarea name="histoire" placeholder="Comment a démarré l'aventure ? Pourquoi ce métier ? Une anecdote marquante ?"></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════ -->
-    <!-- SECTION 5 — TARIFS                 -->
-    <!-- ═══════════════════════════════════ -->
-    <div class="form-section" id="s5">
-      <div class="section-header">
-        <div class="section-icon">💶</div>
-        <div>
-          <div class="section-number">Section 5</div>
-          <div class="section-title">Tarifs & Devis</div>
-          <div class="section-subtitle">Votre politique commerciale</div>
-        </div>
-      </div>
-      <div class="field-group">
-        <div class="field full">
-          <label>Affichez-vous vos tarifs ? <span class="required">*</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="afficher_tarifs" value="Oui, tarifs fixes" required><span>Tarifs fixes</span></label>
-            <label class="radio-item"><input type="radio" name="afficher_tarifs" value="Tarifs indicatifs (à partir de)"><span>Tarifs indicatifs</span></label>
-            <label class="radio-item"><input type="radio" name="afficher_tarifs" value="Non, uniquement sur devis"><span>Sur devis uniquement</span></label>
-          </div>
-        </div>
-        <div class="field full">
-          <label>Si oui, vos tarifs principaux <span class="optional">(optionnel)</span></label>
-          <textarea name="tarifs_details" placeholder="Ex: Débouchage à partir de 75€, dépannage urgent 90€/h, entretien chaudière 120€..."></textarea>
-        </div>
-        <div class="field full">
-          <label>Proposez-vous des devis gratuits ? <span class="required">*</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="devis_gratuit" value="Oui, devis gratuit" required><span>Oui, gratuit</span></label>
-            <label class="radio-item"><input type="radio" name="devis_gratuit" value="Oui, devis gratuit sous 24h"><span>Oui, sous 24h</span></label>
-            <label class="radio-item"><input type="radio" name="devis_gratuit" value="Non"><span>Non</span></label>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════ -->
-    <!-- SECTION 6 — SEO & GOOGLE           -->
-    <!-- ═══════════════════════════════════ -->
-    <div class="form-section" id="s6">
-      <div class="section-header">
-        <div class="section-icon">🔍</div>
-        <div>
-          <div class="section-number">Section 6</div>
-          <div class="section-title">SEO & Visibilité Google</div>
-          <div class="section-subtitle">Votre présence actuelle en ligne</div>
-        </div>
-      </div>
-      <div class="field-group">
-        <div class="field full">
-          <label>Avez-vous déjà un site web ? <span class="required">*</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="site_existant" value="Non" required><span>Non</span></label>
-            <label class="radio-item"><input type="radio" name="site_existant" value="Oui, à remplacer"><span>Oui, à remplacer</span></label>
-            <label class="radio-item"><input type="radio" name="site_existant" value="Oui, à conserver"><span>Oui, à conserver</span></label>
-          </div>
-        </div>
-        <div class="field full">
-          <label>URL du site actuel <span class="optional">(si applicable)</span></label>
-          <input type="url" name="url_actuel" placeholder="https://votresite.be">
-        </div>
-        <div class="field full">
-          <label>Avez-vous une fiche Google Business Profile ? <span class="required">*</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="google_business" value="Oui, optimisée" required><span>Oui, optimisée</span></label>
-            <label class="radio-item"><input type="radio" name="google_business" value="Oui, mais peu remplie"><span>Oui, peu remplie</span></label>
-            <label class="radio-item"><input type="radio" name="google_business" value="Non"><span>Non</span></label>
-            <label class="radio-item"><input type="radio" name="google_business" value="Je ne sais pas"><span>Je ne sais pas</span></label>
-          </div>
-        </div>
-        <div class="field">
-          <label>Nombre d'avis Google <span class="optional">(optionnel)</span></label>
-          <input type="number" name="nb_avis" placeholder="Ex: 12" min="0">
-        </div>
-        <div class="field">
-          <label>Note Google actuelle <span class="optional">(optionnel)</span></label>
-          <select name="note_google">
-            <option value="">Sélectionner...</option>
-            <option>5/5</option>
-            <option>4.5/5</option>
-            <option>4/5</option>
-            <option>3.5/5 ou moins</option>
-            <option>Pas de fiche Google</option>
-          </select>
-        </div>
-        <div class="field full">
-          <label>Mots-clés que vos clients tapent sur Google <span class="required">*</span></label>
-          <input type="text" name="mots_cles" placeholder="Ex: plombier Liège urgence, débouchage Seraing, installation chaudière Herstal..." required>
-        </div>
-        <div class="field full">
-          <label>Communes prioritaires pour le SEO <span class="required">*</span></label>
-          <input type="text" name="communes_seo" placeholder="Ex: Liège, Seraing, Herstal, Ans, Flémalle..." required>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════ -->
-    <!-- SECTION 7 — TECHNIQUE              -->
-    <!-- ═══════════════════════════════════ -->
-    <div class="form-section" id="s7">
-      <div class="section-header">
-        <div class="section-icon">⚙️</div>
-        <div>
-          <div class="section-number">Section 7</div>
-          <div class="section-title">Technique & Domaine</div>
-          <div class="section-subtitle">Infrastructure technique</div>
-        </div>
-      </div>
-      <div class="field-group">
-        <div class="field full">
-          <label>Avez-vous un nom de domaine ? <span class="required">*</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="domaine_existant" value="Oui" required><span>Oui</span></label>
-            <label class="radio-item"><input type="radio" name="domaine_existant" value="Non, à acheter"><span>Non, à acheter</span></label>
-            <label class="radio-item"><input type="radio" name="domaine_existant" value="Je ne sais pas"><span>Je ne sais pas</span></label>
-          </div>
-        </div>
-        <div class="field">
-          <label>Si oui, le nom de domaine</label>
-          <input type="text" name="nom_domaine" placeholder="votreentreprise.be">
-        </div>
-        <div class="field">
-          <label>Email professionnel souhaité <span class="optional">(optionnel)</span></label>
-          <input type="text" name="email_pro_souhaite" placeholder="info@votreentreprise.be">
-        </div>
-        <div class="field full">
-          <label>Réseaux sociaux actifs <span class="optional">(optionnel)</span></label>
-          <input type="text" name="reseaux_sociaux" placeholder="Ex: Facebook: facebook.com/votrepage, Instagram: @votrecompte...">
-        </div>
-        <div class="field full">
-          <label>Proposez-vous la prise de RDV en ligne ? <span class="required">*</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="rdv_en_ligne" value="Oui, j'ai déjà un outil" required><span>Oui, j'ai un outil</span></label>
-            <label class="radio-item"><input type="radio" name="rdv_en_ligne" value="Non mais intéressé"><span>Non mais intéressé</span></label>
-            <label class="radio-item"><input type="radio" name="rdv_en_ligne" value="Non, uniquement par téléphone"><span>Téléphone uniquement</span></label>
-          </div>
-        </div>
-        <div class="field full">
-          <label>Horaires d'ouverture <span class="required">*</span></label>
-          <textarea name="horaires" placeholder="Ex: Lun-Ven 8h-18h, Sam 9h-13h, Urgences 24h/24" required></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════ -->
-    <!-- SECTION 8a — IA CHATBOT & AVIS     -->
-    <!-- Visible: essentiel-ia, business-ia, premium-ia -->
-    <!-- ═══════════════════════════════════ -->
-    <div class="form-section section-ia hidden" id="s8a" data-show-for="essentiel-ia business-ia premium-ia">
-      <div class="section-header">
-        <div class="section-icon">🤖</div>
-        <div>
-          <div class="section-number">Section 8 — Intelligence Artificielle</div>
-          <div class="section-title">Chatbot IA & Avis Google automatiques</div>
-          <div class="section-subtitle">Configuration de votre assistant IA et automation des avis</div>
-        </div>
-      </div>
-      <div class="field-group">
-        <div class="field full">
-          <label>Langues parlées par vos clients <span class="required">*</span></label>
-          <div class="checkbox-group">
-            <label class="checkbox-item"><input type="checkbox" name="langues_clients[]" value="Français"><span>Français</span></label>
-            <label class="checkbox-item"><input type="checkbox" name="langues_clients[]" value="Néerlandais"><span>Néerlandais</span></label>
-            <label class="checkbox-item"><input type="checkbox" name="langues_clients[]" value="Anglais"><span>Anglais</span></label>
-            <label class="checkbox-item"><input type="checkbox" name="langues_clients[]" value="Allemand"><span>Allemand</span></label>
-          </div>
-        </div>
-        <div class="field full">
-          <label>Questions fréquentes de vos clients <span class="required">*</span></label>
-          <textarea name="faq_questions" placeholder="Ex: Quels sont vos tarifs ? Intervenez-vous le week-end ? Êtes-vous disponible en urgence ? Faites-vous des devis gratuits ?" required></textarea>
-        </div>
-        <div class="field full">
-          <label>Ton souhaité pour votre IA <span class="required">*</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="ton_ia" value="Professionnel et formel" required><span>Professionnel et formel</span></label>
-            <label class="radio-item"><input type="radio" name="ton_ia" value="Amical et accessible"><span>Amical et accessible</span></label>
-            <label class="radio-item"><input type="radio" name="ton_ia" value="Dynamique et commercial"><span>Dynamique et commercial</span></label>
-          </div>
-        </div>
-        <div class="field full">
-          <label>Email de notification pour les demandes chatbot <span class="required">*</span></label>
-          <input type="email" name="notif_email_chatbot" placeholder="Votre email pour recevoir les demandes du chatbot" required>
-        </div>
-        <div class="field full">
-          <label>Activer la demande automatique d'avis Google ? <span class="optional">(après chaque intervention)</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="auto_avis_google" value="Oui — envoyer un SMS/email au client après l'intervention"><span>Oui, par SMS/email</span></label>
-            <label class="radio-item"><input type="radio" name="auto_avis_google" value="Oui — uniquement par email"><span>Oui, par email uniquement</span></label>
-            <label class="radio-item"><input type="radio" name="auto_avis_google" value="Non, je le ferai manuellement"><span>Non, manuel</span></label>
-          </div>
-        </div>
-        <div class="field full">
-          <label>Lien vers votre fiche Google Business <span class="optional">(optionnel — pour configurer l'auto-avis)</span></label>
-          <input type="url" name="lien_google_business" placeholder="https://g.page/votre-fiche-google">
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════ -->
-    <!-- SECTION 8b — IA RDV & COMMANDES    -->
-    <!-- Visible: business-ia, premium-ia   -->
-    <!-- ═══════════════════════════════════ -->
-    <div class="form-section section-ia hidden" id="s8b" data-show-for="business-ia premium-ia">
-      <div class="section-header">
-        <div class="section-icon">📅</div>
-        <div>
-          <div class="section-number">Section 8b — Business IA</div>
-          <div class="section-title">RDV automatiques & Gestion des commandes</div>
-          <div class="section-subtitle">Configuration de l'automation RDV et des notifications</div>
-        </div>
-      </div>
-      <div class="field-group">
-        <div class="field full">
-          <label>Outil de prise de RDV actuel <span class="required">*</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="outil_rdv" value="Calendly" required><span>Calendly</span></label>
-            <label class="radio-item"><input type="radio" name="outil_rdv" value="Google Calendar"><span>Google Calendar</span></label>
-            <label class="radio-item"><input type="radio" name="outil_rdv" value="Autre outil"><span>Autre outil</span></label>
-            <label class="radio-item"><input type="radio" name="outil_rdv" value="Aucun — à configurer"><span>Aucun (à configurer)</span></label>
-          </div>
-        </div>
-        <div class="field full">
-          <label>Types de rendez-vous à automatiser <span class="required">*</span></label>
-          <textarea name="types_rdv" placeholder="Ex: Entretien chaudière annuel, devis installation, dépannage planifié, visite diagnostic..." required></textarea>
-        </div>
-        <div class="field full">
-          <label>Types de commandes/demandes gérées par l'IA <span class="required">*</span></label>
-          <textarea name="types_services_chatbot" placeholder="Ex: Demande de devis, réservation intervention, commande de pièces, suivi de chantier..." required></textarea>
-        </div>
-        <div class="field">
-          <label>Email de notification pour nouvelles commandes <span class="required">*</span></label>
-          <input type="email" name="notif_email_commandes" placeholder="Email pour recevoir les notifications" required>
-        </div>
-        <div class="field">
-          <label>Numéro SMS pour notifications <span class="optional">(optionnel)</span></label>
-          <input type="tel" name="notif_sms" placeholder="+32 470 00 00 00">
-        </div>
-        <div class="field full">
-          <label>Informations nécessaires avant de confirmer un RDV <span class="optional">(optionnel)</span></label>
-          <textarea name="infos_rdv_requises" placeholder="Ex: Type de problème, adresse d'intervention, marque de la chaudière, urgence ou non..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════ -->
-    <!-- SECTION 8c — IA VOCAL & DASHBOARD  -->
-    <!-- Visible: premium-ia only           -->
-    <!-- ═══════════════════════════════════ -->
-    <div class="form-section section-ia hidden" id="s8c" data-show-for="premium-ia">
-      <div class="section-header">
-        <div class="section-icon">📞</div>
-        <div>
-          <div class="section-number">Section 8c — Premium IA</div>
-          <div class="section-title">Agent vocal IA & Dashboard analytique</div>
-          <div class="section-subtitle">Votre assistant téléphonique 24h/24 et tableau de bord</div>
-        </div>
-      </div>
-      <div class="field-group">
-        <div class="sub-section-label">Agent téléphonique IA (200 min/mois inclus)</div>
-        <div class="field">
-          <label>Nom de votre agent vocal <span class="required">*</span></label>
-          <input type="text" name="nom_agent_vocal" placeholder="Ex: Julie, Alex, Thomas, Assistant Dupont..." required>
-        </div>
-        <div class="field">
-          <label>Voix préférée <span class="optional">(optionnel)</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="voix_agent" value="Féminine française"><span>Féminine</span></label>
-            <label class="radio-item"><input type="radio" name="voix_agent" value="Masculine française"><span>Masculine</span></label>
-          </div>
-        </div>
-        <div class="field full">
-          <label>Types d'appels les plus fréquents <span class="required">*</span></label>
-          <textarea name="types_appels" placeholder="Ex: Demandes de devis, urgences plomberie, prise de RDV entretien, renseignements tarifs..." required></textarea>
-        </div>
-        <div class="field full">
-          <label>Si le client veut parler à un humain <span class="required">*</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="escalade_agent" value="Transfert immédiat vers mon numéro" required><span>Transfert vers mon numéro</span></label>
-            <label class="radio-item"><input type="radio" name="escalade_agent" value="Prendre un message et rappeler"><span>Prendre message + rappeler</span></label>
-            <label class="radio-item"><input type="radio" name="escalade_agent" value="Proposer un RDV téléphonique"><span>Proposer un RDV</span></label>
-          </div>
-        </div>
-        <div class="field full">
-          <label>Numéro de transfert <span class="optional">(si transfert vers humain)</span></label>
-          <input type="tel" name="numero_transfert" placeholder="+32 470 00 00 00">
-        </div>
-        <div class="field-divider"></div>
-        <div class="sub-section-label">WhatsApp Business IA</div>
-        <div class="field full">
-          <label>Activer WhatsApp Business IA ? <span class="required">*</span></label>
-          <div class="radio-group">
-            <label class="radio-item"><input type="radio" name="whatsapp_agent" value="Oui" required><span>Oui</span></label>
-            <label class="radio-item"><input type="radio" name="whatsapp_agent" value="Non"><span>Non</span></label>
-          </div>
-        </div>
-        <div class="field full">
-          <label>Numéro WhatsApp <span class="optional">(si activé — peut être votre numéro pro)</span></label>
-          <input type="tel" name="whatsapp_numero" placeholder="+32 470 00 00 00">
-        </div>
-        <div class="field-divider"></div>
-        <div class="sub-section-label">Dashboard analytique & Rapports</div>
-        <div class="field full">
-          <label>KPIs à afficher dans votre dashboard <span class="required">*</span></label>
-          <div class="checkbox-group">
-            <label class="checkbox-item"><input type="checkbox" name="kpis[]" value="Nombre de leads reçus"><span>Leads reçus</span></label>
-            <label class="checkbox-item"><input type="checkbox" name="kpis[]" value="Visites sur le site"><span>Visites site</span></label>
-            <label class="checkbox-item"><input type="checkbox" name="kpis[]" value="Appels traités par l'IA"><span>Appels IA</span></label>
-            <label class="checkbox-item"><input type="checkbox" name="kpis[]" value="Avis Google reçus"><span>Avis Google</span></label>
-            <label class="checkbox-item"><input type="checkbox" name="kpis[]" value="Conversations chatbot"><span>Chatbot</span></label>
-            <label class="checkbox-item"><input type="checkbox" name="kpis[]" value="Messages WhatsApp traités"><span>WhatsApp</span></label>
-            <label class="checkbox-item"><input type="checkbox" name="kpis[]" value="RDV pris automatiquement"><span>RDV auto</span></label>
-            <label class="checkbox-item"><input type="checkbox" name="kpis[]" value="Chiffre d'affaires estimé"><span>CA estimé</span></label>
-          </div>
-        </div>
-        <div class="field full">
-          <label>Email(s) pour les rapports hebdomadaires <span class="required">*</span></label>
-          <input type="text" name="rapport_email" placeholder="votre@email.be (plusieurs emails séparés par virgule)" required>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════ -->
-    <!-- SECTION 9 — DIVERS                 -->
-    <!-- ═══════════════════════════════════ -->
-    <div class="form-section" id="s9">
-      <div class="section-header">
-        <div class="section-icon">⭐</div>
-        <div>
-          <div class="section-number">Section 9</div>
-          <div class="section-title">Informations complémentaires</div>
-          <div class="section-subtitle">Pour personnaliser encore plus votre projet</div>
-        </div>
-      </div>
-      <div class="field-group">
-        <div class="field full">
-          <label>Sujet du premier article de blog <span class="optional">(optionnel)</span></label>
-          <input type="text" name="sujet_article" placeholder="Ex: Comment choisir sa chaudière à condensation, 5 signes que votre installation est dangereuse...">
-        </div>
-        <div class="field full">
-          <label>Question / demande spéciale <span class="optional">(optionnel)</span></label>
-          <textarea name="question_speciale" placeholder="Une fonctionnalité spécifique ? Une contrainte particulière ? Quelque chose à nous communiquer ?"></textarea>
-        </div>
-        <div class="field full">
-          <label>Délai souhaité pour la mise en ligne <span class="optional">(optionnel)</span></label>
-          <select name="delai">
-            <option value="">Sélectionner...</option>
-            <option>Le plus tôt possible</option>
-            <option>Dans les 2 semaines</option>
-            <option>Dans le mois</option>
-            <option>Pas pressé</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <!-- Submit -->
-    <div class="submit-section">
-      <h3>Tout est prêt !</h3>
-      <p>Votre questionnaire sera transmis à notre équipe.<br>Nous vous contacterons sous 24h pour confirmer le démarrage de votre projet.</p>
-      <button type="submit" class="btn-submit" id="submitBtn">Envoyer le questionnaire</button>
-    </div>
-
-    <!-- Success -->
-    <div class="success-message" id="successMessage">
-      <div class="check">✅</div>
-      <h3>Questionnaire envoyé !</h3>
-      <p>Merci ! Notre équipe a bien reçu vos informations et vous recontactera dans les 24 heures.</p>
-    </div>
-  </form>
-</div>
-
-<!-- Footer -->
-<div class="footer">
   <div class="container">
-    <p>Questionnaire confidentiel — <span>Seolia</span> &mdash; Parce que votre société mérite d'être trouvée.</p>
-  </div>
-</div>
 
-<script>
-  // ─── Progress bar ───
-  window.addEventListener('scroll', () => {
-    const scrollTop = document.documentElement.scrollTop;
-    const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    document.getElementById('progressBar').style.width = (scrollTop / docHeight * 100) + '%';
-  });
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SCREEN 1 : CHOIX DU MODE                                        -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div id="screen-choice" class="screen active">
+      <div class="hero">
+        <h1>Espace client Seolia</h1>
+        <p>Que souhaitez-vous faire aujourd'hui ?</p>
+      </div>
+      <div class="choice-grid">
+        <div class="choice-card" onclick="startFlow('onboarding')">
+          <div class="icon">📋</div>
+          <h3>Remplir mon questionnaire</h3>
+          <p>Je suis nouveau client et je veux transmettre les informations pour mon site</p>
+        </div>
+        <div class="choice-card" onclick="startFlow('modification')">
+          <div class="icon">🔧</div>
+          <h3>Demander une modification</h3>
+          <p>Je souhaite signaler une modification à apporter à mon site existant</p>
+        </div>
+      </div>
+    </div>
 
-  // ─── Formula selection ───
-  let selectedTier = null;
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SCREEN 2 : SAISIE DE L'ID                                       -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div id="screen-id" class="screen">
+      <button class="back-link" onclick="goBack('screen-choice')">&#x2190; Retour</button>
+      <div class="id-card">
+        <h2 id="id-screen-title">Identifiez-vous</h2>
+        <p id="id-screen-desc">Entrez votre ID client à 6 chiffres, communiqué par l'équipe Seolia lors de votre inscription.</p>
+        <div class="id-input-row">
+          <input id="id-input" class="id-input" type="text" inputmode="numeric" maxlength="6" placeholder="100001" autocomplete="off"
+            oninput="this.value=this.value.replace(/[^0-9]/g,''); onIdInput()"
+            onkeydown="if(event.key==='Enter') validateId()">
+          <button class="btn btn-green" onclick="validateId()" id="btn-validate-id">Valider</button>
+        </div>
+        <div id="id-msg" class="id-msg"></div>
+        <div id="id-contact-info" class="id-contact-info">
+          <div class="name" id="id-contact-name"></div>
+          <div class="formule" id="id-contact-formule"></div>
+        </div>
+        <div id="id-continue-row" style="display:none;margin-top:20px">
+          <button class="btn btn-green btn-full" onclick="continueFlow()">Continuer &#x2192;</button>
+        </div>
+      </div>
+    </div>
 
-  function selectFormula(card) {
-    // Deselect all
-    document.querySelectorAll('.formula-card').forEach(c => c.classList.remove('selected'));
-    // Select clicked
-    card.classList.add('selected');
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SCREEN 3 : QUESTIONNAIRE ONBOARDING                             -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div id="screen-onboarding" class="screen">
+      <button class="back-link" onclick="goBack('screen-id')">&#x2190; Modifier mon ID</button>
+      <div class="hero" style="margin-bottom:28px">
+        <h1>Questionnaire de création</h1>
+        <p id="onboarding-subtitle">Formule — Bienvenue !</p>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <form id="form-onboarding" onsubmit="submitOnboarding(event)">
 
-    selectedTier = card.dataset.tier;
-    const formulaValue = card.dataset.formula;
+        <!-- SECTION 1 — ENTREPRISE -->
+        <div class="section-card">
+          <h3>🏢 1. Votre entreprise</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nom de l'entreprise <span class="req">*</span></label>
+              <input name="nom_entreprise" class="form-control" required placeholder="Ex: Plomberie Dupont">
+            </div>
+            <div class="form-group">
+              <label>Secteur d'activité <span class="req">*</span></label>
+              <select name="secteur" class="form-control" required>
+                <option value="">Choisir...</option>
+                <option>Plomberie</option>
+                <option>Électricité</option>
+                <option>HVAC / Chauffage</option>
+                <option>Serrurerie</option>
+                <option>Toiture / Couverture</option>
+                <option>Peinture / Décoration</option>
+                <option>Menuiserie / Charpente</option>
+                <option>Carrelage / Sol</option>
+                <option>Maçonnerie / Gros œuvre</option>
+                <option>Nettoyage</option>
+                <option>Détailing / Auto</option>
+                <option>Restaurant / Horeca</option>
+                <option>Santé / Bien-être</option>
+                <option>Commerce / Boutique</option>
+                <option>Autre</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Téléphone <span class="req">*</span></label>
+              <input name="telephone" class="form-control" required placeholder="+32 470 00 00 00" type="tel">
+            </div>
+            <div class="form-group">
+              <label>Email <span class="req">*</span></label>
+              <input name="email" class="form-control" required placeholder="contact@monentreprise.be" type="email">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Numéro TVA (si applicable)</label>
+              <input name="numero_tva" class="form-control" placeholder="BE 0xxx.xxx.xxx">
+            </div>
+            <div class="form-group">
+              <label>Adresse / Code postal <span class="req">*</span></label>
+              <input name="adresse" class="form-control" required placeholder="Rue X, 4000 Liège">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Zone d'intervention <span class="req">*</span></label>
+            <input name="zone_intervention" class="form-control" required placeholder="Ex: Liège, Namur, tout le Hainaut...">
+            <p class="hint">Villes ou régions où vous travaillez principalement</p>
+          </div>
+        </div>
 
-    // Update hidden field & banner
-    document.getElementById('hiddenFormule').value = formulaValue;
-    document.getElementById('bannerName').textContent = card.querySelector('.formula-name').textContent + ' (' + card.querySelector('.formula-price').textContent + ')';
+        <!-- SECTION 2 — ACTIVITÉ -->
+        <div class="section-card">
+          <h3>⚙️ 2. Votre activité</h3>
+          <div class="form-group">
+            <label>Décrivez vos services en quelques phrases <span class="req">*</span></label>
+            <textarea name="description_activite" class="form-control" required placeholder="Ex: Nous réalisons des installations sanitaires, réparations et dépannages urgents pour particuliers et professionnels en province de Liège."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Services phares à mettre en avant</label>
+            <textarea name="services_principaux" class="form-control" placeholder="Ex: Dépannage urgence 24h/24, installation chaudière, débouchage..."></textarea>
+            <p class="hint">Listez les 3 à 5 services les plus importants</p>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Votre clientèle cible</label>
+              <select name="cible" class="form-control">
+                <option value="">Choisir...</option>
+                <option>Particuliers uniquement</option>
+                <option>Professionnels uniquement</option>
+                <option>Particuliers et professionnels</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Années d'expérience</label>
+              <input name="experience" class="form-control" placeholder="Ex: 12 ans">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Certifications, labels ou points forts</label>
+            <input name="certifications" class="form-control" placeholder="Ex: Certifié CERGA, Agréé Viessmann, Assurance RC Pro...">
+          </div>
+        </div>
 
-    // Show/hide IA sections based on tier
-    document.querySelectorAll('[data-show-for]').forEach(section => {
-      const tiers = section.dataset.showFor.split(' ');
-      if (tiers.includes(selectedTier)) {
-        section.classList.remove('hidden');
-      } else {
-        section.classList.add('hidden');
+        <!-- SECTION 3 — CONCURRENTS -->
+        <div class="section-card">
+          <h3>🎯 3. Vos concurrents</h3>
+          <div class="form-group">
+            <label>Noms de concurrents locaux (optionnel)</label>
+            <input name="concurrents" class="form-control" placeholder="Ex: Plomberie Martin, Devis Rapide SPRL...">
+            <p class="hint">Utilisé pour analyser ce qui fonctionne dans votre secteur</p>
+          </div>
+          <div class="form-group">
+            <label>Sites web que vous trouvez bien faits (optionnel)</label>
+            <input name="sites_inspira" class="form-control" placeholder="Ex: www.exemple.be, www.autresite.com">
+            <p class="hint">Pour comprendre vos goûts en matière de design</p>
+          </div>
+        </div>
+
+        <!-- SECTION 4 — IDENTITÉ VISUELLE -->
+        <div class="section-card">
+          <h3>🎨 4. Identité visuelle</h3>
+          <div class="form-group">
+            <label>Avez-vous déjà un logo ?</label>
+            <select name="logo_existant" class="form-control">
+              <option value="">Choisir...</option>
+              <option value="oui_envoyer">Oui — je vais l'envoyer par email</option>
+              <option value="oui_contact">Oui — je le transmettrai via Seolia</option>
+              <option value="non">Non — je n'ai pas de logo</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Couleurs souhaitées</label>
+              <input name="couleurs" class="form-control" placeholder="Ex: bleu, blanc et orange">
+            </div>
+            <div class="form-group">
+              <label>Style général souhaité</label>
+              <select name="style" class="form-control">
+                <option value="">Choisir...</option>
+                <option>Moderne et épuré</option>
+                <option>Classique et professionnel</option>
+                <option>Dynamique et coloré</option>
+                <option>Sobre et discret</option>
+                <option>Haut de gamme / Premium</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 5 — CONTENU -->
+        <div class="section-card">
+          <h3>📝 5. Contenu du site</h3>
+          <div class="form-group">
+            <label>Slogan ou phrase d'accroche (optionnel)</label>
+            <input name="slogan" class="form-control" placeholder="Ex: Votre plombier de confiance, disponible 24h/24">
+          </div>
+          <div class="form-group">
+            <label>Avez-vous des photos de vos réalisations ?</label>
+            <select name="photos" class="form-control">
+              <option value="">Choisir...</option>
+              <option value="oui_envoyer">Oui — je vais les envoyer par email</option>
+              <option value="oui_contact">Oui — je les transmettrai via Seolia</option>
+              <option value="non">Non — utiliser des photos génériques</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Témoignages clients existants ?</label>
+            <select name="temoignages" class="form-control">
+              <option value="">Choisir...</option>
+              <option value="oui">Oui — j'en ai à fournir</option>
+              <option value="google">Oui — ils sont sur Google</option>
+              <option value="non">Non</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Profil Google Business existant ?</label>
+            <select name="google_business" class="form-control">
+              <option value="">Choisir...</option>
+              <option value="oui_acces">Oui — je peux donner accès</option>
+              <option value="oui_non_acces">Oui — mais je n'ai pas accès</option>
+              <option value="non">Non</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- SECTION 6 — SEO -->
+        <div class="section-card">
+          <h3>🔍 6. Référencement Google</h3>
+          <div class="form-group">
+            <label>Mots-clés prioritaires (comment vos clients vous cherchent ?)</label>
+            <textarea name="mots_cles" class="form-control" placeholder="Ex: plombier Liège urgent, débouchage canalisation Namur, installation chaudière Belgique..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Villes/zones prioritaires pour le SEO</label>
+            <input name="seo_zones" class="form-control" placeholder="Ex: Liège, Seraing, Herstal, Ans">
+          </div>
+        </div>
+
+        <!-- SECTION 7 — TECHNIQUE -->
+        <div class="section-card">
+          <h3>🔧 7. Informations techniques</h3>
+          <div class="form-group">
+            <label>Avez-vous déjà un nom de domaine ?</label>
+            <select name="domaine" class="form-control">
+              <option value="">Choisir...</option>
+              <option value="oui">Oui — je vais le communiquer à Seolia</option>
+              <option value="non_seolia">Non — Seolia s'en occupe</option>
+              <option value="non_moi">Non — je vais en acheter un</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Avez-vous un site web existant ?</label>
+            <input name="site_existant" class="form-control" placeholder="Ex: www.monanciensite.be (ou laisser vide)">
+          </div>
+          <div class="form-group">
+            <label>Délai souhaité pour la mise en ligne</label>
+            <select name="delai" class="form-control">
+              <option value="">Choisir...</option>
+              <option>Le plus vite possible</option>
+              <option>Dans les 2 semaines</option>
+              <option>Dans le mois</option>
+              <option>Pas urgent — dans 2 mois</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Informations complémentaires</label>
+            <textarea name="notes" class="form-control" placeholder="Tout ce que vous jugez utile de préciser..."></textarea>
+          </div>
+        </div>
+
+        <!-- SECTION 8A — CHATBOT (Essentiel IA, Business IA, Premium IA) -->
+        <div class="section-card ia-section" id="section-8a" style="display:none">
+          <span class="ia-badge">&#x2728; Intelligence Artificielle</span>
+          <h3>💬 8a. Chatbot & Automatisation</h3>
+          <div class="form-group">
+            <label>Questions fréquentes que vos clients posent</label>
+            <textarea name="faq_chatbot" class="form-control" placeholder="Ex: Intervenez-vous le week-end ? Quel est votre délai d'intervention ? Acceptez-vous les cartes bancaires ?&#10;(Listez 5 à 10 questions)"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Comment souhaitez-vous que le chatbot réponde ?</label>
+            <select name="ton_chatbot" class="form-control">
+              <option value="">Choisir...</option>
+              <option>Professionnel et formel</option>
+              <option>Convivial et accessible</option>
+              <option>Court et direct</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Souhaitez-vous collecter des avis Google automatiquement ?</label>
+            <select name="avis_google_auto" class="form-control">
+              <option value="">Choisir...</option>
+              <option value="oui">Oui</option>
+              <option value="non">Non</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- SECTION 8B — RDV & AUTOMATISATION (Business IA, Premium IA) -->
+        <div class="section-card ia-section" id="section-8b" style="display:none">
+          <span class="ia-badge">&#x2728; Intelligence Artificielle</span>
+          <h3>📅 8b. Prise de RDV & Automatisation</h3>
+          <div class="form-group">
+            <label>Types de RDV proposés sur le site</label>
+            <textarea name="types_rdv" class="form-control" placeholder="Ex: Visite de chantier, Dépannage urgent, Devis gratuit, Consultation téléphonique..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Vos disponibilités habituelles</label>
+            <input name="disponibilites" class="form-control" placeholder="Ex: Lun-Ven 8h-18h, Sam 9h-13h">
+          </div>
+          <div class="form-group">
+            <label>Outil de gestion d'agenda actuel (optionnel)</label>
+            <select name="agenda_outil" class="form-control">
+              <option value="">Aucun / Je vais en adopter un</option>
+              <option>Google Calendar</option>
+              <option>Outlook / Office 365</option>
+              <option>Calendly</option>
+              <option>Autre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Avez-vous WhatsApp Business ?</label>
+            <select name="whatsapp" class="form-control">
+              <option value="">Choisir...</option>
+              <option value="oui">Oui — intégrer le bouton WhatsApp</option>
+              <option value="non">Non</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- SECTION 8C — AGENT VOCAL (Premium IA uniquement) -->
+        <div class="section-card ia-section" id="section-8c" style="display:none">
+          <span class="ia-badge">&#x2728; Intelligence Artificielle — Premium</span>
+          <h3>📞 8c. Agent téléphonique IA</h3>
+          <div class="form-group">
+            <label>Nom souhaité pour votre agent vocal</label>
+            <input name="nom_agent_vocal" class="form-control" placeholder="Ex: Sophie, Alex, Marc...">
+            <p class="hint">L'IA se présentera avec ce prénom lors des appels</p>
+          </div>
+          <div class="form-group">
+            <label>Instructions de qualification des appels</label>
+            <textarea name="qualification_appels" class="form-control" placeholder="Ex: Demander le type de problème, la localité, si c'est urgent. Proposer un RDV si le problème est non-urgent..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Plage horaire où l'agent prend les appels</label>
+            <input name="horaires_agent" class="form-control" placeholder="Ex: 24h/24 (recommandé) ou Nuit + week-end seulement">
+          </div>
+          <div class="form-group">
+            <label>Accès au dashboard statistiques souhaité ?</label>
+            <select name="dashboard" class="form-control">
+              <option value="oui">Oui — tableau de bord hebdomadaire</option>
+              <option value="non">Non</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="btn btn-ghost" onclick="goBack('screen-id')">&#x2190; Retour</button>
+          <button type="submit" class="btn btn-green" id="btn-submit-onboarding">
+            Envoyer mon questionnaire &#x2713;
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SCREEN 4 : DEMANDE DE MODIFICATION                              -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div id="screen-modification" class="screen">
+      <button class="back-link" onclick="goBack('screen-id')">&#x2190; Modifier mon ID</button>
+      <div class="hero" style="margin-bottom:28px">
+        <h1>Demande de modification</h1>
+        <p id="modif-subtitle">Décrivez les changements souhaités</p>
+      </div>
+      <div class="section-card">
+        <h3>🔧 Décrivez votre demande</h3>
+        <div class="form-group">
+          <label>Que souhaitez-vous modifier sur votre site ? <span class="req">*</span></label>
+          <textarea id="modif-description" class="form-control modif-textarea" required
+            placeholder="Décrivez précisément les modifications souhaitées..."></textarea>
+        </div>
+        <div style="background:rgba(0,214,143,0.05);border-radius:8px;padding:14px;margin-bottom:16px">
+          <p style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:8px">Exemples de demandes :</p>
+          <ul class="modif-hint-list">
+            <li>Changer le numéro de téléphone affiché</li>
+            <li>Ajouter/modifier un service dans la liste</li>
+            <li>Mettre à jour une photo ou un texte</li>
+            <li>Ajouter une nouvelle page ou section</li>
+            <li>Modifier les horaires d'ouverture</li>
+            <li>Corriger une faute d'orthographe</li>
+          </ul>
+        </div>
+        <button class="btn btn-green btn-full" onclick="submitModification()" id="btn-submit-modif">
+          Envoyer ma demande &#x2713;
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SCREEN 5 : SUCCÈS ONBOARDING                                    -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div id="screen-success-onboarding" class="screen">
+      <div class="success-screen">
+        <div class="success-icon">🎉</div>
+        <h2>Questionnaire reçu !</h2>
+        <p>Merci, nous avons bien reçu toutes vos informations. L'équipe Seolia va démarrer la création de votre site dans les plus brefs délais.</p>
+        <p style="margin-top:16px">Vous serez contacté dès que votre site est prêt pour validation.</p>
+        <div style="margin-top:32px">
+          <a href="/" class="btn btn-ghost">&#x2190; Retour au site</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SCREEN 6 : SUCCÈS MODIFICATION                                  -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div id="screen-success-modification" class="screen">
+      <div class="success-screen">
+        <div class="success-icon">✅</div>
+        <h2>Demande envoyée !</h2>
+        <p>Votre demande de modification a bien été transmise à l'équipe Seolia. Nous traiterons votre demande dans les 48 heures ouvrables.</p>
+        <div style="margin-top:32px">
+          <a href="/" class="btn btn-ghost">&#x2190; Retour au site</a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+
+  <script>
+    const WORKER_URL = 'https://seolia-ai-chat.seolia.workers.dev';
+    let currentFlow = null;      // 'onboarding' | 'modification'
+    let validatedId = null;
+    let validatedContact = null; // { contact_id, nom, formule }
+
+    // ─── NAVIGATION ─────────────────────────────────────────────────────
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const el = document.getElementById(id);
+      if (el) { el.classList.add('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    }
+
+    function goBack(targetScreen) {
+      showScreen(targetScreen);
+    }
+
+    function startFlow(flow) {
+      currentFlow = flow;
+      document.getElementById('id-screen-title').textContent =
+        flow === 'onboarding' ? 'Entrez votre ID client' : 'Entrez votre ID client';
+      document.getElementById('id-screen-desc').textContent =
+        flow === 'onboarding'
+          ? 'Votre ID à 6 chiffres vous a été communiqué par l\'équipe Seolia lors de votre inscription.'
+          : 'Votre ID à 6 chiffres vous a été communiqué par l\'équipe Seolia lors de votre inscription.';
+      // Reset ID screen
+      document.getElementById('id-input').value = '';
+      document.getElementById('id-input').className = 'id-input';
+      document.getElementById('id-msg').style.display = 'none';
+      document.getElementById('id-contact-info').style.display = 'none';
+      document.getElementById('id-continue-row').style.display = 'none';
+      validatedId = null;
+      validatedContact = null;
+      showScreen('screen-id');
+      setTimeout(() => document.getElementById('id-input').focus(), 300);
+    }
+
+    function onIdInput() {
+      const val = document.getElementById('id-input').value;
+      document.getElementById('id-input').className = 'id-input';
+      document.getElementById('id-msg').style.display = 'none';
+      document.getElementById('id-contact-info').style.display = 'none';
+      document.getElementById('id-continue-row').style.display = 'none';
+      validatedId = null;
+      validatedContact = null;
+    }
+
+    async function validateId() {
+      const id = document.getElementById('id-input').value.trim();
+      if (id.length !== 6) {
+        showIdMsg('error', 'Veuillez saisir un ID à 6 chiffres.');
+        return;
       }
-    });
-
-    // Make IA required fields only required for IA tiers
-    const isIA = ['essentiel-ia','business-ia','premium-ia'].includes(selectedTier);
-    document.querySelectorAll('#s8a [required], #s8b [required], #s8c [required]').forEach(el => {
-      el.required = false;
-    });
-    if (selectedTier === 'essentiel-ia' || selectedTier === 'business-ia' || selectedTier === 'premium-ia') {
-      document.querySelectorAll('#s8a [data-req]').forEach(el => el.required = true);
-    }
-
-    // Show form wrapper with animation
-    const formWrapper = document.getElementById('formWrapper');
-    formWrapper.classList.add('visible');
-
-    // Smooth scroll to form
-    setTimeout(() => {
-      formWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-  }
-
-  function changeFormula() {
-    document.getElementById('formWrapper').classList.remove('visible');
-    document.querySelectorAll('.formula-card').forEach(c => c.classList.remove('selected'));
-    selectedTier = null;
-    document.getElementById('formulaSection').scrollIntoView({ behavior: 'smooth' });
-  }
-
-  function toggleWebOnly() {
-    const el = document.getElementById('webOnlyCards');
-    el.style.display = el.style.display === 'none' ? 'block' : 'none';
-  }
-
-  // ─── Form submission ───
-  document.getElementById('clientForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    btn.textContent = 'Envoi en cours...';
-
-    // Collect form data
-    const formData = new FormData(this);
-    const data = {};
-    formData.forEach((value, key) => {
-      const cleanKey = key.replace('[]', '');
-      if (data[cleanKey]) {
-        if (!Array.isArray(data[cleanKey])) data[cleanKey] = [data[cleanKey]];
-        data[cleanKey].push(value);
-      } else {
-        data[cleanKey] = value;
+      const btn = document.getElementById('btn-validate-id');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>';
+      try {
+        const res = await fetch(`${WORKER_URL}/validate-id?id=${id}`);
+        const data = await res.json();
+        if (data.found) {
+          validatedId = id;
+          validatedContact = data;
+          document.getElementById('id-input').className = 'id-input success';
+          document.getElementById('id-contact-name').textContent = '✓ ' + data.nom;
+          document.getElementById('id-contact-formule').textContent = data.formule ? 'Formule : ' + data.formule : '';
+          document.getElementById('id-contact-info').style.display = 'block';
+          document.getElementById('id-continue-row').style.display = 'block';
+          document.getElementById('id-msg').style.display = 'none';
+        } else {
+          document.getElementById('id-input').className = 'id-input error';
+          showIdMsg('error',
+            'Cet ID est inconnu. Contactez l\'équipe Seolia pour retrouver votre identifiant :<br>' +
+            '<strong>+32 470 92 21 88</strong> ou <strong>contact@seolia.be</strong>');
+        }
+      } catch(e) {
+        showIdMsg('error', 'Erreur de connexion. Réessayez dans quelques secondes.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Valider';
       }
-    });
-    data.tier = selectedTier;
-    data.submitted_at = new Date().toISOString();
-
-    let success = false;
-
-    // 1. Save to Seolia CRM (Supabase via Worker)
-    try {
-      const crmResp = await fetch('https://seolia-ai-chat.seolia.workers.dev/save-onboarding', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      if (crmResp.ok) success = true;
-    } catch(err) {
-      console.warn('CRM save failed:', err);
     }
 
-    // 2. Send email via Web3Forms (fallback notification)
-    try {
-      const emailData = { ...data };
-      // Stringify complex fields for email readability
-      Object.keys(emailData).forEach(k => {
-        if (Array.isArray(emailData[k])) emailData[k] = emailData[k].join(', ');
-      });
-      const emailResp = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(emailData)
-      });
-      const result = await emailResp.json();
-      if (result.success) success = true;
-    } catch(err) {
-      console.warn('Email failed:', err);
+    function showIdMsg(type, html) {
+      const el = document.getElementById('id-msg');
+      el.className = 'id-msg ' + type;
+      el.innerHTML = html;
+      el.style.display = 'block';
     }
 
-    if (success) {
-      document.getElementById('successMessage').style.display = 'block';
-      document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
-      btn.style.display = 'none';
-    } else {
-      btn.disabled = false;
-      btn.textContent = 'Envoyer le questionnaire';
-      alert('Une erreur est survenue. Veuillez réessayer ou nous contacter directement au +32 470 92 21 88.');
+    function continueFlow() {
+      if (!validatedId || !validatedContact) return;
+      if (currentFlow === 'onboarding') {
+        setupOnboardingForm();
+        showScreen('screen-onboarding');
+      } else {
+        document.getElementById('modif-subtitle').textContent =
+          'Client : ' + validatedContact.nom;
+        showScreen('screen-modification');
+      }
     }
-  });
-</script>
+
+    // ─── ONBOARDING FORM SETUP ───────────────────────────────────────────
+    function setupOnboardingForm() {
+      const formule = (validatedContact.formule || '').toLowerCase();
+      const nom = validatedContact.nom || '';
+
+      document.getElementById('onboarding-subtitle').textContent =
+        (validatedContact.formule || '') + ' — Bienvenue, ' + nom + ' !';
+
+      // Determine which IA sections to show
+      const isIA = formule.includes('ia') || formule.includes('bundle');
+      const isBusiness = formule.includes('business') || formule.includes('premium');
+      const isPremium = formule.includes('premium');
+
+      const s8a = document.getElementById('section-8a');
+      const s8b = document.getElementById('section-8b');
+      const s8c = document.getElementById('section-8c');
+
+      s8a.style.display = isIA ? 'block' : 'none';
+      s8b.style.display = isBusiness ? 'block' : 'none';
+      s8c.style.display = isPremium ? 'block' : 'none';
+
+      // Progress bar update on scroll
+      updateProgress();
+      window.addEventListener('scroll', updateProgress);
+    }
+
+    function updateProgress() {
+      const el = document.getElementById('screen-onboarding');
+      if (!el || !el.classList.contains('active')) return;
+      const rect = el.getBoundingClientRect();
+      const total = el.offsetHeight - window.innerHeight;
+      const scrolled = Math.max(0, -rect.top);
+      const pct = total > 0 ? Math.min(100, (scrolled / total) * 100) : 0;
+      const fill = document.getElementById('progress-fill');
+      if (fill) fill.style.width = pct + '%';
+    }
+
+    // ─── SUBMIT ONBOARDING ───────────────────────────────────────────────
+    async function submitOnboarding(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit-onboarding');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Envoi en cours...';
+
+      try {
+        const form = document.getElementById('form-onboarding');
+        const fd = new FormData(form);
+        const data = { client_id: validatedId, formule: validatedContact.formule, submitted_at: new Date().toISOString() };
+        for (const [k, v] of fd.entries()) { if (v) data[k] = v; }
+
+        const res = await fetch(`${WORKER_URL}/save-onboarding`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (result.success) {
+          showScreen('screen-success-onboarding');
+        } else {
+          throw new Error(result.error || 'Erreur serveur');
+        }
+      } catch(e) {
+        alert('Une erreur est survenue : ' + e.message + '\nVeuillez réessayer ou contacter Seolia.');
+        btn.disabled = false;
+        btn.innerHTML = 'Envoyer mon questionnaire ✓';
+      }
+    }
+
+    // ─── SUBMIT MODIFICATION ─────────────────────────────────────────────
+    async function submitModification() {
+      const description = document.getElementById('modif-description').value.trim();
+      if (!description) {
+        document.getElementById('modif-description').focus();
+        return;
+      }
+      const btn = document.getElementById('btn-submit-modif');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Envoi en cours...';
+
+      try {
+        const res = await fetch(`${WORKER_URL}/save-modification`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ client_id: validatedId, description, submitted_at: new Date().toISOString() })
+        });
+        const result = await res.json();
+        if (result.success) {
+          showScreen('screen-success-modification');
+        } else {
+          throw new Error(result.error || 'Erreur serveur');
+        }
+      } catch(e) {
+        alert('Une erreur est survenue : ' + e.message + '\nVeuillez réessayer ou contacter Seolia.');
+        btn.disabled = false;
+        btn.innerHTML = 'Envoyer ma demande ✓';
+      }
+    }
+  </script>
 </body>
 </html>

@@ -65,7 +65,17 @@ export default {
       return handleSaveOnboarding(request, env);
     }
 
-    return new Response('Seolia API v4', { status: 200 });
+    // ─── /validate-id ──────────────────────────────────────────────────────
+    if (url.pathname === '/validate-id' && request.method === 'GET') {
+      return handleValidateId(request, env);
+    }
+
+    // ─── /save-modification ────────────────────────────────────────────────
+    if (url.pathname === '/save-modification' && request.method === 'POST') {
+      return handleSaveModification(request, env);
+    }
+
+    return new Response('Seolia API v5', { status: 200 });
   }
 };
 
@@ -264,93 +274,154 @@ async function handleVapiWebhook(request, env) {
 // ═══════════════════════════════════════════════════════════════════════════
 // SAVE ONBOARDING
 // ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+// VALIDATE CLIENT ID
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleValidateId(request, env) {
+  try {
+    const url = new URL(request.url);
+    const clientId = url.searchParams.get('id');
+    if (!clientId || clientId.length !== 6) {
+      return jsonResponse({ found: false, error: 'ID invalide' });
+    }
+    const resp = await fetch(
+      `${SUPABASE_URL}/rest/v1/contacts?client_id=eq.${clientId}&select=id,nom,entreprise,formule,statut`,
+      { headers: supabaseHeaders() }
+    );
+    const rows = await resp.json();
+    if (!rows || rows.length === 0) {
+      return jsonResponse({ found: false });
+    }
+    const c = rows[0];
+    const displayName = c.entreprise || c.nom || '';
+    return jsonResponse({ found: true, contact_id: c.id, nom: displayName, formule: c.formule || '' });
+  } catch (err) {
+    return jsonResponse({ found: false, error: err.message }, 500);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SAVE ONBOARDING — links to existing contact by client_id
+// ═══════════════════════════════════════════════════════════════════════════
 async function handleSaveOnboarding(request, env) {
   try {
     const data = await request.json();
+    const { client_id, formule, submitted_at } = data;
 
-    const {
-      nom_entreprise, telephone, email, secteur, adresse,
-      zone_intervention, formule, tier, submitted_at
-    } = data;
-
-    // Extract city from address (last part after last comma + zip)
-    let ville = '';
-    if (adresse) {
-      const parts = adresse.split(',');
-      const last = (parts[parts.length - 1] || '').trim();
-      // Remove leading zip code (4-5 digits)
-      ville = last.replace(/^\d{4,5}\s*/, '').trim() || last;
-    }
-    if (!ville && zone_intervention) {
-      ville = zone_intervention.split(',')[0].trim();
+    if (!client_id) {
+      return jsonResponse({ success: false, error: 'client_id manquant' }, 400);
     }
 
-    // Store full questionnaire JSON in notes_generales with marker
+    // Find existing contact
+    const findResp = await fetch(
+      `${SUPABASE_URL}/rest/v1/contacts?client_id=eq.${client_id}&select=id,nom,entreprise`,
+      { headers: supabaseHeaders() }
+    );
+    const rows = await findResp.json();
+    if (!rows || rows.length === 0) {
+      return jsonResponse({ success: false, error: 'ID client inconnu' }, 404);
+    }
+    const contact = rows[0];
+
+    // Store questionnaire in notes_generales with marker
     const notesJson = JSON.stringify(data, null, 2);
-    const notes = `[QUESTIONNAIRE_ONBOARDING]\n${notesJson}`;
+    const questMarker = `[QUESTIONNAIRE_ONBOARDING]\n${notesJson}`;
 
-    // Map formule to CRM-valid values
-    const formuleMap = {
-      'essentiel-ia': 'Bundle Essentiel IA',
-      'business-ia': 'Bundle Business IA',
-      'premium-ia': 'Bundle Premium IA',
-      'web-essentiel': 'Web Essentiel',
-      'web-business': 'Web Business',
+    // Update contact with questionnaire data
+    const updatePayload = {
+      notes_generales: questMarker,
+      updated_at: new Date().toISOString(),
     };
-    const crmFormule = formuleMap[data.tier] || null;
-
-    // Build contact record (using actual contacts table schema)
-    const contact = {
-      nom: nom_entreprise || '',
-      entreprise: nom_entreprise || '',
-      telephone: telephone || '',
-      email: email || '',
-      secteur: secteur || '',
-      ville: ville || '',
-      statut: 'prospect',
-      source: 'questionnaire',
-      formule: crmFormule,
-      notes_generales: notes,
-      created_by: 'questionnaire',
-    };
-
-    // Save to contacts table
-    const resp = await fetch(`${SUPABASE_URL}/rest/v1/contacts`, {
-      method: 'POST',
-      headers: supabaseHeaders(),
-      body: JSON.stringify(contact),
+    await fetch(`${SUPABASE_URL}/rest/v1/contacts?id=eq.${contact.id}`, {
+      method: 'PATCH',
+      headers: { ...supabaseHeaders(), 'Prefer': 'return=minimal' },
+      body: JSON.stringify(updatePayload),
     });
 
-    if (!resp.ok) {
-      const err = await resp.text();
-      console.error('Supabase error:', err);
+    // Create a follow-up task for the team
+    await fetch(`${SUPABASE_URL}/rest/v1/followups`, {
+      method: 'POST',
+      headers: supabaseHeaders(),
+      body: JSON.stringify({
+        contact_id: contact.id,
+        contact_nom: contact.entreprise || contact.nom || '',
+        type: 'questionnaire',
+        note: `Questionnaire reçu — Formule: ${formule || 'Non précisée'}`,
+        description: `Démarrer la création du site client`,
+        date_rappel: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+        date_prevue: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+        fait: false,
+        created_by: 'questionnaire',
+      }),
+    });
+
+    return jsonResponse({ success: true, contact_id: contact.id });
+  } catch (err) {
+    console.error('Save onboarding error:', err);
+    return jsonResponse({ error: err.message }, 500);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SAVE MODIFICATION REQUEST
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleSaveModification(request, env) {
+  try {
+    const data = await request.json();
+    const { client_id, description } = data;
+
+    if (!client_id || !description) {
+      return jsonResponse({ success: false, error: 'Données manquantes' }, 400);
+    }
+
+    // Find existing contact
+    const findResp = await fetch(
+      `${SUPABASE_URL}/rest/v1/contacts?client_id=eq.${client_id}&select=id,nom,entreprise`,
+      { headers: supabaseHeaders() }
+    );
+    const rows = await findResp.json();
+    if (!rows || rows.length === 0) {
+      return jsonResponse({ success: false, error: 'ID client inconnu' }, 404);
+    }
+    const contact = rows[0];
+
+    // Save modification record
+    const modResp = await fetch(`${SUPABASE_URL}/rest/v1/modifications`, {
+      method: 'POST',
+      headers: supabaseHeaders(),
+      body: JSON.stringify({
+        contact_id: contact.id,
+        client_id,
+        description,
+        statut: 'en_attente',
+      }),
+    });
+
+    if (!modResp.ok) {
+      const err = await modResp.text();
       return jsonResponse({ success: false, error: err }, 500);
     }
 
-    const [saved] = await resp.json();
+    // Create a follow-up task
+    await fetch(`${SUPABASE_URL}/rest/v1/followups`, {
+      method: 'POST',
+      headers: supabaseHeaders(),
+      body: JSON.stringify({
+        contact_id: contact.id,
+        contact_nom: contact.entreprise || contact.nom || '',
+        type: 'modification',
+        note: `Demande de modification reçue : ${description.substring(0, 100)}`,
+        description: `Traiter la modification demandée`,
+        date_rappel: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+        date_prevue: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+        fait: false,
+        created_by: 'questionnaire',
+      }),
+    });
 
-    // Also create a follow-up task for the team
-    if (saved?.id) {
-      await fetch(`${SUPABASE_URL}/rest/v1/followups`, {
-        method: 'POST',
-        headers: supabaseHeaders(),
-        body: JSON.stringify({
-          contact_id: saved.id,
-          contact_nom: nom_entreprise || '',
-          type: 'questionnaire',
-          note: `Questionnaire reçu — Formule: ${formule || 'Non précisée'}`,
-          description: `Démarrer la création du site client`,
-          date_rappel: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-          date_prevue: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-          fait: false,
-          created_by: 'questionnaire',
-        }),
-      });
-    }
-
-    return jsonResponse({ success: true, contact_id: saved?.id });
+    return jsonResponse({ success: true, contact_id: contact.id });
   } catch (err) {
-    console.error('Save onboarding error:', err);
+    console.error('Save modification error:', err);
     return jsonResponse({ error: err.message }, 500);
   }
 }

@@ -4,129 +4,392 @@
   <meta charset="UTF-8"/>
   <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Contact — Seolia | Audit SEO gratuit pour artisans en Belgique</title>
-  <meta name="description" content="Contactez Seolia pour un audit SEO gratuit. Nous analysons votre visibilité Google en 30 minutes, sans engagement. +32 470 92 21 88"/>
+  <meta name="description" content="Contactez Seolia pour un audit SEO gratuit. Notre assistant IA répond 24h/24 et peut planifier un rendez-vous directement. +32 470 92 21 88"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="css/style.css"/>
   <style>
-    .contact-grid {
+    /* ── LAYOUT ── */
+    .contact-layout {
       display: grid;
-      grid-template-columns: 1fr 1.5fr;
-      gap: 60px;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 48px;
       align-items: start;
     }
-    .contact-info h2 { margin-bottom: 16px; }
-    .contact-info p { margin-bottom: 32px; }
+
+    /* ── CHAT EMBEDDED ── */
+    .chat-embed-wrap {
+      position: sticky;
+      top: 100px;
+    }
+    .chat-embed-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .chat-embed-label .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px rgba(0,214,143,0.8);
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity:1; transform:scale(1); }
+      50% { opacity:0.6; transform:scale(1.3); }
+    }
+    .chat-embed-label span {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--grey-light);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .chat-embed {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 580px;
+    }
+
+    .chat-embed-header {
+      padding: 18px 24px;
+      background: linear-gradient(135deg, rgba(0,214,143,0.12), rgba(0,214,143,0.04));
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .chat-avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--green), #00b87a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .chat-header-info .name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+    .chat-header-info .status {
+      font-size: 0.75rem;
+      color: var(--green);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .chat-header-info .status::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      display: inline-block;
+    }
+    .chat-embed-badge {
+      margin-left: auto;
+      background: rgba(0,214,143,0.12);
+      border: 1px solid rgba(0,214,143,0.25);
+      border-radius: 50px;
+      padding: 5px 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--green);
+    }
+
+    .chat-embed-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scroll-behavior: smooth;
+    }
+    .chat-embed-messages::-webkit-scrollbar { width: 4px; }
+    .chat-embed-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .msg {
+      max-width: 82%;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .msg.bot { align-self: flex-start; }
+    .msg.user { align-self: flex-end; align-items: flex-end; }
+
+    .msg-bubble {
+      padding: 11px 16px;
+      border-radius: 16px;
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+    .msg.bot .msg-bubble {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+      color: var(--grey-light);
+    }
+    .msg.user .msg-bubble {
+      background: var(--green);
+      color: var(--navy);
+      font-weight: 600;
+      border-bottom-right-radius: 4px;
+    }
+    .msg-time {
+      font-size: 0.7rem;
+      color: var(--grey);
+    }
+
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+      width: fit-content;
+    }
+    .typing-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--grey);
+      animation: typing-bounce 1.4s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing-bounce {
+      0%,80%,100% { transform: translateY(0); opacity:0.5; }
+      40% { transform: translateY(-6px); opacity:1; }
+    }
+
+    .quick-replies {
+      padding: 0 20px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .qr-btn {
+      background: rgba(0,214,143,0.08);
+      border: 1px solid rgba(0,214,143,0.25);
+      border-radius: 50px;
+      padding: 7px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--green);
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: var(--font);
+    }
+    .qr-btn:hover {
+      background: rgba(0,214,143,0.15);
+      border-color: var(--green);
+      transform: translateY(-1px);
+    }
+
+    .chat-embed-input {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: rgba(255,255,255,0.02);
+    }
+    .chat-embed-input input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 11px 18px;
+      color: var(--white);
+      font-family: var(--font);
+      font-size: 0.88rem;
+      outline: none;
+      transition: var(--transition);
+    }
+    .chat-embed-input input::placeholder { color: var(--grey); }
+    .chat-embed-input input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(0,214,143,0.1);
+    }
+    .chat-send-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--green);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: var(--transition);
+    }
+    .chat-send-btn:hover { background: var(--green-dark); transform: scale(1.05); }
+    .chat-send-btn svg { width: 16px; height: 16px; fill: var(--navy); }
+
+    /* ── RIGHT PANEL ── */
+    .contact-side { display: flex; flex-direction: column; gap: 24px; }
+
+    .side-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+    .side-card h3 { font-size: 1.05rem; margin-bottom: 18px; }
+
     .contact-item {
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding: 18px 0;
+      gap: 14px;
+      padding: 14px 0;
       border-bottom: 1px solid var(--border);
     }
+    .contact-item:last-child { border-bottom: none; }
     .contact-icon {
-      width: 46px; height: 46px;
-      border-radius: 12px;
+      width: 40px; height: 40px;
+      border-radius: 10px;
       background: var(--green-glow);
       border: 1px solid rgba(0,214,143,0.2);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       flex-shrink: 0;
     }
-    .contact-item-text .lbl { font-size: 0.75rem; color: var(--grey); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
-    .contact-item-text .val { font-size: 0.95rem; font-weight: 600; color: var(--white); }
+    .contact-item-text .lbl { font-size: 0.72rem; color: var(--grey); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+    .contact-item-text .val { font-size: 0.9rem; font-weight: 600; color: var(--white); }
     .contact-item-text a { color: var(--white); transition: var(--transition); }
     .contact-item-text a:hover { color: var(--green); }
 
-    .contact-form {
-      background: var(--navy-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 40px;
-    }
-    .contact-form h3 { margin-bottom: 8px; }
-    .contact-form > p { font-size: 0.88rem; margin-bottom: 32px; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .form-group { margin-bottom: 20px; }
-    .form-group label {
-      display: block;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--grey-light);
-      margin-bottom: 8px;
-    }
-    .form-group input, .form-group select, .form-group textarea {
-      width: 100%;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 12px 16px;
-      color: var(--white);
-      font-family: var(--font);
-      font-size: 0.9rem;
-      transition: var(--transition);
-      outline: none;
-      appearance: none;
-    }
-    .form-group input::placeholder, .form-group textarea::placeholder { color: var(--grey); }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-      border-color: var(--green);
-      background: rgba(0,214,143,0.03);
-      box-shadow: 0 0 0 3px rgba(0,214,143,0.1);
-    }
-    .form-group select option { background: var(--navy-card); }
-    .form-group textarea { resize: vertical; min-height: 120px; }
-    .form-submit {
-      width: 100%;
-      padding: 16px;
-      border-radius: 50px;
-      background: var(--green);
-      color: var(--navy);
-      font-weight: 800;
-      font-size: 1rem;
-      border: none;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    .form-submit:hover { background: var(--green-dark); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,214,143,0.3); }
-    .form-note { font-size: 0.78rem; color: var(--grey); text-align: center; margin-top: 12px; }
-
-    .trust-badges {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-top: 32px;
-    }
-    .trust-badge {
+    .steps { display: flex; flex-direction: column; gap: 14px; }
+    .step { display: flex; gap: 12px; align-items: flex-start; }
+    .step-num {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--green-glow);
+      border: 1px solid rgba(0,214,143,0.3);
       display: flex;
       align-items: center;
-      gap: 8px;
-      background: var(--navy-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 0.78rem;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--green);
+      flex-shrink: 0;
+    }
+    .step-body .step-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 2px; }
+    .step-body .step-desc { font-size: 0.78rem; color: var(--grey); }
+
+    .trust-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.83rem;
       color: var(--grey-light);
     }
-    .trust-badge span:first-child { color: var(--green); }
+    .trust-item .check {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: rgba(0,214,143,0.12);
+      border: 1px solid rgba(0,214,143,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: var(--green);
+      flex-shrink: 0;
+    }
 
+    /* ── FALLBACK ── */
+    .fallback-section {
+      text-align: center;
+      padding: 70px 40px;
+      border-top: 1px solid var(--border);
+    }
+    .fallback-section .divider-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 0.78rem;
+      color: var(--grey);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 32px;
+    }
+    .divider-label::before, .divider-label::after {
+      content: '';
+      width: 60px;
+      height: 1px;
+      background: var(--border);
+    }
+    .direct-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+    .action-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    .action-pill.phone {
+      background: var(--green);
+      color: var(--navy);
+    }
+    .action-pill.phone:hover { background: var(--green-dark); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,214,143,0.3); }
+    .action-pill.whatsapp {
+      background: rgba(37,211,102,0.12);
+      border: 1px solid rgba(37,211,102,0.3);
+      color: #25d366;
+    }
+    .action-pill.whatsapp:hover { background: rgba(37,211,102,0.2); transform: translateY(-2px); }
+    .action-pill.email {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--grey-light);
+    }
+    .action-pill.email:hover { border-color: var(--green); color: var(--white); transform: translateY(-2px); }
+
+    /* ── MOBILE ── */
     @media (max-width: 768px) {
-      .contact-grid { grid-template-columns: 1fr; }
-      .form-row { grid-template-columns: 1fr; }
-      .contact-form { padding: 28px 20px; }
+      .contact-layout { grid-template-columns: 1fr; }
+      .chat-embed-wrap { position: static; }
+      .chat-embed { height: 500px; }
+      .direct-actions { flex-direction: column; align-items: center; }
     }
   </style>
 </head>
 <body>
 
-<div class="nav-overlay">
-  <span class="close-btn">&#x2715;</span>
+<!-- NAV OVERLAY -->
+<div class="nav-overlay" id="navOverlay">
+  <span class="close-btn" id="navClose">&#x2715;</span>
   <a href="index.html">Accueil</a>
   <a href="formules.html">Formules</a>
   <a href="portfolio.html">Portfolio</a>
@@ -135,173 +398,165 @@
   <a href="contact.html" style="color:var(--green);border:2px solid var(--green);padding:12px 32px;border-radius:50px;margin-top:8px;">Appel gratuit</a>
 </div>
 
-<nav class="navbar">
+<nav class="navbar" id="navbar">
   <a href="index.html" class="nav-logo">Seo<span>lia</span></a>
   <ul class="nav-links">
     <li><a href="index.html">Accueil</a></li>
     <li><a href="formules.html">Formules</a></li>
     <li><a href="portfolio.html">Portfolio</a></li>
     <li><a href="blog/index.html">Blog</a></li>
-    <li><a href="contact.html">Contact</a></li>
+    <li><a href="contact.html" class="active">Contact</a></li>
     <li><a href="contact.html" class="nav-cta">Appel gratuit</a></li>
   </ul>
-  <div class="burger"><span></span><span></span><span></span></div>
+  <div class="burger" id="burger"><span></span><span></span><span></span></div>
 </nav>
 
+<!-- HERO -->
 <div class="page-header">
   <div class="bg-blob" style="width:600px;height:600px;background:radial-gradient(circle,rgba(0,214,143,0.07),transparent 70%);top:-200px;left:50%;transform:translateX(-50%);pointer-events:none;position:absolute;"></div>
   <div style="position:relative;z-index:1;">
-    <div class="section-tag" data-aos>Gratuit & sans engagement</div>
-    <h1 data-aos data-aos-delay="100">Votre audit <span class="highlight">SEO gratuit</span></h1>
-    <p data-aos data-aos-delay="200">30 minutes pour analyser votre visibilité Google et vous expliquer exactement ce qu'on peut faire pour vous.</p>
+    <div class="section-tag" data-aos>Assistant IA disponible 24h/24</div>
+    <h1 data-aos data-aos-delay="100">Discutons de <span class="highlight">votre projet</span></h1>
+    <p data-aos data-aos-delay="200">Notre assistant répond à toutes vos questions instantanément et peut planifier un rendez-vous avec Florian en 2 minutes.</p>
   </div>
 </div>
 
-<section style="background:var(--navy-light);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+<!-- MAIN SECTION -->
+<section style="background:var(--navy-light);border-top:1px solid var(--border);">
   <div class="section">
-    <div class="contact-grid">
+    <div class="contact-layout">
 
-      <!-- Info -->
-      <div data-aos="fade-right">
-        <div class="section-tag">On vous répond vite</div>
-        <h2 class="section-title">Parlons de<br/><span class="highlight">votre projet</span></h2>
-        <p>Remplissez le formulaire ou appelez directement. On répond en moins de 4h en journée.</p>
-
-        <div class="contact-item">
-          <div class="contact-icon">&#128222;</div>
-          <div class="contact-item-text">
-            <div class="lbl">Téléphone</div>
-            <div class="val"><a href="tel:+32470922188">+32 470 92 21 88</a></div>
-          </div>
-        </div>
-        <div class="contact-item">
-          <div class="contact-icon">&#128140;</div>
-          <div class="contact-item-text">
-            <div class="lbl">Email</div>
-            <div class="val"><a href="mailto:hello@seolia.be">hello@seolia.be</a></div>
-          </div>
-        </div>
-        <div class="contact-item">
-          <div class="contact-icon">&#128205;</div>
-          <div class="contact-item-text">
-            <div class="lbl">Zone d'intervention</div>
-            <div class="val">Belgique</div>
-          </div>
-        </div>
-        <div class="contact-item">
-          <div class="contact-icon">&#128337;</div>
-          <div class="contact-item-text">
-            <div class="lbl">Délai de réponse</div>
-            <div class="val">Moins de 4h en journée</div>
-          </div>
+      <!-- CHATBOT EMBEDDED -->
+      <div class="chat-embed-wrap" data-aos="fade-right">
+        <div class="chat-embed-label">
+          <div class="dot"></div>
+          <span>Assistant IA Seolia — En ligne</span>
         </div>
 
-        <div class="trust-badges" style="margin-top:32px;">
-          <div class="trust-badge"><span>&#10003;</span> Audit 100% gratuit</div>
-          <div class="trust-badge"><span>&#10003;</span> Sans engagement</div>
-          <div class="trust-badge"><span>&#10003;</span> Réponse sous 4h</div>
-          <div class="trust-badge"><span>&#10003;</span> Offre lancement</div>
-        </div>
-
-        <!-- What happens next -->
-        <div style="margin-top:40px;background:var(--navy-card);border:1px solid var(--border);border-radius:var(--radius);padding:28px;">
-          <h3 style="font-size:1rem;margin-bottom:20px;">Ce qui se passe après</h3>
-          <div style="display:flex;flex-direction:column;gap:16px;">
-            <div style="display:flex;gap:14px;align-items:flex-start;">
-              <div style="width:28px;height:28px;border-radius:50%;background:var(--green-glow);border:1px solid rgba(0,214,143,0.3);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:var(--green);flex-shrink:0;">1</div>
-              <div><div style="font-size:0.88rem;font-weight:600;margin-bottom:3px;">On vous rappelle</div><div style="font-size:0.8rem;color:var(--grey);">Dans les 4h, on prend 5 minutes pour fixer un créneau d'audit.</div></div>
+        <div class="chat-embed">
+          <!-- Header -->
+          <div class="chat-embed-header">
+            <div class="chat-avatar">&#129302;</div>
+            <div class="chat-header-info">
+              <div class="name">Assistant Seolia</div>
+              <div class="status">En ligne maintenant</div>
             </div>
-            <div style="display:flex;gap:14px;align-items:flex-start;">
-              <div style="width:28px;height:28px;border-radius:50%;background:var(--green-glow);border:1px solid rgba(0,214,143,0.3);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:var(--green);flex-shrink:0;">2</div>
-              <div><div style="font-size:0.88rem;font-weight:600;margin-bottom:3px;">Audit Google (30 min)</div><div style="font-size:0.8rem;color:var(--grey);">On analyse votre visibilité actuelle, vos concurrents, vos opportunités.</div></div>
-            </div>
-            <div style="display:flex;gap:14px;align-items:flex-start;">
-              <div style="width:28px;height:28px;border-radius:50%;background:var(--green-glow);border:1px solid rgba(0,214,143,0.3);display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;color:var(--green);flex-shrink:0;">3</div>
-              <div><div style="font-size:0.88rem;font-weight:600;margin-bottom:3px;">Proposition sur mesure</div><div style="font-size:0.8rem;color:var(--grey);">On vous présente la formule adaptée, le plan d'action et les résultats attendus.</div></div>
-            </div>
+            <div class="chat-embed-badge">IA Seolia</div>
+          </div>
+
+          <!-- Messages -->
+          <div class="chat-embed-messages" id="embedMessages"></div>
+
+          <!-- Quick replies -->
+          <div class="quick-replies" id="embedQuickReplies"></div>
+
+          <!-- Input -->
+          <div class="chat-embed-input">
+            <input type="text" id="embedInput" placeholder="Posez votre question ou démarrez un RDV…" autocomplete="off"/>
+            <button class="chat-send-btn" id="embedSendBtn" onclick="embedSend()">
+              <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Form -->
-      <div class="contact-form" data-aos="fade-left">
-        <h3>Demandez votre audit gratuit</h3>
-        <p>Remplissez ce formulaire et on vous répond dans les 4h.</p>
+      <!-- RIGHT PANEL -->
+      <div class="contact-side" data-aos="fade-left">
 
-        <form action="#" method="post" onsubmit="handleSubmit(event)">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="prenom">Prénom *</label>
-              <input type="text" id="prenom" name="prenom" placeholder="Jean" required/>
-            </div>
-            <div class="form-group">
-              <label for="nom">Nom *</label>
-              <input type="text" id="nom" name="nom" placeholder="Dupont" required/>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="entreprise">Nom de votre société *</label>
-            <input type="text" id="entreprise" name="entreprise" placeholder="Plomberie Dupont" required/>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="tel">Téléphone *</label>
-              <input type="tel" id="tel" name="tel" placeholder="+32 4XX XX XX XX" required/>
-            </div>
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" name="email" placeholder="jean@example.be"/>
+        <!-- Contact direct -->
+        <div class="side-card">
+          <h3>Coordonnées directes</h3>
+          <div class="contact-item">
+            <div class="contact-icon">&#128222;</div>
+            <div class="contact-item-text">
+              <div class="lbl">Téléphone</div>
+              <div class="val"><a href="tel:+32470922188">+32 470 92 21 88</a></div>
             </div>
           </div>
-          <div class="form-group">
-            <label for="secteur">Votre secteur *</label>
-            <select id="secteur" name="secteur" required>
-              <option value="" disabled selected>Choisissez votre métier</option>
-              <option>Plombier</option>
-              <option>Électricien</option>
-              <option>Chauffagiste / HVAC</option>
-              <option>Serrurier</option>
-              <option>Carreleur</option>
-              <option>Peintre</option>
-              <option>Maçon</option>
-              <option>Menuisier</option>
-              <option>Détailing automobile</option>
-              <option>Autre artisan</option>
-              <option>PME / Commerce</option>
-            </select>
+          <div class="contact-item">
+            <div class="contact-icon">&#128140;</div>
+            <div class="contact-item-text">
+              <div class="lbl">Email</div>
+              <div class="val"><a href="mailto:hello@seolia.be">hello@seolia.be</a></div>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="situation">Votre situation actuelle</label>
-            <select id="situation" name="situation">
-              <option value="" disabled selected>Sélectionnez...</option>
-              <option>Je n'ai pas de site web</option>
-              <option>J'ai un vieux site qui ne convertit pas</option>
-              <option>Je veux améliorer mon référencement Google</option>
-              <option>Je veux arrêter de payer TrustUp / Bobex</option>
-              <option>Autre</option>
-            </select>
+          <div class="contact-item">
+            <div class="contact-icon">&#128205;</div>
+            <div class="contact-item-text">
+              <div class="lbl">Zone d'intervention</div>
+              <div class="val">Toute la Belgique</div>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="message">Message (optionnel)</label>
-            <textarea id="message" name="message" placeholder="Dites-nous ce que vous recherchez, vos problèmes actuels, vos objectifs..."></textarea>
+          <div class="contact-item">
+            <div class="contact-icon">&#128337;</div>
+            <div class="contact-item-text">
+              <div class="lbl">Réponse humaine</div>
+              <div class="val">Sous 4h en journée</div>
+            </div>
           </div>
-          <button type="submit" class="form-submit">Envoyer ma demande d'audit gratuit &#8594;</button>
-          <p class="form-note">Aucun engagement. Aucune carte bancaire. On vous rappelle sous 4h.</p>
-        </form>
+        </div>
+
+        <!-- Ce qui se passe après -->
+        <div class="side-card">
+          <h3>Ce qui se passe après</h3>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-title">On vous rappelle</div>
+                <div class="step-desc">Florian vous contacte dans les 4h pour fixer un créneau d'audit.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-title">Audit Google (30 min)</div>
+                <div class="step-desc">On analyse votre visibilité, vos concurrents, vos opportunités.</div>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-title">Proposition sur mesure</div>
+                <div class="step-desc">La formule adaptée, le plan d'action et les résultats attendus.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Garanties -->
+        <div class="side-card">
+          <h3>Nos garanties</h3>
+          <div class="trust-row">
+            <div class="trust-item"><div class="check">&#10003;</div> Audit 100% gratuit, sans engagement</div>
+            <div class="trust-item"><div class="check">&#10003;</div> Engagement 6 mois seulement (pas 3-5 ans)</div>
+            <div class="trust-item"><div class="check">&#10003;</div> Site livré en 5 à 7 jours ouvrés</div>
+            <div class="trust-item"><div class="check">&#10003;</div> Résiliation avec 1 mois de préavis</div>
+            <div class="trust-item"><div class="check">&#10003;</div> Offre lancement : setup offert pour 3 premiers clients</div>
+          </div>
+        </div>
+
       </div>
-
     </div>
   </div>
 </section>
 
-<!-- CTA Phone -->
-<section style="text-align:center;padding:80px 40px;">
-  <h2 data-aos style="margin-bottom:16px;">Ou appelez directement</h2>
-  <p data-aos data-aos-delay="100" style="max-width:500px;margin:0 auto 32px;">Vous préférez parler ? On est disponibles du lundi au vendredi de 9h à 18h.</p>
-  <a href="tel:+32470922188" class="btn btn-primary" style="font-size:1.3rem;padding:20px 50px;" data-aos data-aos-delay="200">
-    &#128222; +32 470 92 21 88
-  </a>
-</section>
+<!-- FALLBACK SECTION -->
+<div class="fallback-section">
+  <div class="divider-label">Vous préférez un contact direct ?</div>
+  <p style="font-size:0.9rem;color:var(--grey);max-width:420px;margin:0 auto;">Pas de problème — appelez Florian directement, envoyez un WhatsApp ou un email.</p>
+  <div class="direct-actions">
+    <a href="tel:+32470922188" class="action-pill phone">
+      &#128222; Appeler maintenant
+    </a>
+    <a href="https://wa.me/32470922188?text=Bonjour%2C%20je%20souhaite%20un%20audit%20gratuit" target="_blank" class="action-pill whatsapp">
+      &#128172; WhatsApp
+    </a>
+    <a href="mailto:hello@seolia.be" class="action-pill email">
+      &#9993; Envoyer un email
+    </a>
+  </div>
+</div>
 
 <footer>
   <div class="footer-inner">
@@ -339,64 +594,200 @@
 
 <script src="js/main.js"></script>
 <script>
+// ══════════════════════════════════════════════════════
+//  CHATBOT EMBEDDED — Page Contact
+// ══════════════════════════════════════════════════════
 const WORKER_URL = 'https://seolia-ai-chat.seolia.workers.dev';
-const WEB3FORMS_KEY = 'ba868ed8-1796-456e-ba13-b7d0e0b4f2cf';
 
-async function handleSubmit(e) {
-  e.preventDefault();
-  const form = e.target;
-  const btn = form.querySelector('.form-submit');
-  btn.textContent = 'Envoi en cours…';
-  btn.disabled = true;
+const embedMsgs   = document.getElementById('embedMessages');
+const embedQR     = document.getElementById('embedQuickReplies');
+const embedInput  = document.getElementById('embedInput');
 
-  const prenom = form.prenom.value.trim();
-  const nom    = form.nom.value.trim();
-  const tel    = form.tel.value.trim();
-  const email  = form.email.value.trim();
-  const secteur  = form.secteur.value;
-  const situation = form.situation.value;
-  const message  = form.message.value.trim();
+let embedHistory = [];
+let embedRdvState = null;
+let embedRdvData  = {};
 
-  // 1. Créer la fiche dans le CRM Supabase
+function embedTime() {
+  return new Date().toLocaleTimeString('fr-BE', { hour:'2-digit', minute:'2-digit' });
+}
+
+function embedAddMsg(text, from) {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ' + from;
+  wrap.innerHTML = `<div class="msg-bubble">${text}</div><div class="msg-time">${embedTime()}</div>`;
+  embedMsgs.appendChild(wrap);
+  embedMsgs.scrollTop = embedMsgs.scrollHeight;
+  return wrap;
+}
+
+function embedShowTyping() {
+  const el = document.createElement('div');
+  el.className = 'msg bot';
+  el.id = 'embed-typing';
+  el.innerHTML = `<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+  embedMsgs.appendChild(el);
+  embedMsgs.scrollTop = embedMsgs.scrollHeight;
+}
+function embedHideTyping() {
+  const el = document.getElementById('embed-typing');
+  if (el) el.remove();
+}
+
+function embedSetQR(buttons) {
+  embedQR.innerHTML = '';
+  buttons.forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = 'qr-btn';
+    btn.textContent = b;
+    btn.onclick = () => { embedUserSay(b); };
+    embedQR.appendChild(btn);
+  });
+}
+
+function embedUserSay(text) {
+  embedQR.innerHTML = '';
+  embedAddMsg(text, 'user');
+  embedHandleInput(text);
+}
+
+async function embedSend() {
+  const text = embedInput.value.trim();
+  if (!text) return;
+  embedInput.value = '';
+  embedAddMsg(text, 'user');
+  embedQR.innerHTML = '';
+  await embedHandleInput(text);
+}
+
+// State machine RDV
+async function embedHandleInput(text) {
+  if (embedRdvState) {
+    await embedRdvFlow(text);
+    return;
+  }
+
+  // Detect RDV intent
+  const lower = text.toLowerCase();
+  if (lower.includes('rdv') || lower.includes('rendez-vous') || lower.includes('rencontre') || lower.includes('rencontrer') || lower.includes('prendre') || lower.includes('réserver') || lower.includes('reserver') || lower.includes('booker')) {
+    embedStartRdv();
+    return;
+  }
+
+  // Free AI response
+  embedHistory.push({ role:'user', content: text });
+  embedShowTyping();
+  try {
+    const res = await fetch(WORKER_URL + '/chat', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ messages: embedHistory })
+    });
+    const data = await res.json();
+    embedHideTyping();
+    const reply = data.reply || "Je suis là pour vous aider. N'hésitez pas à poser votre question !";
+    embedHistory.push({ role:'assistant', content: reply });
+    embedAddMsg(reply, 'bot');
+    embedSetQR(['Prendre RDV', 'Voir les formules', 'Nos tarifs']);
+  } catch(e) {
+    embedHideTyping();
+    embedAddMsg("Désolé, une erreur s'est produite. Appelez-nous directement au <a href='tel:+32470922188' style='color:var(--green)'>+32 470 92 21 88</a>.", 'bot');
+  }
+}
+
+function embedStartRdv() {
+  embedRdvState = 'type';
+  embedRdvData  = {};
+  setTimeout(() => {
+    embedAddMsg("Super ! Je vais vous aider à planifier ça. Quel type de rendez-vous préférez-vous ?", 'bot');
+    embedSetQR(['Sur place (visite chez vous)', 'Appel téléphonique']);
+  }, 400);
+}
+
+async function embedRdvFlow(text) {
+  switch(embedRdvState) {
+
+    case 'type':
+      embedRdvData.type_rdv = text;
+      embedRdvState = 'secteur';
+      setTimeout(() => {
+        embedAddMsg("Parfait. Quel est votre secteur d'activité ?", 'bot');
+        embedSetQR(['Plombier','Électricien','Chauffagiste','Serrurier','Détailing auto','Autre']);
+      }, 400);
+      break;
+
+    case 'secteur':
+      embedRdvData.secteur = text;
+      embedRdvState = 'nom';
+      setTimeout(() => {
+        embedAddMsg("Et votre prénom et nom, s'il vous plaît ?", 'bot');
+      }, 400);
+      break;
+
+    case 'nom':
+      embedRdvData.nom = text;
+      embedRdvState = 'tel';
+      setTimeout(() => {
+        embedAddMsg(`Merci ${text.split(' ')[0]} ! Votre numéro de téléphone pour que Florian vous rappelle ?`, 'bot');
+      }, 400);
+      break;
+
+    case 'tel':
+      embedRdvData.telephone = text;
+      embedRdvState = 'dispo';
+      setTimeout(() => {
+        embedAddMsg("Dernière question : quelles sont vos disponibilités ? (ex: mardi matin, vendredi après-midi…)", 'bot');
+        embedSetQR(['Cette semaine','Semaine prochaine','Flexible']);
+      }, 400);
+      break;
+
+    case 'dispo':
+      embedRdvData.disponibilites = text;
+      embedRdvState = null;
+      await embedSubmitRdv();
+      break;
+  }
+}
+
+async function embedSubmitRdv() {
+  embedShowTyping();
   try {
     await fetch(WORKER_URL + '/create-contact', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({
-        nom: prenom + ' ' + nom,
-        telephone: tel,
-        email: email || null,
-        secteur: secteur || null,
-        source: 'formulaire',
-        type_rdv: null,
-        disponibilites: null,
-        message: [situation, message].filter(Boolean).join(' — ') || null,
+        nom:            embedRdvData.nom,
+        telephone:      embedRdvData.telephone,
+        secteur:        embedRdvData.secteur,
+        source:         'chatbot',
+        type_rdv:       embedRdvData.type_rdv,
+        disponibilites: embedRdvData.disponibilites,
+        message:        null
       })
     });
-  } catch (_) { /* silencieux si CRM indisponible */ }
+  } catch(_) {}
 
-  // 2. Envoyer l'email via Web3Forms
-  try {
-    await fetch('https://api.web3forms.com/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        access_key: WEB3FORMS_KEY,
-        subject: `Nouveau lead Seolia — ${prenom} ${nom} (${secteur})`,
-        from_name: `${prenom} ${nom}`,
-        name: `${prenom} ${nom}`,
-        email: email || 'non renseigné',
-        telephone: tel,
-        secteur: secteur,
-        situation: situation,
-        message: message || '(aucun message)',
-      })
-    });
-  } catch (_) { /* silencieux */ }
-
-  btn.textContent = '✅ Message envoyé ! On vous rappelle très bientôt.';
-  btn.style.background = '#00b87a';
+  embedHideTyping();
+  const prenom = embedRdvData.nom ? embedRdvData.nom.split(' ')[0] : '';
+  embedAddMsg(
+    `Super ${prenom} ! Votre demande a bien été enregistrée. Florian vous rappellera dans les 4 heures ouvrées pour confirmer le rendez-vous. À très bientôt !`,
+    'bot'
+  );
+  embedSetQR(['Autres questions', 'Voir les formules']);
+  embedRdvData = {};
 }
+
+// ── Init ──
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    embedAddMsg("Bonjour ! Je suis l'assistant Seolia. Je peux répondre à toutes vos questions sur nos formules, nos délais ou nos tarifs.", 'bot');
+    setTimeout(() => {
+      embedAddMsg("Vous pouvez aussi me demander de planifier un rendez-vous avec Florian directement ici. Comment puis-je vous aider ?", 'bot');
+      embedSetQR(['Prendre un RDV', 'Voir les formules', 'Nos tarifs', 'C\'est quoi Seolia ?']);
+    }, 800);
+  }, 600);
+});
+
+embedInput.addEventListener('keydown', e => { if(e.key==='Enter') embedSend(); });
 </script>
 </body>
 </html>

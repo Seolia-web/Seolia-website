@@ -684,7 +684,7 @@ async function embedHandleInput(text) {
     });
     const data = await res.json();
     embedHideTyping();
-    const reply = data.reply || "Je suis là pour vous aider. N'hésitez pas à poser votre question !";
+    const reply = data.response || data.reply || "Je suis là pour vous aider. N'hésitez pas à poser votre question !";
     embedHistory.push({ role:'assistant', content: reply });
     embedAddMsg(reply, 'bot');
     embedSetQR(['Prendre RDV', 'Voir les formules', 'Nos tarifs']);

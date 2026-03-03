@@ -405,6 +405,7 @@
           <h1 id="detail-name" style="margin-top:8px">-</h1>
         </div>
         <div class="flex-gap">
+          <a id="btn-call" href="#" class="btn btn-green btn-sm" style="display:none;text-decoration:none">&#x1F4DE; Appeler</a>
           <button class="btn btn-ghost btn-sm" onclick="openEditContactModal()">&#x270F;&#xFE0F; Modifier</button>
           <button class="btn btn-navy btn-sm" onclick="openQuoteModal()">&#x1F4C4; Devis PDF</button>
           <button class="btn btn-ghost btn-sm" onclick="openComposeModal()">&#x2709;&#xFE0F; Email</button>
@@ -769,7 +770,9 @@ async function sbFetch(path, opts = {}) {
     throw new Error(msg);
   }
   if (res.status === 204) return null;
-  return res.json();
+  const text = await res.text();
+  if (!text || !text.trim()) return null;
+  try { return JSON.parse(text); } catch(e) { return null; }
 }
 
 // ===== LOGIN =====
@@ -1266,10 +1269,16 @@ async function openContactDetail(id) {
   document.getElementById('detail-name').textContent = (contact.nom||'') + (contact.entreprise ? ' — ' + contact.entreprise : '');
   document.getElementById('detail-statut-badge').innerHTML = '<span class="badge badge-' + contact.statut + '">' + (contact.statut||'-') + '</span>';
   document.getElementById('detail-status-select').value = contact.statut || 'prospect';
+  const btnCall = document.getElementById('btn-call');
+  if (contact.telephone) {
+    const tel = contact.telephone.replace(/[^0-9+]/g,'');
+    btnCall.href = 'tel:' + tel;
+    btnCall.style.display = '';
+  } else { btnCall.style.display = 'none'; }
 
   const infoFields = [
     { label: 'Nom', value: contact.nom }, { label: 'Entreprise', value: contact.entreprise },
-    { label: 'Email', value: contact.email }, { label: 'Téléphone', value: contact.telephone },
+    { label: 'Email', value: contact.email }, { label: 'Téléphone', value: contact.telephone, isPhone: true },
     { label: 'Ville', value: contact.ville }, { label: 'Code postal', value: contact.code_postal },
     { label: 'Adresse', value: contact.adresse }, { label: 'Secteur', value: contact.secteur },
     { label: 'Source', value: contact.source }, { label: 'Formule', value: contact.formule },
@@ -1282,7 +1291,9 @@ async function openContactDetail(id) {
   document.getElementById('detail-info-grid').innerHTML = infoFields
     .filter(f => f.value)
     .map(f => '<div class="detail-field' + (f.full ? '" style="grid-column:1/-1' : '') + '">' +
-      '<label>' + f.label + '</label><span>' + esc(f.value) + '</span></div>')
+      '<label>' + f.label + '</label>' +
+      (f.isPhone ? '<span><a href="tel:' + f.value.replace(/[^0-9+]/g,'') + '" style="color:#00d68f;font-weight:600;text-decoration:none">' + esc(f.value) + '</a></span>' : '<span>' + esc(f.value) + '</span>') +
+      '</div>')
     .join('');
 
   // Pricing

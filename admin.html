@@ -1944,6 +1944,7 @@ function renderDetailInfoForm(contact) {
 }
 
 function renderDetailInfoReadOnly(contact) {
+  const commercials = (allProfiles || []).filter(p => p.role === 'commercial');
   const infoFields = [
     { label: 'Nom', value: contact.nom },
     { label: 'Entreprise', value: contact.entreprise },

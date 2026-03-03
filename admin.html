@@ -480,6 +480,7 @@
               <span id="detail-client-id" style="font-size:15px;font-weight:700;color:#00d68f;letter-spacing:2px">-</span>
               <button onclick="copyClientId()" style="background:none;border:none;cursor:pointer;color:#8892a4;padding:0;font-size:13px" title="Copier l'ID">&#x1F4CB;</button>
             </div>
+            <div id="detail-actif-toggle"></div>
           </div>
         </div>
         <div class="flex-gap">
@@ -625,26 +626,62 @@
       <div class="page-header">
         <div>
           <h1>&#x1F4B0; Revenus</h1>
-          <p id="rev-period">-</p>
+          <p id="rev-period" style="color:var(--text-secondary);font-size:14px">-</p>
         </div>
-        <button class="btn btn-ghost btn-sm" onclick="loadRevenus()">&#x21BB; Rafraîchir</button>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="rev-month-select" onchange="loadRevenusMois(this.value)" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);color:var(--text-primary);font-size:14px;min-width:160px"></select>
+          <button class="btn btn-ghost btn-sm" onclick="loadRevenus()">&#x21BB; Rafra&#238;chir</button>
+        </div>
       </div>
-      <!-- 3 KPIs principaux -->
-      <div class="revenus-highlight" style="margin-bottom:24px">
+
+      <!-- TOTAUX GLOBAUX (toujours actuels) -->
+      <div class="card" style="margin-bottom:16px;background:linear-gradient(135deg,#0f2952,#1a3f7c);border:none">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.5);margin-bottom:12px">&#x1F4CA; Totaux actuels (all-time)</div>
+        <div id="rev-totaux-globaux" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px"></div>
+      </div>
+
+      <!-- KPIs du mois -->
+      <div class="revenus-highlight" style="margin-bottom:16px">
         <div class="revenus-grid" id="rev-kpis"></div>
       </div>
+
+      <!-- Setups + Récurrents ce mois (2 colonnes) -->
+      <div id="rev-tables-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="card">
+          <div class="section-title">&#x1F195; Setups ce mois</div>
+          <div id="rev-setups-table"></div>
+        </div>
+        <div class="card">
+          <div class="section-title">&#x1F504; R&#233;currents ce mois</div>
+          <div id="rev-recurrents-table"></div>
+        </div>
+      </div>
+
+      <!-- Nouveaux clients ce mois -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-title">&#x2728; Nouveaux clients ce mois</div>
+        <div id="rev-nouveaux-clients"></div>
+      </div>
+
+      <!-- Commissions à payer -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-title">&#x1F4B8; Commissions &#224; payer ce mois</div>
+        <div id="rev-commissions-payer"></div>
+      </div>
+
       <!-- Par commercial -->
       <div class="card" style="margin-bottom:16px">
         <div class="section-title">&#x1F465; Par commercial</div>
         <div id="rev-by-commercial"></div>
       </div>
-      <!-- Historique simplifié -->
+
+      <!-- Historique -->
       <div class="card">
-        <div class="section-title">&#x1F4C5; Historique</div>
+        <div class="section-title">&#x1F4C5; Historique mensuel</div>
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Mois</th><th>Clients</th><th>MRR HTVA</th><th>Commissions</th><th>Net Florian</th></tr>
+              <tr><th>Mois</th><th>Clients actifs</th><th>MRR HTVA</th><th>Setups HTVA</th><th>Commissions</th><th>Net Florian</th></tr>
             </thead>
             <tbody id="rev-history-tbody"></tbody>
           </table>
@@ -1421,6 +1458,17 @@ async function openContactDetail(id) {
     idSpan.textContent = contact.client_id;
   } else {
     idBadge.style.display = 'none';
+  }
+
+  // Toggle actif/inactif (admin only, clients only)
+  const toggleEl = document.getElementById('detail-actif-toggle');
+  if (toggleEl) {
+    if (contact.statut === 'client' && currentProfile && currentProfile.role === 'admin') {
+      const isActif = contact.actif !== false;
+      toggleEl.innerHTML = '<button onclick="toggleClientActif(\'' + contact.id + '\',' + isActif + ')" style="padding:5px 12px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:' + (isActif ? '#e8f5e9;color:#2e7d32' : '#ffebee;color:#c62828') + '">' + (isActif ? '✅ Actif' : '❌ Inactif') + '</button>';
+    } else {
+      toggleEl.innerHTML = '';
+    }
   }
 
   showView('contact-detail');
@@ -2273,38 +2321,81 @@ async function loadCommissions() {
 }
 
 // ===== REVENUS (admin) =====
+let _revAllSetups = []; // cache global pour histogramme
+
 async function loadRevenus() {
   const now = new Date();
-  const moisKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
-  document.getElementById('rev-period').textContent = now.toLocaleString('fr',{month:'long',year:'numeric'});
+  const currentMois = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
 
-  const clients = allContacts.filter(c => c.statut === 'client');
-  const totalMRR_TVAC = clients.reduce((s,c) => s+(parseFloat(c.prix_mensuel)||0),0);
-  const totalMRR_HTVA = totalMRR_TVAC / TVA_RATE;
-  const totalCommMensuelle = totalMRR_HTVA * TAUX_COMMISSION;
-
-  // Setups + commissions ce mois
-  let totalSetupComm = 0, totalSetupHTVA = 0;
-  let setupsByComm = {};
+  // Fetch all setup history for month list
   try {
-    const setups = await sbFetch('/rest/v1/commission_history?mois=eq.' + moisKey + '&type=eq.setup&select=*') || [];
-    setups.forEach(s => {
-      totalSetupComm += parseFloat(s.commission)||0;
-      totalSetupHTVA += parseFloat(s.montant_htva)||0;
-      if (!setupsByComm[s.commercial_email]) setupsByComm[s.commercial_email] = { htva:0, comm:0 };
-      setupsByComm[s.commercial_email].htva += parseFloat(s.montant_htva)||0;
-      setupsByComm[s.commercial_email].comm += parseFloat(s.commission)||0;
-    });
+    _revAllSetups = await sbFetch('/rest/v1/commission_history?type=eq.setup&order=mois.desc&select=*') || [];
+  } catch(e) { _revAllSetups = []; }
+
+  // Build months set
+  const moisSet = new Set([currentMois]);
+  _revAllSetups.forEach(s => moisSet.add(s.mois));
+  const allClients = allContacts.filter(c => c.statut === 'client');
+  allClients.forEach(c => {
+    const dateRef = c.date_debut ? new Date(c.date_debut) : new Date(c.created_at);
+    if (!isNaN(dateRef)) moisSet.add(dateRef.getFullYear() + '-' + String(dateRef.getMonth()+1).padStart(2,'0'));
+  });
+
+  const months = [...moisSet].sort().reverse();
+  const sel = document.getElementById('rev-month-select');
+  if (sel) {
+    sel.innerHTML = months.map(m => `<option value="${m}" ${m===currentMois?'selected':''}>${formatMois(m)}</option>`).join('');
+  }
+
+  // Totaux globaux (toujours actuels)
+  const activeClients = allContacts.filter(c => c.statut === 'client' && c.actif !== false);
+  const mrrHTVA = activeClients.reduce((s,c) => s+(parseFloat(c.prix_mensuel)||0),0) / TVA_RATE;
+  const commMens = mrrHTVA * TAUX_COMMISSION;
+  const netMens = mrrHTVA - commMens;
+  const allTimeSetupHTVA = _revAllSetups.reduce((s,r) => s+(parseFloat(r.montant_htva)||0), 0);
+
+  const totEl = document.getElementById('rev-totaux-globaux');
+  if (totEl) totEl.innerHTML = [
+    { label: 'Setups encaissés (all-time)', value: fmtEur(allTimeSetupHTVA), sub: _revAllSetups.length + ' contrat(s) signés' },
+    { label: 'MRR actuel HTVA', value: fmtEur(mrrHTVA), sub: activeClients.length + ' client(s) actif(s)' },
+    { label: 'Net mensuel Florian', value: fmtEur(netMens), sub: 'après commissions' },
+  ].map(m =>
+    '<div style="color:#fff">' +
+    '<div style="font-size:11px;opacity:.6;margin-bottom:4px">' + m.label + '</div>' +
+    '<div style="font-size:22px;font-weight:800">' + m.value + '</div>' +
+    '<div style="font-size:11px;opacity:.5;margin-top:2px">' + m.sub + '</div>' +
+    '</div>'
+  ).join('');
+
+  loadRevenusMois(currentMois);
+}
+
+async function loadRevenusMois(moisKey) {
+  if (!moisKey) return;
+  document.getElementById('rev-period').textContent = formatMois(moisKey);
+
+  const [year, month] = moisKey.split('-').map(Number);
+
+  // Clients actifs
+  const activeClients = allContacts.filter(c => c.statut === 'client' && c.actif !== false);
+  const mrrHTVA = activeClients.reduce((s,c) => s+(parseFloat(c.prix_mensuel)||0),0) / TVA_RATE;
+
+  // Setups ce mois (depuis commission_history)
+  let setupsCeMois = [];
+  try {
+    setupsCeMois = await sbFetch('/rest/v1/commission_history?mois=eq.' + moisKey + '&type=eq.setup&select=*') || [];
   } catch(e) {}
+  const setupsHTVA = setupsCeMois.reduce((s,r) => s+(parseFloat(r.montant_htva)||0), 0);
+  const commSetup = setupsCeMois.reduce((s,r) => s+(parseFloat(r.commission)||0), 0);
+  const commMens = mrrHTVA * TAUX_COMMISSION;
+  const totalComm = commSetup + commMens;
+  const netFlorian = setupsHTVA + mrrHTVA - totalComm;
 
-  const totalComm = totalCommMensuelle + totalSetupComm;
-  const totalRevenusHTVA = totalMRR_HTVA + totalSetupHTVA;
-  const netFlorian = totalRevenusHTVA - totalComm;
-
-  // ── 3 KPIs principaux
-  document.getElementById('rev-kpis').innerHTML = [
-    { label: 'MRR mensuel HTVA', value: fmtEur(totalMRR_HTVA), sub: clients.length + ' client(s) actif(s)' },
-    { label: 'Commissions totales', value: fmtEur(totalComm), sub: 'mensuel + setups' },
+  // ── KPIs du mois
+  const kpiEl = document.getElementById('rev-kpis');
+  if (kpiEl) kpiEl.innerHTML = [
+    { label: 'Setups HTVA ce mois', value: fmtEur(setupsHTVA), sub: setupsCeMois.length + ' contrat(s)' },
+    { label: 'Récurrents HTVA ce mois', value: fmtEur(mrrHTVA), sub: activeClients.length + ' client(s) actif(s)' },
     { label: 'Net Florian ce mois', value: fmtEur(netFlorian), accent: true, sub: 'après commissions' },
   ].map(m =>
     '<div class="revenus-metric' + (m.accent?' accent':'') + '">' +
@@ -2314,57 +2405,163 @@ async function loadRevenus() {
     '</div>'
   ).join('');
 
-  // ── Par commercial (cards simples)
-  const commercials = allProfiles.filter(p => p.role === 'commercial');
-  const revByComm = document.getElementById('rev-by-commercial');
-  if (!commercials.length) {
-    revByComm.innerHTML = '<div class="empty-state" style="padding:24px"><p style="color:var(--text-secondary)">Aucun commercial enregistré</p></div>';
-  } else {
-    revByComm.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;padding:4px 0">' +
-      commercials.map(comm => {
-        const myClients = clients.filter(c => c.created_by === comm.email || c.assignee === comm.nom);
-        const mrr_htva = myClients.reduce((s,c) => s+(parseFloat(c.prix_mensuel)||0),0) / TVA_RATE;
-        const commMens = mrr_htva * (parseFloat(comm.taux_commission)||TAUX_COMMISSION);
-        const sData = setupsByComm[comm.email] || { htva:0, comm:0 };
-        const totalCommComm = commMens + sData.comm;
-        return '<div class="card" style="padding:16px;cursor:pointer;border:2px solid var(--border)" onclick="showCommercialDetail(' + JSON.stringify(comm.email) + ')">' +
-          '<div style="font-weight:700;font-size:15px;margin-bottom:12px">' + esc(comm.nom) + ' <span style="font-size:11px;color:var(--text-secondary);font-weight:400">↗ voir détail</span></div>' +
-          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">' +
-            '<div><div style="color:var(--text-secondary);font-size:11px">Clients actifs</div><div style="font-weight:600">' + myClients.length + '</div></div>' +
-            '<div><div style="color:var(--text-secondary);font-size:11px">MRR HTVA</div><div style="font-weight:600">' + fmtEur(mrr_htva) + '</div></div>' +
-            '<div><div style="color:var(--text-secondary);font-size:11px">Comm. mensuelle</div><div style="font-weight:600;color:var(--orange)">' + fmtEur(commMens) + '</div></div>' +
-            '<div><div style="color:var(--text-secondary);font-size:11px">Total ce mois</div><div style="font-weight:700;color:var(--green)">' + fmtEur(totalCommComm) + '</div></div>' +
-          '</div>' +
-        '</div>';
-      }).join('') +
-    '</div>';
+  // ── Table Setups ce mois
+  const setupTableEl = document.getElementById('rev-setups-table');
+  if (setupTableEl) {
+    if (!setupsCeMois.length) {
+      setupTableEl.innerHTML = '<div style="color:var(--text-secondary);font-size:13px;padding:12px 0">Aucun setup ce mois</div>';
+    } else {
+      setupTableEl.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Client</th><th>Formule</th><th>Commercial</th><th>Montant HTVA</th></tr></thead><tbody>' +
+        setupsCeMois.map(s =>
+          '<tr><td class="fw700">' + esc(s.contact_nom||'-') + '</td>' +
+          '<td>' + esc(s.formule||'-') + '</td>' +
+          '<td>' + esc(s.commercial_email ? s.commercial_email.split('@')[0] : '-') + '</td>' +
+          '<td style="color:var(--green);font-weight:700">' + fmtEur(parseFloat(s.montant_htva)||0) + '</td></tr>'
+        ).join('') +
+        '</tbody></table></div>';
+    }
   }
 
-  // ── Historique mensuel simplifié
+  // ── Table Récurrents ce mois
+  const recurEl = document.getElementById('rev-recurrents-table');
+  if (recurEl) {
+    if (!activeClients.length) {
+      recurEl.innerHTML = '<div style="color:var(--text-secondary);font-size:13px;padding:12px 0">Aucun client actif</div>';
+    } else {
+      recurEl.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Client</th><th>Formule</th><th>Commercial</th><th>Mensuel HTVA</th></tr></thead><tbody>' +
+        activeClients.map(c => {
+          const htva = (parseFloat(c.prix_mensuel)||0) / TVA_RATE;
+          return '<tr><td class="fw700">' + esc(c.nom||c.entreprise||'-') + '</td>' +
+            '<td>' + esc(c.formule||'-') + '</td>' +
+            '<td>' + esc(c.assignee||'-') + '</td>' +
+            '<td style="color:var(--green);font-weight:700">' + fmtEur(htva) + '</td></tr>';
+        }).join('') +
+        '</tbody></table></div>';
+    }
+  }
+
+  // ── Nouveaux clients ce mois
+  const nouveaux = allContacts.filter(c => {
+    if (c.statut !== 'client') return false;
+    const dateRef = c.date_debut ? new Date(c.date_debut) : new Date(c.created_at);
+    return !isNaN(dateRef) && dateRef.getFullYear() === year && (dateRef.getMonth()+1) === month;
+  });
+  const nouvEl = document.getElementById('rev-nouveaux-clients');
+  if (nouvEl) {
+    if (!nouveaux.length) {
+      nouvEl.innerHTML = '<div style="color:var(--text-secondary);font-size:13px;padding:8px 0">Aucun nouveau client ce mois</div>';
+    } else {
+      nouvEl.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding:4px 0">' +
+        nouveaux.map(c =>
+          '<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer" onclick="openContact(\'' + c.id + '\')">' +
+          '<div style="font-weight:700;font-size:14px;margin-bottom:6px">' + esc(c.nom||c.entreprise||'-') + '</div>' +
+          '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:3px">&#x1F4CB; ' + esc(c.formule||'Non renseigné') + '</div>' +
+          '<div style="font-size:12px;color:var(--text-secondary)">&#x1F464; ' + esc(c.assignee||'Florian') + '</div>' +
+          '</div>'
+        ).join('') +
+        '</div>';
+    }
+  }
+
+  // ── Commissions à payer ce mois
+  const commercials = allProfiles.filter(p => p.role === 'commercial' && p.actif !== false);
+  const commPayEl = document.getElementById('rev-commissions-payer');
+  if (commPayEl) {
+    if (!commercials.length) {
+      commPayEl.innerHTML = '<div style="color:var(--text-secondary);font-size:13px;padding:8px 0">Aucun commercial</div>';
+    } else {
+      const cards = commercials.map(comm => {
+        const myClients = activeClients.filter(c => c.created_by === comm.email || c.assignee === comm.nom);
+        const myMRR_HTVA = myClients.reduce((s,c) => s+(parseFloat(c.prix_mensuel)||0),0) / TVA_RATE;
+        const myCommMens = myMRR_HTVA * (parseFloat(comm.taux_commission)||TAUX_COMMISSION);
+        const mySetups = setupsCeMois.filter(s => s.commercial_email === comm.email);
+        const myCommSetup = mySetups.reduce((s,r) => s+(parseFloat(r.commission)||0), 0);
+        const totalAVirer = myCommMens + myCommSetup;
+        return '<div style="background:var(--bg);border:2px solid ' + (totalAVirer>0?'var(--green)':'var(--border)') + ';border-radius:12px;padding:16px;min-width:200px">' +
+          '<div style="font-weight:700;font-size:15px;margin-bottom:12px">' + esc(comm.nom) + '</div>' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px;margin-bottom:12px">' +
+          '<div><div style="font-size:10px;color:var(--text-secondary)">Comm. mensuelle</div><div style="font-weight:600">' + fmtEur(myCommMens) + '</div></div>' +
+          '<div><div style="font-size:10px;color:var(--text-secondary)">Comm. setup</div><div style="font-weight:600">' + fmtEur(myCommSetup) + '</div></div>' +
+          '</div>' +
+          '<div style="border-top:1px solid var(--border);padding-top:10px;display:flex;justify-content:space-between;align-items:center">' +
+          '<span style="font-size:12px;color:var(--text-secondary)">Total à virer</span>' +
+          '<span style="font-size:18px;font-weight:800;color:' + (totalAVirer>0?'var(--green)':'var(--text-secondary)') + '">' + fmtEur(totalAVirer) + '</span>' +
+          '</div></div>';
+      });
+      commPayEl.innerHTML = '<div style="display:flex;gap:12px;flex-wrap:wrap">' + cards.join('') + '</div>';
+    }
+  }
+
+  // ── Par commercial (cards cliquables)
+  const revByComm = document.getElementById('rev-by-commercial');
+  if (revByComm) {
+    if (!commercials.length) {
+      revByComm.innerHTML = '<div style="color:var(--text-secondary);font-size:13px;padding:8px 0">Aucun commercial enregistré</div>';
+    } else {
+      revByComm.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;padding:4px 0">' +
+        commercials.map(comm => {
+          const myClients = activeClients.filter(c => c.created_by === comm.email || c.assignee === comm.nom);
+          const mrr_htva = myClients.reduce((s,c) => s+(parseFloat(c.prix_mensuel)||0),0) / TVA_RATE;
+          const commMensComm = mrr_htva * (parseFloat(comm.taux_commission)||TAUX_COMMISSION);
+          const sData = setupsCeMois.filter(s => s.commercial_email === comm.email);
+          const commSetupComm = sData.reduce((s,r) => s+(parseFloat(r.commission)||0), 0);
+          const totalCommComm = commMensComm + commSetupComm;
+          return '<div class="card" style="padding:16px;cursor:pointer;border:2px solid var(--border)" onclick="showCommercialDetail(' + JSON.stringify(comm.email) + ')">' +
+            '<div style="font-weight:700;font-size:15px;margin-bottom:12px">' + esc(comm.nom) + ' <span style="font-size:11px;color:var(--text-secondary);font-weight:400">&#x2197; voir d&#233;tail</span></div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">' +
+            '<div><div style="color:var(--text-secondary);font-size:11px">Clients actifs</div><div style="font-weight:600">' + myClients.length + '</div></div>' +
+            '<div><div style="color:var(--text-secondary);font-size:11px">MRR HTVA</div><div style="font-weight:600">' + fmtEur(mrr_htva) + '</div></div>' +
+            '<div><div style="color:var(--text-secondary);font-size:11px">Comm. mensuelle</div><div style="font-weight:600;color:var(--orange)">' + fmtEur(commMensComm) + '</div></div>' +
+            '<div><div style="color:var(--text-secondary);font-size:11px">Total ce mois</div><div style="font-weight:700;color:var(--green)">' + fmtEur(totalCommComm) + '</div></div>' +
+            '</div></div>';
+        }).join('') +
+        '</div>';
+    }
+  }
+
+  // ── Historique
   try {
-    const allSetups = await sbFetch('/rest/v1/commission_history?type=eq.setup&order=mois.desc&select=*') || [];
     const byMonth = {};
-    allSetups.forEach(s => {
-      if (!byMonth[s.mois]) byMonth[s.mois] = { comm: 0, htva: 0 };
+    _revAllSetups.forEach(s => {
+      if (!byMonth[s.mois]) byMonth[s.mois] = { setupHTVA:0, comm:0 };
+      byMonth[s.mois].setupHTVA += parseFloat(s.montant_htva)||0;
       byMonth[s.mois].comm += parseFloat(s.commission)||0;
-      byMonth[s.mois].htva += parseFloat(s.montant_htva)||0;
     });
-    if (!byMonth[moisKey]) byMonth[moisKey] = { comm: totalSetupComm, htva: totalSetupHTVA };
-    const allMonths = [...new Set([moisKey, ...Object.keys(byMonth)])].sort().reverse();
+    const now = new Date();
+    const currentMois = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+    if (!byMonth[currentMois]) byMonth[currentMois] = { setupHTVA: setupsHTVA, comm: totalComm };
+    const allMonths = [...new Set([currentMois, ...Object.keys(byMonth)])].sort().reverse();
     document.getElementById('rev-history-tbody').innerHTML = allMonths.map(m => {
-      const isCurrent = m === moisKey;
-      const sData = byMonth[m] || { comm:0, htva:0 };
-      const mrrHtva = isCurrent ? fmtEur(totalMRR_HTVA) : '-';
-      const comm = isCurrent ? fmtEur(totalComm) : fmtEur(sData.comm);
-      const net = isCurrent ? '<span style="color:var(--green);font-weight:700">' + fmtEur(netFlorian) + '</span>' : '-';
-      return '<tr><td class="fw700">' + formatMois(m) + (isCurrent?' <span style="font-size:10px;background:var(--green);color:#fff;padding:1px 6px;border-radius:8px">En cours</span>':'') + '</td>' +
-        '<td>' + (isCurrent ? clients.length : '-') + '</td>' +
-        '<td>' + mrrHtva + '</td>' +
-        '<td>' + comm + '</td>' +
-        '<td>' + net + '</td></tr>';
-    }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary)">Aucune donnée</td></tr>';
+      const d = byMonth[m] || { setupHTVA:0, comm:0 };
+      const isC = m === currentMois;
+      const mrrDisp = isC ? fmtEur(mrrHTVA) : '-';
+      const setupDisp = isC ? fmtEur(setupsHTVA) : fmtEur(d.setupHTVA);
+      const commDisp = isC ? fmtEur(totalComm) : fmtEur(d.comm);
+      const netDisp = isC ? '<span style="color:var(--green);font-weight:700">' + fmtEur(netFlorian) + '</span>' : '-';
+      const clientCount = isC ? activeClients.length : '-';
+      return '<tr><td class="fw700">' + formatMois(m) + (isC?' <span style="font-size:10px;background:var(--green);color:#fff;padding:1px 6px;border-radius:8px">En cours</span>':'') + '</td>' +
+        '<td>' + clientCount + '</td><td>' + mrrDisp + '</td><td>' + setupDisp + '</td><td>' + commDisp + '</td><td>' + netDisp + '</td></tr>';
+    }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-secondary)">Aucune donnée</td></tr>';
   } catch(e) {
-    document.getElementById('rev-history-tbody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary)">Erreur chargement</td></tr>';
+    document.getElementById('rev-history-tbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-secondary)">Erreur chargement</td></tr>';
+  }
+}
+
+async function toggleClientActif(contactId, currentActif) {
+  const newActif = !currentActif;
+  const label = newActif ? 'activer' : 'désactiver';
+  if (!confirm('Voulez-vous ' + label + ' ce client ? Cela affectera le MRR calculé.')) return;
+  try {
+    await sbFetch('/rest/v1/contacts?id=eq.' + contactId, {
+      method: 'PATCH',
+      body: JSON.stringify({ actif: newActif })
+    });
+    // Mettre à jour localement
+    const idx = allContacts.findIndex(c => c.id === contactId);
+    if (idx !== -1) allContacts[idx].actif = newActif;
+    openContactDetail(contactId);
+  } catch(e) {
+    alert('Erreur lors de la mise à jour');
   }
 }
 

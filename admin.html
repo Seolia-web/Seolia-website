@@ -1394,6 +1394,8 @@ function populateAssigneeFilter() {
 }
 
 function renderContacts() {
+  const commercials = (allProfiles || []).filter(p => p.role === 'commercial');
+  const commOpts = '<option value="">(non assigné)</option>' + commercials.map(p => '<option value="' + esc(p.nom) + '">' + esc(p.nom) + '</option>').join('');
   populateAssigneeFilter();
   const filteredContacts = getFilteredContacts();
   document.getElementById('contacts-count').textContent = filteredContacts.length + ' contact' + (filteredContacts.length !== 1 ? 's' : '');
@@ -1425,7 +1427,9 @@ function renderContacts() {
     '<td>' + esc(c.ville||'-') + '</td>' +
     '<td><span class="badge badge-' + (c.statut||'prospect') + '">' + (c.statut||'-') + '</span></td>' +
     '<td>' + esc(c.formule||'-') + '</td>' +
-    '<td>' + esc(c.assignee||'-') + '</td>' +
+    (currentProfile.role === 'admin'
+      ? '<td onclick="event.stopPropagation()"><select style="border:1px solid #ddd;border-radius:6px;padding:3px 6px;font-size:12px;cursor:pointer;max-width:130px" onchange="quickUpdateAssignee(\'' + c.id + '\',this.value)">' + commOpts.replace('value="' + esc(c.assignee||'') + '"', 'value="' + esc(c.assignee||'') + '" selected') + '</select></td>'
+      : '<td>' + esc(c.assignee||'-') + '</td>') +
     '<td onclick="event.stopPropagation()">' +
     '<button class="action-btn" title="Voir" onclick="openContactDetail(\'' + c.id + '\')">👁️</button>' +
     '<button class="action-btn" title="Modifier" onclick="openEditContactModalById(\'' + c.id + '\')">✏️</button>' +

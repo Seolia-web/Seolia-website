@@ -3801,3 +3801,275 @@ async function deleteSelectedContacts() {
   renderContacts();
 }
 
+
+// ===== GÉNÉRATION CONTRAT PDF =====
+function generateContrat() {
+  const contact = allContacts.find(c => c.id === currentContactId);
+  if (!contact) return;
+
+  if (!window.jspdf) {
+    showToast("Chargement jsPDF en cours, réessayez dans 1 seconde...", "error");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const GREEN = [0, 214, 143];
+  const NAVY = [10, 22, 40];
+  const DARK = [45, 55, 72];
+  const GRAY = [113, 128, 150];
+  const LIGHTBG = [247, 248, 250];
+  const WHITE = [255, 255, 255];
+
+  const pageW = 210;
+  const marginL = 18;
+  const marginR = 18;
+  const contentW = pageW - marginL - marginR;
+
+  // Données du contact avec les bons noms de champs
+  const forfait = contact.formule || '';
+  let setupFee = contact.prix_setup ? String(Math.round(contact.prix_setup)) : '';
+  let monthly = contact.prix_mensuel ? String(Math.round(contact.prix_mensuel)) : '';
+
+  // Auto-remplir les prix si pas renseignés
+  if (!setupFee || !monthly) {
+    const f = forfait.toLowerCase();
+    if (f.includes('bundle premium') || f.includes('premium ia')) {
+      setupFee = setupFee || '1499';
+      monthly = monthly || '449';
+    } else if (f.includes('bundle business') || f.includes('business ia')) {
+      setupFee = setupFee || '949';
+      monthly = monthly || '249';
+    } else if (f.includes('bundle essentiel') || f.includes('essentiel ia')) {
+      setupFee = setupFee || '499';
+      monthly = monthly || '109';
+    } else if (f.includes('web premium')) {
+      setupFee = setupFee || '499';
+      monthly = monthly || '199';
+    } else if (f.includes('web business')) {
+      setupFee = setupFee || '349';
+      monthly = monthly || '119';
+    } else if (f.includes('web essentiel')) {
+      setupFee = setupFee || '199';
+      monthly = monthly || '69';
+    }
+  }
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('fr-BE', { day: '2-digit', month: 'long', year: 'numeric' });
+  const clientName = contact.nom || 'N/A';
+  const clientCompany = contact.entreprise || '';
+  const clientEmail = contact.email || '';
+  const clientPhone = contact.telephone || '';
+  const clientCity = contact.ville || '';
+  const clientAddress = contact.adresse || '';
+
+  let y = 0;
+
+  // HEADER BAND
+  doc.setFillColor(...NAVY);
+  doc.rect(0, 0, pageW, 28, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  doc.setTextColor(...WHITE);
+  doc.text('Seolia \u2014 Contrat de Prestation de Services', marginL, 12);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(...GREEN);
+  doc.text('BE 0727.941.547  |  +32 470 92 21 88  |  seolia.be', marginL, 20);
+  doc.setTextColor(180, 200, 220);
+  doc.text(dateStr, pageW - marginR, 20, { align: 'right' });
+
+  y = 36;
+
+  // PARTIES
+  doc.setFillColor(...LIGHTBG);
+  doc.roundedRect(marginL, y, (contentW / 2) - 3, 28, 3, 3, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(...GRAY);
+  doc.text('PRESTATAIRE', marginL + 4, y + 6);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(...NAVY);
+  doc.text('Florian Moers (Seolia)', marginL + 4, y + 13);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...DARK);
+  doc.text('florianmoerspro@gmail.com', marginL + 4, y + 19);
+  doc.text('+32 470 92 21 88', marginL + 4, y + 25);
+
+  const clientBoxX = marginL + (contentW / 2) + 3;
+  const clientBoxW = (contentW / 2) - 3;
+  doc.setFillColor(...LIGHTBG);
+  doc.roundedRect(clientBoxX, y, clientBoxW, 28, 3, 3, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(...GRAY);
+  doc.text('CLIENT', clientBoxX + 4, y + 6);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(...NAVY);
+  const clientDisplayName = clientName + (clientCompany ? ' (' + clientCompany + ')' : '');
+  doc.text(clientDisplayName, clientBoxX + 4, y + 13, { maxWidth: clientBoxW - 8 });
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...DARK);
+  if (clientEmail) doc.text(clientEmail, clientBoxX + 4, y + 19);
+  if (clientPhone) doc.text(clientPhone, clientBoxX + 4, y + 25);
+
+  y += 36;
+
+  // FORFAIT
+  doc.setFillColor(...GREEN);
+  doc.rect(marginL, y, 3, 8, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.setTextColor(...NAVY);
+  doc.text('Forfait souscrit', marginL + 7, y + 6);
+  y += 14;
+
+  const forfaitDisplay = forfait || '___________________________';
+  const setupDisplay = setupFee ? setupFee + ' EUR TVAC' : '___________ EUR TVAC';
+  const monthlyDisplay = monthly ? monthly + ' EUR/mois TVAC' : '___________ EUR/mois TVAC';
+
+  doc.autoTable({
+    startY: y,
+    margin: { left: marginL, right: marginR },
+    head: [['Forfait', 'Frais de mise en place', 'Abonnement mensuel', 'Duree minimale']],
+    body: [[forfaitDisplay, setupDisplay, monthlyDisplay, '6 mois']],
+    headStyles: {
+      fillColor: NAVY,
+      textColor: WHITE,
+      fontStyle: 'bold',
+      fontSize: 9,
+      cellPadding: 5,
+    },
+    bodyStyles: {
+      fillColor: LIGHTBG,
+      textColor: DARK,
+      fontSize: 10,
+      fontStyle: 'bold',
+      cellPadding: 6,
+    },
+    columnStyles: {
+      0: { cellWidth: 45 },
+      1: { cellWidth: 45 },
+      2: { cellWidth: 55 },
+      3: { cellWidth: 29 },
+    },
+  });
+
+  y = doc.lastAutoTable.finalY + 10;
+
+  // NOTE TVA
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(8);
+  doc.setTextColor(...GRAY);
+  const setupHT = setupFee ? (parseFloat(setupFee) / 1.21).toFixed(2) : '___';
+  const setupTVA = setupFee ? (parseFloat(setupFee) - parseFloat(setupFee) / 1.21).toFixed(2) : '___';
+  const monthlyHT = monthly ? (parseFloat(monthly) / 1.21).toFixed(2) : '___';
+  const monthlyTVA = monthly ? (parseFloat(monthly) - parseFloat(monthly) / 1.21).toFixed(2) : '___';
+  doc.text(
+    'Detail TVA 21% - Mise en place: ' + setupHT + ' EUR HTVA + ' + setupTVA + ' EUR TVA | Mensuel: ' + monthlyHT + ' EUR HTVA + ' + monthlyTVA + ' EUR TVA',
+    marginL, y
+  );
+  y += 8;
+
+  // CONDITIONS
+  doc.setFillColor(...GREEN);
+  doc.rect(marginL, y, 3, 8, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.setTextColor(...NAVY);
+  doc.text('Conditions du contrat', marginL + 7, y + 6);
+  y += 14;
+
+  const conditions = [
+    ['Engagement minimal', '6 mois a compter de la date de signature. Resiliation possible apres 6 mois avec 1 mois de preavis ecrit.'],
+    ['Resiliation anticipee', 'En cas de resiliation avant echeance des 6 mois, les mensualites restantes dues sont facturees, majorees de 150 EUR TVAC de frais administratifs.'],
+    ['Paiement', 'Frais de mise en place dus a la signature. Abonnement preleve automatiquement par mandat SEPA le 1er de chaque mois.'],
+    ['Non-paiement', 'Tout impaye entraine la suspension du service apres mise en demeure de 15 jours. Les sommes restent dues.'],
+    ['Propriete intellectuelle', "Le site web et tous ses composants restent la propriete de Florian Moers (Seolia) pendant la duree du contrat. Le client ne peut pas reclamer le code source."],
+    ['Domaine', "Le nom de domaine reste la propriete du client. Seolia en assure la gestion technique. En cas de resiliation, le client recupere la gestion de son domaine."],
+    ['Droit applicable', 'Le present contrat est soumis au droit belge. Tout litige releve de la competence exclusive des tribunaux de Liege.'],
+  ];
+
+  doc.autoTable({
+    startY: y,
+    margin: { left: marginL, right: marginR },
+    body: conditions,
+    bodyStyles: { fontSize: 8.5, textColor: DARK, cellPadding: 4 },
+    columnStyles: {
+      0: { fontStyle: 'bold', textColor: NAVY, cellWidth: 44, fillColor: LIGHTBG },
+      1: { cellWidth: contentW - 44, fillColor: WHITE },
+    },
+    alternateRowStyles: { fillColor: WHITE },
+    tableLineColor: [220, 226, 234],
+    tableLineWidth: 0.3,
+  });
+
+  y = doc.lastAutoTable.finalY + 10;
+
+  // CGV
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(8);
+  doc.setTextColor(...GRAY);
+  doc.text('Le client declare avoir pris connaissance et accepter les Conditions Generales de Vente disponibles sur seolia.be/cgv.', marginL, y);
+  y += 10;
+
+  // SIGNATURES
+  doc.setFillColor(...GREEN);
+  doc.rect(marginL, y, 3, 8, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.setTextColor(...NAVY);
+  doc.text('Signatures', marginL + 7, y + 6);
+  y += 14;
+
+  const halfW = (contentW / 2) - 5;
+
+  // Prestataire sig
+  doc.setFillColor(...LIGHTBG);
+  doc.roundedRect(marginL, y, halfW, 38, 3, 3, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(...NAVY);
+  doc.text('Prestataire', marginL + 4, y + 7);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...DARK);
+  doc.text('Florian Moers (Seolia)', marginL + 4, y + 14);
+  doc.text('Lu et approuve - Signature :', marginL + 4, y + 22);
+  doc.setDrawColor(180, 190, 205);
+  doc.line(marginL + 4, y + 35, marginL + halfW - 4, y + 35);
+
+  // Client sig
+  const clientSigX = marginL + halfW + 10;
+  doc.setFillColor(...LIGHTBG);
+  doc.roundedRect(clientSigX, y, halfW, 38, 3, 3, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(...NAVY);
+  doc.text('Client', clientSigX + 4, y + 7);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...DARK);
+  doc.text(clientName, clientSigX + 4, y + 14);
+  doc.text('Lu et approuve - Signature :', clientSigX + 4, y + 22);
+  doc.setDrawColor(180, 190, 205);
+  doc.line(clientSigX + 4, y + 35, clientSigX + halfW - 4, y + 35);
+
+  // FOOTER
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GRAY);
+  doc.text('Florian Moers (Seolia)  |  BE 0727.941.547  |  florianmoerspro@gmail.com  |  +32 470 92 21 88  |  seolia.be', pageW / 2, 287, { align: 'center' });
+  doc.setFillColor(...GREEN);
+  doc.rect(0, 289, pageW, 2, 'F');
+
+  // SAVE
+  const safeName = clientName.replace(/[^a-zA-Z0-9]/g, '-');
+  doc.save('Contrat-Seolia-' + safeName + '-' + today.getFullYear() + '.pdf');
+}

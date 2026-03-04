@@ -474,3 +474,20 @@ tr.stagnant-row { background: rgba(231,76,60,.03) !important; }
 .cal-event.reunion { background: #d1fae5; color: #065f46; border-left: 3px solid var(--green); }
 .cal-empty { color: var(--text-light); font-size: 12px; text-align: center; padding: 20px 0; }
   
+/* ── BOUTON CONTRAT PDF ── */
+.btn-contrat {
+  background: #0a1628;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
+  font-family: inherit;
+}
+.btn-contrat:hover { background: #1a2a48; }

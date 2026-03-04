@@ -2278,6 +2278,15 @@ async function quickChangeStatus(newStatus) {
     if (newStatus === 'client' && oldStatus !== 'client') {
       await recordSetupCommission(contact);
     }
+    // Si on quitte le statut client, supprimer le setup de commission_history
+    if (oldStatus === 'client' && newStatus !== 'client') {
+      try {
+        await sbFetch('/rest/v1/commission_history?contact_id=eq.' + currentContactId + '&type=eq.setup', {
+          method: 'DELETE',
+          headers: { 'Prefer': 'return=minimal' }
+        });
+      } catch(e) { /* silencieux */ }
+    }
   } catch(e) { showToast('Erreur: ' + e.message, 'error'); }
 }
 

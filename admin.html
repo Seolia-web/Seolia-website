@@ -308,9 +308,9 @@
           <div class="card" style="margin-bottom:16px" id="card-commentaires">
             <div class="section-title">&#x1F4AC; Commentaires</div>
             <div id="detail-commentaires" style="margin-bottom:12px;"></div>
-            <div style="display:flex;gap:8px;align-items:flex-end;">
-              <textarea id="input-commentaire" placeholder="Ajouter un commentaire..." rows="2" style="flex:1;resize:vertical;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);background:var(--bg);outline:none;transition:border .2s;" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'"></textarea>
-              <button class="btn btn-primary btn-sm" onclick="saveCommentaire()" style="min-width:80px;">Envoyer</button>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <textarea id="input-commentaire" placeholder="Ajouter un commentaire..." rows="3" style="width:100%;box-sizing:border-box;resize:vertical;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);background:var(--bg);outline:none;transition:border .2s;" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+              <button class="btn btn-primary btn-sm" onclick="saveCommentaire()" style="align-self:flex-end;min-width:100px;">Envoyer</button>
             </div>
           </div>
         </div>

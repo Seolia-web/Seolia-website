@@ -3057,10 +3057,13 @@ async function loadCommentaires(contactId) {
           const d = new Date(c.created_at);
           const dateStr = d.toLocaleDateString('fr-BE', { day:'2-digit', month:'2-digit', year:'numeric' });
           const timeStr = d.toLocaleTimeString('fr-BE', { hour:'2-digit', minute:'2-digit' });
-          return '<div style="padding:8px 0;border-bottom:1px solid var(--bg);font-size:13px;">'
+          return '<div style="padding:8px 0;border-bottom:1px solid var(--bg);font-size:13px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">'
+            + '<div style="flex:1;">'
             + '<span style="color:var(--text-light);font-size:11px;margin-right:8px;">' + dateStr + ' ' + timeStr + '</span>'
             + '<strong style="color:var(--green);margin-right:6px;">' + escHtml(c.prenom_commercial) + '</strong>'
             + '<span style="color:var(--text)">' + escHtml(c.texte) + '</span>'
+            + '</div>'
+            + '<button onclick="deleteCommentaire(' + c.id + ')" title="Supprimer" style="flex-shrink:0;background:none;border:none;cursor:pointer;color:var(--text-light);font-size:14px;padding:2px 4px;border-radius:4px;line-height:1;" onmouseover="this.style.color=\'#e74c3c\'" onmouseout="this.style.color=\'var(--text-light)\'">&#x1F5D1;</button>'
             + '</div>';
         }).join('');
   } catch(e) {
@@ -3091,6 +3094,20 @@ async function saveCommentaire() {
     inp.value = '';
     await loadCommentaires(currentContactId);
     showToast('Commentaire enregistré', 'success');
+  } catch(e) {
+    showToast('Erreur: ' + e.message, 'error');
+  }
+}
+
+async function deleteCommentaire(id) {
+  if (!confirm('Supprimer ce commentaire ?')) return;
+  try {
+    await sbFetch('/rest/v1/commentaires?id=eq.' + id, {
+      method: 'DELETE',
+      headers: { 'Prefer': 'return=minimal' }
+    });
+    await loadCommentaires(currentContactId);
+    showToast('Commentaire supprimé', 'success');
   } catch(e) {
     showToast('Erreur: ' + e.message, 'error');
   }

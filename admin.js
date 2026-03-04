@@ -3821,38 +3821,32 @@ function generateContrat() {
   const GRAY = [113, 128, 150];
   const LIGHTBG = [247, 248, 250];
   const WHITE = [255, 255, 255];
+  const LIGHTGREEN = [230, 255, 245];
 
   const pageW = 210;
   const marginL = 18;
   const marginR = 18;
   const contentW = pageW - marginL - marginR;
 
-  // Données du contact avec les bons noms de champs
+  // Données du contact
   const forfait = contact.formule || '';
   let setupFee = contact.prix_setup ? String(Math.round(contact.prix_setup)) : '';
   let monthly = contact.prix_mensuel ? String(Math.round(contact.prix_mensuel)) : '';
 
-  // Auto-remplir les prix si pas renseignés
   if (!setupFee || !monthly) {
     const f = forfait.toLowerCase();
     if (f.includes('bundle premium') || f.includes('premium ia')) {
-      setupFee = setupFee || '1499';
-      monthly = monthly || '449';
+      setupFee = setupFee || '1499'; monthly = monthly || '449';
     } else if (f.includes('bundle business') || f.includes('business ia')) {
-      setupFee = setupFee || '949';
-      monthly = monthly || '249';
+      setupFee = setupFee || '949'; monthly = monthly || '249';
     } else if (f.includes('bundle essentiel') || f.includes('essentiel ia')) {
-      setupFee = setupFee || '499';
-      monthly = monthly || '109';
+      setupFee = setupFee || '499'; monthly = monthly || '109';
     } else if (f.includes('web premium')) {
-      setupFee = setupFee || '499';
-      monthly = monthly || '199';
+      setupFee = setupFee || '499'; monthly = monthly || '199';
     } else if (f.includes('web business')) {
-      setupFee = setupFee || '349';
-      monthly = monthly || '119';
+      setupFee = setupFee || '349'; monthly = monthly || '119';
     } else if (f.includes('web essentiel')) {
-      setupFee = setupFee || '199';
-      monthly = monthly || '69';
+      setupFee = setupFee || '199'; monthly = monthly || '69';
     }
   }
 
@@ -3862,186 +3856,194 @@ function generateContrat() {
   const clientCompany = contact.entreprise || '';
   const clientEmail = contact.email || '';
   const clientPhone = contact.telephone || '';
-  const clientCity = contact.ville || '';
-  const clientAddress = contact.adresse || '';
 
-  let y = 0;
+  // Helper: draw page header
+  function drawHeader(pageNum) {
+    doc.setFillColor(...NAVY);
+    doc.rect(0, 0, pageW, 22, 'F');
+    doc.setFillColor(...GREEN);
+    doc.rect(0, 22, pageW, 2, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(...WHITE);
+    doc.text('CONTRAT DE PRESTATION DE SERVICES', marginL, 10);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...GREEN);
+    doc.text('Seolia  |  BE 0727.941.547  |  seolia.be', marginL, 17);
+    doc.setTextColor(180, 200, 220);
+    doc.text('Page ' + pageNum + '  |  ' + dateStr, pageW - marginR, 17, { align: 'right' });
+  }
 
-  // HEADER BAND
-  doc.setFillColor(...NAVY);
-  doc.rect(0, 0, pageW, 28, 'F');
+  // Helper: draw page footer
+  function drawFooter() {
+    doc.setFillColor(...GREEN);
+    doc.rect(0, 289, pageW, 2, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...GRAY);
+    doc.text('Florian Moers (Seolia)  |  BE 0727.941.547  |  florianmoerspro@gmail.com  |  +32 470 92 21 88  |  seolia.be', pageW / 2, 286, { align: 'center' });
+  }
+
+  // ─────────────────────────────────────────
+  // PAGE 1 : Signature
+  // ─────────────────────────────────────────
+  drawHeader(1);
+  let y = 32;
+
+  // Section label: PARTIES
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
-  doc.setTextColor(...WHITE);
-  doc.text('Seolia \u2014 Contrat de Prestation de Services', marginL, 12);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(...GREEN);
-  doc.text('BE 0727.941.547  |  +32 470 92 21 88  |  seolia.be', marginL, 20);
-  doc.setTextColor(180, 200, 220);
-  doc.text(dateStr, pageW - marginR, 20, { align: 'right' });
-
-  y = 36;
-
-  // PARTIES
-  doc.setFillColor(...LIGHTBG);
-  doc.roundedRect(marginL, y, (contentW / 2) - 3, 28, 3, 3, 'F');
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
+  doc.setFontSize(7.5);
   doc.setTextColor(...GRAY);
-  doc.text('PRESTATAIRE', marginL + 4, y + 6);
+  doc.text('PARTIES CONTRACTANTES', marginL, y + 4);
+  y += 8;
+
+  const boxH = 30;
+  const halfW = (contentW / 2) - 3;
+
+  // Prestataire box
+  doc.setFillColor(...LIGHTBG);
+  doc.roundedRect(marginL, y, halfW, boxH, 2, 2, 'F');
+  doc.setDrawColor(...GREEN);
+  doc.setLineWidth(0.5);
+  doc.line(marginL, y, marginL, y + boxH);
   doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GREEN);
+  doc.text('PRESTATAIRE', marginL + 4, y + 6);
   doc.setFontSize(10);
   doc.setTextColor(...NAVY);
   doc.text('Florian Moers (Seolia)', marginL + 4, y + 13);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
   doc.setTextColor(...DARK);
-  doc.text('florianmoerspro@gmail.com', marginL + 4, y + 19);
-  doc.text('+32 470 92 21 88', marginL + 4, y + 25);
+  doc.text('florianmoerspro@gmail.com', marginL + 4, y + 20);
+  doc.text('+32 470 92 21 88', marginL + 4, y + 26);
 
-  const clientBoxX = marginL + (contentW / 2) + 3;
-  const clientBoxW = (contentW / 2) - 3;
+  // Client box
+  const clientBoxX = marginL + halfW + 6;
   doc.setFillColor(...LIGHTBG);
-  doc.roundedRect(clientBoxX, y, clientBoxW, 28, 3, 3, 'F');
+  doc.roundedRect(clientBoxX, y, halfW, boxH, 2, 2, 'F');
+  doc.setDrawColor(...GREEN);
+  doc.line(clientBoxX, y, clientBoxX, y + boxH);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(...GRAY);
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GREEN);
   doc.text('CLIENT', clientBoxX + 4, y + 6);
-  doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   doc.setTextColor(...NAVY);
-  const clientDisplayName = clientName + (clientCompany ? ' (' + clientCompany + ')' : '');
-  doc.text(clientDisplayName, clientBoxX + 4, y + 13, { maxWidth: clientBoxW - 8 });
+  const displayName = clientName + (clientCompany ? ' - ' + clientCompany : '');
+  doc.text(displayName, clientBoxX + 4, y + 13, { maxWidth: halfW - 8 });
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
   doc.setTextColor(...DARK);
-  if (clientEmail) doc.text(clientEmail, clientBoxX + 4, y + 19);
-  if (clientPhone) doc.text(clientPhone, clientBoxX + 4, y + 25);
+  if (clientEmail) doc.text(clientEmail, clientBoxX + 4, y + 20);
+  if (clientPhone) doc.text(clientPhone, clientBoxX + 4, y + 26);
 
-  y += 36;
+  y += boxH + 12;
 
-  // FORFAIT
-  doc.setFillColor(...GREEN);
-  doc.rect(marginL, y, 3, 8, 'F');
+  // Section: FORFAIT
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.setTextColor(...NAVY);
-  doc.text('Forfait souscrit', marginL + 7, y + 6);
-  y += 14;
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GRAY);
+  doc.text('FORFAIT SOUSCRIT', marginL, y);
+  y += 5;
 
   const forfaitDisplay = forfait || '___________________________';
-  const setupDisplay = setupFee ? setupFee + ' EUR TVAC' : '___________ EUR TVAC';
-  const monthlyDisplay = monthly ? monthly + ' EUR/mois TVAC' : '___________ EUR/mois TVAC';
+  const setupDisplay = setupFee ? setupFee + ' EUR TVAC' : '_______________ EUR TVAC';
+  const monthlyDisplay = monthly ? monthly + ' EUR/mois TVAC' : '_______________ EUR/mois TVAC';
 
   doc.autoTable({
     startY: y,
     margin: { left: marginL, right: marginR },
-    head: [['Forfait', 'Frais de mise en place', 'Abonnement mensuel', 'Duree minimale']],
-    body: [[forfaitDisplay, setupDisplay, monthlyDisplay, '6 mois']],
+    head: [['Forfait', 'Mise en place', 'Mensuel', 'Engagement']],
+    body: [[forfaitDisplay, setupDisplay, monthlyDisplay, '6 mois minimum']],
     headStyles: {
-      fillColor: NAVY,
-      textColor: WHITE,
-      fontStyle: 'bold',
-      fontSize: 9,
-      cellPadding: 5,
+      fillColor: NAVY, textColor: WHITE, fontStyle: 'bold',
+      fontSize: 8.5, cellPadding: 5,
     },
     bodyStyles: {
-      fillColor: LIGHTBG,
-      textColor: DARK,
-      fontSize: 10,
-      fontStyle: 'bold',
-      cellPadding: 6,
+      fillColor: LIGHTGREEN, textColor: DARK, fontSize: 10,
+      fontStyle: 'bold', cellPadding: 7,
     },
     columnStyles: {
-      0: { cellWidth: 45 },
-      1: { cellWidth: 45 },
-      2: { cellWidth: 55 },
-      3: { cellWidth: 29 },
+      0: { cellWidth: 50 },
+      1: { cellWidth: 38 },
+      2: { cellWidth: 46 },
+      3: { cellWidth: contentW - 134 },
     },
   });
 
-  y = doc.lastAutoTable.finalY + 10;
+  y = doc.lastAutoTable.finalY + 5;
 
-  // NOTE TVA
-  doc.setFont('helvetica', 'italic');
-  doc.setFontSize(8);
-  doc.setTextColor(...GRAY);
+  // Note TVA
   const setupHT = setupFee ? (parseFloat(setupFee) / 1.21).toFixed(2) : '___';
   const setupTVA = setupFee ? (parseFloat(setupFee) - parseFloat(setupFee) / 1.21).toFixed(2) : '___';
   const monthlyHT = monthly ? (parseFloat(monthly) / 1.21).toFixed(2) : '___';
   const monthlyTVA = monthly ? (parseFloat(monthly) - parseFloat(monthly) / 1.21).toFixed(2) : '___';
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GRAY);
   doc.text(
-    'Detail TVA 21% - Mise en place: ' + setupHT + ' EUR HTVA + ' + setupTVA + ' EUR TVA | Mensuel: ' + monthlyHT + ' EUR HTVA + ' + monthlyTVA + ' EUR TVA',
-    marginL, y
+    'TVA 21% — Mise en place : ' + setupHT + ' EUR HTVA + ' + setupTVA + ' EUR TVA  |  Mensuel : ' + monthlyHT + ' EUR HTVA + ' + monthlyTVA + ' EUR TVA',
+    marginL, y + 4
   );
-  y += 8;
 
-  // CONDITIONS
-  doc.setFillColor(...GREEN);
-  doc.rect(marginL, y, 3, 8, 'F');
+  y += 12;
+
+  // Section: RÉSUMÉ CONDITIONS
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.setTextColor(...NAVY);
-  doc.text('Conditions du contrat', marginL + 7, y + 6);
-  y += 14;
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GRAY);
+  doc.text('CONDITIONS ESSENTIELLES', marginL, y);
+  y += 5;
 
-  const conditions = [
-    ['Art. 1 - Objet', 'Seolia (Florian Moers, BE 0727.941.547) s\'engage a concevoir, deployer et maintenir un site web et/ou des services numeriques selon le forfait souscrit. Les prestations incluses sont celles decrites sur la fiche commerciale remise au client.'],
-    ['Art. 2 - Duree et engagement', 'Le contrat est conclu pour une duree minimale de 6 mois a compter de la date de signature. Apres cette periode, il se poursuit tacitement et peut etre resilie par l\'une ou l\'autre partie avec un preavis d\'1 mois notifie par ecrit (email ou courrier).'],
-    ['Art. 3 - Resiliation anticipee', 'Toute resiliation avant l\'echeance des 6 mois entraine la facturation immediate de l\'ensemble des mensualites restantes jusqu\'au terme de la periode d\'engagement, majorees de 150 EUR TVAC de frais administratifs.'],
-    ['Art. 4 - Paiement', 'Les frais de mise en place sont exigibles a la signature. L\'abonnement mensuel est preleve automatiquement via mandat SEPA le 1er de chaque mois. Tout refus de prelevement sans motif valable constitue un defaut de paiement.'],
-    ['Art. 5 - Non-paiement', 'En cas de non-paiement, Seolia adresse une mise en demeure par email. Sans regularisation dans les 15 jours, le service est suspendu sans remboursement. La suspension ne met pas fin au contrat ni aux obligations de paiement.'],
-    ['Art. 6 - Propriete intellectuelle', 'Le code source, les maquettes, les fichiers de design et tout element technique developpe par Seolia restent la propriete exclusive de Florian Moers (Seolia) pendant toute la duree du contrat et apres resiliation. Le client ne peut reclamer le transfert du code source.'],
-    ['Art. 7 - Nom de domaine', 'Le nom de domaine enregistre reste la propriete du client. Seolia en assure la gestion technique pendant la duree du contrat. En cas de resiliation, le client recupere l\'integralite des acces et la gestion de son domaine sous 30 jours.'],
-    ['Art. 8 - Garanties', 'Seolia garantit la conformite du site aux specifications convenues, une disponibilite cible de 99,5%/an (hors maintenance planifiee), et la conformite au RGPD. Toute reclamation doit etre formulee par ecrit dans les 30 jours. La responsabilite de Seolia est limitee au montant des mensualites des 3 derniers mois.'],
-    ['Art. 9 - Protection des donnees (RGPD)', 'Seolia traite les donnees personnelles du client et de ses clients finaux conformement au RGPD (UE 2016/679) et a la loi belge du 30/07/2018. Les donnees sont utilisees exclusivement pour la gestion du contrat. Le client dispose d\'un droit d\'acces, rectification et suppression via florianmoerspro@gmail.com. L\'autorite de controle est l\'APD (www.autoriteprotectiondonnees.be).'],
-    ['Art. 10 - Droit applicable', 'Le present contrat est soumis au droit belge. En cas de litige, les parties s\'engagent a rechercher une solution amiable avant toute action judiciaire. A defaut, le litige releve de la competence exclusive des tribunaux de Liege.'],
+  const summary = [
+    ['Duree minimale', '6 mois a compter de la signature. Reconduction tacite, resiliation avec 1 mois de preavis ecrit.'],
+    ['Resiliation anticipee', 'Mensualites restantes + 150 EUR TVAC de frais administratifs.'],
+    ['Paiement', 'Mise en place exigible a la signature. Mensuel par prelevement SEPA automatique le 1er du mois.'],
+    ['Non-paiement', 'Suspension du service apres mise en demeure de 15 jours. Les sommes restent dues.'],
+    ['Propriete', 'Le code source reste la propriete de Seolia. Le nom de domaine reste la propriete du client.'],
+    ['Droit applicable', 'Droit belge. Tribunaux de Liege. Conditions completes en page 2.'],
   ];
 
   doc.autoTable({
     startY: y,
     margin: { left: marginL, right: marginR },
-    body: conditions,
+    body: summary,
     bodyStyles: { fontSize: 8.5, textColor: DARK, cellPadding: 4 },
     columnStyles: {
-      0: { fontStyle: 'bold', textColor: NAVY, cellWidth: 44, fillColor: LIGHTBG },
-      1: { cellWidth: contentW - 44, fillColor: WHITE },
+      0: { fontStyle: 'bold', textColor: NAVY, cellWidth: 40, fillColor: LIGHTBG },
+      1: { cellWidth: contentW - 40, fillColor: WHITE },
     },
     alternateRowStyles: { fillColor: WHITE },
     tableLineColor: [220, 226, 234],
     tableLineWidth: 0.3,
   });
 
-  y = doc.lastAutoTable.finalY + 10;
+  y = doc.lastAutoTable.finalY + 8;
 
-  // CGV
+  // Mention CGV
   doc.setFont('helvetica', 'italic');
-  doc.setFontSize(8);
+  doc.setFontSize(7.5);
   doc.setTextColor(...GRAY);
-  doc.text('Le client declare avoir pris connaissance et accepter les Conditions Generales de Vente disponibles sur seolia.be/cgv.', marginL, y);
+  doc.text('Le client declare avoir lu et accepter les conditions generales detaillees en page 2 du present contrat.', marginL, y);
   y += 10;
 
-  // Check space for signatures (need ~72mm: header 14 + boxes 38 + footer 20)
-  if (y + 72 > 280) {
-    doc.addPage();
-    y = 20;
-  }
-
   // SIGNATURES
-  doc.setFillColor(...GREEN);
-  doc.rect(marginL, y, 3, 8, 'F');
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.setTextColor(...NAVY);
-  doc.text('Signatures', marginL + 7, y + 6);
-  y += 14;
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GRAY);
+  doc.text('SIGNATURES', marginL, y);
+  y += 5;
 
-  const halfW = (contentW / 2) - 5;
+  const sigBoxH = 42;
+  const sigHalfW = (contentW / 2) - 4;
 
-  // Prestataire sig
-  doc.setFillColor(...LIGHTBG);
-  doc.roundedRect(marginL, y, halfW, 38, 3, 3, 'F');
+  // Prestataire sig box
+  doc.setDrawColor(...NAVY);
+  doc.setLineWidth(0.4);
+  doc.roundedRect(marginL, y, sigHalfW, sigBoxH, 2, 2);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
   doc.setTextColor(...NAVY);
@@ -4050,14 +4052,18 @@ function generateContrat() {
   doc.setFontSize(8.5);
   doc.setTextColor(...DARK);
   doc.text('Florian Moers (Seolia)', marginL + 4, y + 14);
-  doc.text('Lu et approuve - Signature :', marginL + 4, y + 22);
+  doc.setFontSize(8);
+  doc.setTextColor(...GRAY);
+  doc.text('Lu et approuve — Signature :', marginL + 4, y + 23);
   doc.setDrawColor(180, 190, 205);
-  doc.line(marginL + 4, y + 35, marginL + halfW - 4, y + 35);
+  doc.setLineWidth(0.5);
+  doc.line(marginL + 4, y + 38, marginL + sigHalfW - 4, y + 38);
 
-  // Client sig
-  const clientSigX = marginL + halfW + 10;
-  doc.setFillColor(...LIGHTBG);
-  doc.roundedRect(clientSigX, y, halfW, 38, 3, 3, 'F');
+  // Client sig box
+  const clientSigX = marginL + sigHalfW + 8;
+  doc.setDrawColor(...NAVY);
+  doc.setLineWidth(0.4);
+  doc.roundedRect(clientSigX, y, sigHalfW, sigBoxH, 2, 2);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
   doc.setTextColor(...NAVY);
@@ -4065,20 +4071,113 @@ function generateContrat() {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
   doc.setTextColor(...DARK);
-  doc.text(clientName, clientSigX + 4, y + 14);
-  doc.text('Lu et approuve - Signature :', clientSigX + 4, y + 22);
-  doc.setDrawColor(180, 190, 205);
-  doc.line(clientSigX + 4, y + 35, clientSigX + halfW - 4, y + 35);
-
-  // FOOTER
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
+  doc.text(clientName, clientSigX + 4, y + 14, { maxWidth: sigHalfW - 8 });
+  doc.setFontSize(8);
   doc.setTextColor(...GRAY);
-  doc.text('Florian Moers (Seolia)  |  BE 0727.941.547  |  florianmoerspro@gmail.com  |  +32 470 92 21 88  |  seolia.be', pageW / 2, 287, { align: 'center' });
+  doc.text('Lu et approuve — Signature :', clientSigX + 4, y + 23);
+  doc.setDrawColor(180, 190, 205);
+  doc.setLineWidth(0.5);
+  doc.line(clientSigX + 4, y + 38, clientSigX + sigHalfW - 4, y + 38);
+
+  drawFooter();
+
+  // ─────────────────────────────────────────
+  // PAGE 2 : Conditions Générales complètes
+  // ─────────────────────────────────────────
+  doc.addPage();
+  drawHeader(2);
+  y = 34;
+
+  // Title
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(13);
+  doc.setTextColor(...NAVY);
+  doc.text('CONDITIONS GENERALES DE VENTE ET DE PRESTATION', marginL, y);
+  y += 5;
   doc.setFillColor(...GREEN);
-  doc.rect(0, 289, pageW, 2, 'F');
+  doc.rect(marginL, y, contentW, 0.8, 'F');
+  y += 8;
+
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(8);
+  doc.setTextColor(...GRAY);
+  doc.text('Ces conditions font partie integrante du contrat signe en page 1 et s\'appliquent a l\'ensemble des prestations fournies par Seolia.', marginL, y, { maxWidth: contentW });
+  y += 10;
+
+  const articles = [
+    {
+      title: 'Article 1 — Objet du contrat',
+      text: 'Seolia (Florian Moers, BE 0727.941.547, ci-apres "le Prestataire") s\'engage a concevoir, deployer et maintenir un site web professionnel et/ou des services numeriques selon le forfait souscrit par le client. Les prestations incluses dans le forfait sont celles detaillees sur la fiche commerciale remise au client lors de la souscription, qui fait partie integrante du present contrat.'
+    },
+    {
+      title: 'Article 2 — Duree et engagement minimal',
+      text: 'Le present contrat est conclu pour une duree minimale de 6 (six) mois calendaires a compter de la date de signature. Apres cette periode d\'engagement, le contrat se poursuit tacitement de mois en mois et peut etre resilie par l\'une ou l\'autre des parties avec un preavis minimum d\'1 (un) mois, notifie par ecrit (courrier electronique ou courrier recommande).'
+    },
+    {
+      title: 'Article 3 — Resiliation anticipee',
+      text: 'Toute demande de resiliation formulee avant l\'echeance de la periode d\'engagement de 6 mois entraine la facturation immediate et integrale de l\'ensemble des mensualites restantes jusqu\'au terme de ladite periode, majorees de 150 EUR TVAC de frais administratifs de cloture. Ces montants sont exigibles sans delai a reception de la facture correspondante.'
+    },
+    {
+      title: 'Article 4 — Conditions de paiement',
+      text: 'Les frais de mise en place sont exigibles a la date de signature du contrat. L\'abonnement mensuel est preleve automatiquement par prelevement SEPA direct le 1er de chaque mois. Le client autorise Seolia a prelever les montants dus via le mandat SEPA signe lors de la souscription. Tout refus de prelevement sans motif valable constitue un defaut de paiement soumis a l\'article 5.'
+    },
+    {
+      title: 'Article 5 — Non-paiement et suspension',
+      text: 'En cas de non-paiement d\'une echeance, Seolia adresse une mise en demeure par courrier electronique. Sans regularisation dans un delai de 15 (quinze) jours calendaires suivant l\'envoi de cette mise en demeure, Seolia se reserve le droit de suspendre l\'integralite des services sans preavis supplementaire. La suspension du service ne met pas fin au contrat et ne supprime pas les obligations de paiement du client, qui restent integralement dues.'
+    },
+    {
+      title: 'Article 6 — Propriete intellectuelle',
+      text: 'L\'ensemble du code source, des maquettes graphiques, des fichiers de design, des scripts et de tout autre element technique cree ou configure par Seolia dans le cadre du contrat reste la propriete exclusive de Florian Moers (Seolia), pendant toute la duree du contrat et apres sa resiliation, quelle qu\'en soit la cause. Le client ne peut en aucun cas reclamer le transfert, la cession ou la copie du code source.'
+    },
+    {
+      title: 'Article 7 — Nom de domaine',
+      text: 'Le nom de domaine enregistre dans le cadre du contrat reste la propriete du client. Seolia en assure uniquement la gestion technique pendant la duree du contrat. En cas de resiliation, quelle qu\'en soit la cause, Seolia s\'engage a restituer l\'integralite des acces et le controle du nom de domaine au client dans un delai maximum de 30 (trente) jours suivant la date effective de resiliation.'
+    },
+    {
+      title: 'Article 8 — Garanties et responsabilites',
+      text: 'Seolia garantit la conformite du site web aux specifications convenues, une disponibilite cible de 99,5% par an hors maintenance planifiee et cas de force majeure, et la conformite des traitements de donnees au RGPD. Toute reclamation relative aux prestations doit etre formulee par ecrit dans les 30 jours suivant la constatation du probleme. La responsabilite de Seolia est, en toute hypothese, limitee au montant total des mensualites encaissees au cours des 3 derniers mois precedant le sinistre.'
+    },
+    {
+      title: 'Article 9 — Protection des donnees personnelles (RGPD)',
+      text: 'Seolia traite les donnees personnelles du client et, le cas echeant, de ses clients finaux, conformement au Reglement General sur la Protection des Donnees (UE) 2016/679 (RGPD) et a la loi belge du 30 juillet 2018. Les donnees collectees sont utilisees exclusivement aux fins de l\'execution du present contrat et de la relation commerciale. Le client dispose d\'un droit d\'acces, de rectification, d\'effacement et d\'opposition, exercable par courrier electronique a florianmoerspro@gmail.com. L\'autorite de controle competente est l\'Autorite de Protection des Donnees (APD) — www.autoriteprotectiondonnees.be.'
+    },
+    {
+      title: 'Article 10 — Droit applicable et juridiction',
+      text: 'Le present contrat est soumis exclusivement au droit belge. En cas de litige relatif a son interpretation ou a son execution, les parties s\'engagent a rechercher prioritairement une solution amiable avant toute action judiciaire. A defaut de resolution amiable dans un delai de 30 jours, le litige releve de la competence exclusive des tribunaux de l\'arrondissement judiciaire de Liege.'
+    },
+  ];
+
+  articles.forEach((art, i) => {
+    // Check if we need a new page
+    if (y > 255) {
+      doc.addPage();
+      drawHeader(3);
+      drawFooter();
+      y = 34;
+    }
+
+    // Article title bar
+    doc.setFillColor(...NAVY);
+    doc.roundedRect(marginL, y, contentW, 7, 1, 1, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...WHITE);
+    doc.text(art.title, marginL + 4, y + 5);
+    y += 9;
+
+    // Article body
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...DARK);
+    const lines = doc.splitTextToSize(art.text, contentW);
+    doc.text(lines, marginL, y);
+    y += lines.length * 4.5 + 7;
+  });
+
+  drawFooter();
 
   // SAVE
   const safeName = clientName.replace(/[^a-zA-Z0-9]/g, '-');
   doc.save('Contrat-Seolia-' + safeName + '-' + today.getFullYear() + '.pdf');
 }
+

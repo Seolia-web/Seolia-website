@@ -473,6 +473,17 @@ tr.stagnant-row { background: rgba(231,76,60,.03) !important; }
 /* Filters export btn */
 .btn-export { margin-left: auto; }
 
+
+/* Calendrier semaine */
+.cal-week { display: grid; grid-template-columns: 60px repeat(7, 1fr); gap: 2px; min-width: 600px; }
+.cal-day-header { text-align: center; font-size: 11px; font-weight: 700; padding: 6px 4px; color: var(--text-light); text-transform: uppercase; }
+.cal-day-header.today { color: var(--green); }
+.cal-time-col { font-size: 10px; color: var(--text-light); padding: 2px 4px; text-align: right; line-height: 28px; }
+.cal-day-col { border-left: 1px solid var(--border); min-height: 400px; position: relative; }
+.cal-event { border-radius: 6px; padding: 3px 6px; font-size: 11px; font-weight: 600; cursor: pointer; margin: 1px 2px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cal-event.appel { background: #dbeafe; color: #1d4ed8; border-left: 3px solid #3b82f6; }
+.cal-event.reunion { background: #d1fae5; color: #065f46; border-left: 3px solid var(--green); }
+.cal-empty { color: var(--text-light); font-size: 12px; text-align: center; padding: 20px 0; }
   </style>
 </head>
 <body>
@@ -629,6 +640,20 @@ tr.stagnant-row { background: rgba(231,76,60,.03) !important; }
           <div style="color:var(--text-light);font-size:13px">Aucun lead chaud</div>
         </div>
       </div>
+
+      <!-- CALENDRIER SEMAINE -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-title" style="justify-content:space-between;align-items:center">
+          <span>&#x1F4C5; Calendrier &mdash; Mes RDV</span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-ghost btn-sm" onclick="calPrevWeek()">&lsaquo; Semaine pr&eacute;c.</button>
+            <span id="cal-week-label" style="font-size:13px;font-weight:600;min-width:200px;text-align:center;color:var(--text)"></span>
+            <button class="btn btn-ghost btn-sm" onclick="calNextWeek()">Semaine suiv. &rsaquo;</button>
+          </div>
+        </div>
+        <div id="cal-grid" style="overflow-x:auto;"></div>
+      </div>
+
       <!-- Recent Activity -->
       <div class="card">
         <div class="section-title">📝 Activité récente</div>
@@ -748,19 +773,13 @@ tr.stagnant-row { background: rgba(231,76,60,.03) !important; }
             </div>
             <div id="detail-info-grid"></div>
           </div>
-          <div class="card" style="margin-bottom:16px">
-            <div class="section-title" style="justify-content:space-between;align-items:center">
-              <span>&#x26A1; Activités</span>
-              <button class="btn btn-ghost btn-sm" onclick="openAddActiviteModal()">+ Activité</button>
+          <div class="card" style="margin-bottom:16px" id="card-commentaires">
+            <div class="section-title">&#x1F4AC; Commentaires</div>
+            <div id="detail-commentaires" style="margin-bottom:12px;"></div>
+            <div style="display:flex;gap:8px;align-items:flex-end;">
+              <textarea id="input-commentaire" placeholder="Ajouter un commentaire..." rows="2" style="flex:1;resize:vertical;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);background:var(--bg);outline:none;transition:border .2s;" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+              <button class="btn btn-primary btn-sm" onclick="saveCommentaire()" style="min-width:80px;">Envoyer</button>
             </div>
-            <div id="detail-activites"></div>
-          </div>
-          <div class="card" style="margin-bottom:16px">
-            <div class="section-title" style="justify-content:space-between">
-              <span>&#x1F4DD; Notes & Activité</span>
-              <button class="btn btn-ghost btn-sm" onclick="openAddNoteModal()">+ Note</button>
-            </div>
-            <div id="detail-notes"></div>
           </div>
         </div>
         <div>
@@ -1473,6 +1492,7 @@ async function loadDashboard() {
     document.getElementById('dash-activity').innerHTML = '<p class="text-muted">Erreur chargement activité</p>';
   }
   setTimeout(renderEnhancedDashboard, 100);
+  renderCalendar();
 }
 
 // ===== PIPELINE =====
@@ -1840,6 +1860,7 @@ async function openContactDetail(id) {
   showView('contact-detail');
   loadDetailActivites(id);
   loadDetailNotes(id);
+  loadCommentaires(id);
   loadDetailFollowups(id);
   loadDetailDocs(id);
   loadDetailModifications(id, contact);
@@ -2248,6 +2269,11 @@ async function quickChangeStatus(newStatus) {
     });
     contact.statut = newStatus;
     document.getElementById('detail-statut-badge').innerHTML = '<span class="badge badge-' + newStatus + '">' + newStatus + '</span>';
+    const checklistCard2 = document.getElementById('detail-onboarding-checklist');
+    if (checklistCard2) {
+      checklistCard2.style.display = newStatus === 'client' ? '' : 'none';
+      if (newStatus === 'client') renderOnboardingChecklist(currentContactId);
+    }
     showToast('Statut mis à jour: ' + newStatus, 'success');
     if (newStatus === 'client' && oldStatus !== 'client') {
       await recordSetupCommission(contact);
@@ -4149,6 +4175,157 @@ async function loadContact(contactId) {
     console.error('loadContact error:', e);
   }
 }
+
+// ── COMMENTAIRES ─────────────────────────────────────────────
+async function loadCommentaires(contactId) {
+  const el = document.getElementById('detail-commentaires');
+  if (!el) return;
+  try {
+    const rows = await sbFetch('/rest/v1/commentaires?contact_id=eq.' + contactId + '&order=created_at.asc&select=*');
+    el.innerHTML = rows.length === 0
+      ? '<div style="color:var(--text-light);font-size:13px;padding:4px 0">Aucun commentaire pour le moment.</div>'
+      : rows.map(c => {
+          const d = new Date(c.created_at);
+          const dateStr = d.toLocaleDateString('fr-BE', { day:'2-digit', month:'2-digit', year:'numeric' });
+          const timeStr = d.toLocaleTimeString('fr-BE', { hour:'2-digit', minute:'2-digit' });
+          return '<div style="padding:8px 0;border-bottom:1px solid var(--bg);font-size:13px;">'
+            + '<span style="color:var(--text-light);font-size:11px;margin-right:8px;">' + dateStr + ' ' + timeStr + '</span>'
+            + '<strong style="color:var(--green);margin-right:6px;">' + escHtml(c.prenom_commercial) + '</strong>'
+            + '<span style="color:var(--text)">' + escHtml(c.texte) + '</span>'
+            + '</div>';
+        }).join('');
+  } catch(e) {
+    if (el) el.innerHTML = '<div style="color:var(--text-light);font-size:13px;">Erreur chargement commentaires.</div>';
+  }
+}
+
+async function saveCommentaire() {
+  if (!currentContactId) return;
+  const inp = document.getElementById('input-commentaire');
+  const texte = inp ? inp.value.trim() : '';
+  if (!texte) { showToast('Commentaire vide', 'error'); return; }
+  const prenom = (currentProfile && currentProfile.prenom)
+    || (currentProfile && currentProfile.nom && currentProfile.nom.split(' ')[0])
+    || (currentUser && currentUser.email && currentUser.email.split('@')[0])
+    || 'Equipe';
+  try {
+    await sbFetch('/rest/v1/commentaires', {
+      method: 'POST',
+      headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        contact_id: currentContactId,
+        commercial_id: (currentProfile && currentProfile.id) || null,
+        prenom_commercial: prenom,
+        texte: texte
+      })
+    });
+    inp.value = '';
+    await loadCommentaires(currentContactId);
+    showToast('Commentaire enregistré', 'success');
+  } catch(e) {
+    showToast('Erreur: ' + e.message, 'error');
+  }
+}
+
+// ── CALENDRIER SEMAINE ──────────────────────────────────────────
+let calWeekOffset = 0;
+
+function getWeekStart(offset) {
+  const now = new Date();
+  const day = now.getDay() === 0 ? 6 : now.getDay() - 1;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - day + offset * 7);
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+}
+
+function calPrevWeek() { calWeekOffset--; renderCalendar(); }
+function calNextWeek() { calWeekOffset++; renderCalendar(); }
+
+async function renderCalendar() {
+  const grid = document.getElementById('cal-grid');
+  const label = document.getElementById('cal-week-label');
+  if (!grid) return;
+
+  const weekStart = getWeekStart(calWeekOffset);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 6);
+  weekEnd.setHours(23, 59, 59, 999);
+
+  const fmt = d => d.toLocaleDateString('fr-BE', { day: '2-digit', month: 'short' });
+  if (label) label.textContent = fmt(weekStart) + ' — ' + fmt(weekEnd);
+
+  const startISO = weekStart.toISOString();
+  const endISO = weekEnd.toISOString();
+
+  let acts = [];
+  try {
+    const url = '/rest/v1/activites?type=in.(appel,reunion)&date_echeance=gte.' + startISO + '&date_echeance=lte.' + endISO + '&order=date_echeance.asc&select=*,contacts(nom,commercial_id)';
+    const all = await sbFetch(url);
+    acts = (all || []).filter(a => {
+      if (!a.contacts) return true;
+      if (currentProfile && currentProfile.role === 'admin') return true;
+      return a.contacts.commercial_id === (currentProfile && currentProfile.id);
+    });
+  } catch(e) { acts = []; }
+
+  const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  const dayDates = Array.from({length: 7}, function(_, i) {
+    const d = new Date(weekStart);
+    d.setDate(weekStart.getDate() + i);
+    return d;
+  });
+
+  const byDay = Array.from({length: 7}, function() { return []; });
+  acts.forEach(function(a) {
+    if (!a.date_echeance) return;
+    const d = new Date(a.date_echeance);
+    const dayIdx = Math.floor((d - weekStart) / 86400000);
+    if (dayIdx >= 0 && dayIdx < 7) byDay[dayIdx].push(a);
+  });
+
+  let html = '<div class="cal-week">';
+  html += '<div></div>';
+  dayDates.forEach(function(d, i) {
+    const isToday = d.getTime() === today.getTime();
+    html += '<div class="cal-day-header' + (isToday ? ' today' : '') + '">' + days[i] + '<br><span style="font-size:14px;font-weight:800">' + d.getDate() + '</span></div>';
+  });
+  html += '<div class="cal-time-col">RDV</div>';
+  dayDates.forEach(function(d, i) {
+    html += '<div class="cal-day-col" style="padding:4px;">';
+    if (byDay[i].length === 0) {
+      html += '<div class="cal-empty">—</div>';
+    } else {
+      byDay[i].forEach(function(a) {
+        const t = a.date_echeance ? new Date(a.date_echeance).toLocaleTimeString('fr-BE', { hour:'2-digit', minute:'2-digit' }) : '';
+        const lbl = a.contacts && a.contacts.nom ? escHtml(a.contacts.nom) : escHtml(a.titre || '');
+        const cls = a.type === 'reunion' ? 'reunion' : 'appel';
+        const icon = a.type === 'reunion' ? '&#x1F91D;' : '&#x1F4DE;';
+        html += '<div class="cal-event ' + cls + '" data-contact-id="' + a.contact_id + '" title="' + escHtml(a.titre||'') + ' — ' + escHtml((a.contacts && a.contacts.nom)||'') + '">'
+          + '<div>' + icon + ' ' + t + '</div>'
+          + '<div style="font-weight:400;font-size:10px">' + lbl + '</div>'
+          + '</div>';
+      });
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+
+  if (acts.length === 0) {
+    html += '<div style="text-align:center;color:var(--text-light);font-size:13px;padding:16px 0">Aucun RDV cette semaine &#x2713;</div>';
+  }
+
+  grid.innerHTML = html;
+
+  grid.querySelectorAll('.cal-event[data-contact-id]').forEach(function(el) {
+    el.addEventListener('click', function() {
+      loadContact(this.getAttribute('data-contact-id'));
+    });
+  });
+}
+
 
 
 // ============================================================

@@ -2280,8 +2280,8 @@ async function loadCommerciaux() {
   const el = document.getElementById('commerciaux-list');
   el.innerHTML = '<div class="loading-center"><span class="spinner spinner-dark"></span></div>';
   try {
-    const profiles = await sbFetch('/rest/v1/profiles?role=eq.commercial&order=nom.asc&select=*') || [];
     allProfiles = await sbFetch('/rest/v1/profiles?select=*&order=nom.asc') || [];
+    const profiles = allProfiles.filter(p => p.role === 'commercial');
     const clients = allContacts.filter(c => c.statut === 'client');
     el.innerHTML = '<div class="table-wrap"><table>' +
       '<thead><tr><th>Nom</th><th>Email</th><th>Taux commission</th><th>Clients actifs</th><th>MRR généré</th><th>Objectif mensuel</th><th>Statut</th><th>Actions</th></tr></thead>' +
@@ -2369,6 +2369,7 @@ async function editCommissionRate(id, currentRate) {
 function openAddCommercialModal() {
   document.getElementById('comm-nom').value = '';
   document.getElementById('comm-email').value = '';
+  document.getElementById('comm-password').value = '';
   document.getElementById('comm-taux').value = '35';
   openModal('modal-commercial');
 }
@@ -2376,17 +2377,25 @@ function openAddCommercialModal() {
 async function saveCommercial() {
   const nom = document.getElementById('comm-nom').value.trim();
   const email = document.getElementById('comm-email').value.trim();
+  const password = document.getElementById('comm-password').value;
   const taux = parseFloat(document.getElementById('comm-taux').value) / 100;
   if (!nom || !email) { showToast('Nom et email requis', 'error'); return; }
+  if (!password || password.length < 6) { showToast('Mot de passe requis (min 6 caractères)', 'error'); return; }
+  const btn = document.querySelector('#modal-commercial .btn-green');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
   try {
-    await sbFetch('/rest/v1/profiles', {
-      method: 'POST', headers: { 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ nom, email, role: 'commercial', taux_commission: taux, actif: true })
+    const res = await fetch('https://seolia-ai-chat.seolia.workers.dev/create-commercial', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nom, email, password, taux_commission: taux })
     });
-    showToast('Commercial ajouté', 'success');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erreur serveur');
+    showToast('Commercial ' + nom + ' créé — il peut se connecter avec son email/mot de passe', 'success');
     closeModal('modal-commercial');
     loadCommerciaux();
   } catch(e) { showToast('Erreur: ' + e.message, 'error'); }
+  finally { if (btn) { btn.disabled = false; btn.innerHTML = 'Créer le compte'; } }
 }
 
 // ===== COMPOSE EMAIL =====

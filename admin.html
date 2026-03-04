@@ -1283,6 +1283,15 @@ async function initApp() {
     showView('dashboard');
     // Démarrer le polling des nouveaux leads
     initNotifications();
+    setTimeout(() => {
+      moveNotifBellToHeader();
+      renderSavedViews();
+      renderEnhancedDashboard();
+      const bnRevLabel = document.getElementById('bnav-rev-label');
+      if (bnRevLabel && currentProfile) {
+        bnRevLabel.textContent = currentProfile.role === 'admin' ? 'Revenus' : 'Commissions';
+      }
+    }, 200);
   } catch(e) {
     alert('Erreur de connexion: ' + e.message);
     doLogout();
@@ -1462,6 +1471,7 @@ async function loadDashboard() {
   } catch(e) {
     document.getElementById('dash-activity').innerHTML = '<p class="text-muted">Erreur chargement activité</p>';
   }
+  setTimeout(renderEnhancedDashboard, 100);
 }
 
 // ===== PIPELINE =====
@@ -4337,55 +4347,9 @@ async function renderEnhancedDashboard() {
   }
 }
 
-// Override loadDashboard to also render enhanced sections
-const _origLoadDashboard = typeof loadDashboard !== 'undefined' ? loadDashboard : null;
-async function loadDashboard() {
-  if (_origLoadDashboard) await _origLoadDashboard();
-  setTimeout(renderEnhancedDashboard, 100);
-}
+// loadDashboard already calls renderEnhancedDashboard
 
-// ── ENHANCED CONTACTS RENDERING ──────────────────────────
-// Patch renderContacts to add score column + stagnant
-const _origRenderContacts = typeof renderContacts !== 'undefined' ? renderContacts : null;
-function renderContacts(data) {
-  if (_origRenderContacts) _origRenderContacts(data);
-  // Add score badges after original render
-  setTimeout(() => {
-    const tbody = document.getElementById('contacts-tbody');
-    if (!tbody) return;
-    const rows = tbody.querySelectorAll('tr');
-    rows.forEach((row, i) => {
-      if (!data || i >= data.length) return;
-      const c = data[i];
-      if (!c) return;
-      const score = calculateScore(c, 0, 0, c.last_activity || c.updated_at);
-      const stagnant = isStagnant(c, c.last_activity || c.updated_at);
-      // Insert score cell after 2nd <td> (Entreprise)
-      const tds = row.querySelectorAll('td');
-      if (tds.length > 1 && !row.querySelector('.score-td')) {
-        const scoreTd = document.createElement('td');
-        scoreTd.className = 'score-td';
-        scoreTd.innerHTML = renderScoreBadge(score);
-        tds[1].after(scoreTd);
-        // Add last activity cell before actions
-        const lastActTd = document.createElement('td');
-        const lastDate = c.last_activity || c.updated_at;
-        lastActTd.innerHTML = lastDate ? formatRelativeDate(lastDate) : '<span style="color:var(--text-light)">—</span>';
-        if (tds.length > 2) tds[tds.length-1].before(lastActTd);
-      }
-      // Stagnant row
-      if (stagnant) {
-        row.classList.add('stagnant-row');
-        const nameTd = row.querySelector('td');
-        if (nameTd && !nameTd.querySelector('.stagnant-badge')) {
-          nameTd.insertAdjacentHTML('beforeend', ' <span class="stagnant-badge">🔴</span>');
-        }
-      }
-    });
-  }, 50);
-  // Render saved views
-  renderSavedViews();
-}
+// renderContacts enhancements merged into original
 
 // ── SAVED VIEWS ───────────────────────────────────────────
 function getSavedViews() {
@@ -4685,14 +4649,7 @@ function showViewRoleAdapted() {
   else showView('commissions');
 }
 
-// ── PATCH loadContact to call showContactDetailButtons ────
-const _origLoadContact = typeof loadContact !== 'undefined' ? loadContact : null;
-async function loadContact(id) {
-  if (_origLoadContact) await _origLoadContact(id);
-  // Find the contact in allContacts
-  const contact = (allContacts || []).find(c => c.id == id);
-  if (contact) showContactDetailButtons(contact);
-}
+// loadContact enhancement merged into original
 
 // ── INIT ENHANCEMENTS ─────────────────────────────────────
 // Move notification bell to header
@@ -4705,21 +4662,7 @@ function moveNotifBellToHeader() {
   }
 }
 
-// Patch initApp to call enhancements
-const _origInitApp = typeof initApp !== 'undefined' ? initApp : null;
-async function initApp() {
-  if (_origInitApp) await _origInitApp();
-  setTimeout(() => {
-    moveNotifBellToHeader();
-    renderSavedViews();
-    renderEnhancedDashboard();
-    // Update bottom nav label
-    const bnRevLabel = document.getElementById('bnav-rev-label');
-    if (bnRevLabel && currentProfile) {
-      bnRevLabel.textContent = currentProfile.role === 'admin' ? 'Revenus' : 'Commissions';
-    }
-  }, 200);
-}
+// initApp enhancements merged into original
 
 // ── HELPER ────────────────────────────────────────────────
 function escHtml(str) {

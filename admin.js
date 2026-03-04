@@ -4019,6 +4019,12 @@ function generateContrat() {
   doc.text('Le client declare avoir pris connaissance et accepter les Conditions Generales de Vente disponibles sur seolia.be/cgv.', marginL, y);
   y += 10;
 
+  // Check space for signatures (need ~72mm: header 14 + boxes 38 + footer 20)
+  if (y + 72 > 280) {
+    doc.addPage();
+    y = 20;
+  }
+
   // SIGNATURES
   doc.setFillColor(...GREEN);
   doc.rect(marginL, y, 3, 8, 'F');

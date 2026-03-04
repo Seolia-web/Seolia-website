@@ -1,4 +1,4 @@
-// Seolia AI Chat Worker - v6
+// Seolia AI Chat Worker - v7
 // Endpoints:
 //   POST /chat                        - OpenAI chatbot bridge
 //   POST /create-contact              - Create CRM contact from chatbot/form
@@ -10,9 +10,16 @@
 //   POST /mollie-setup-payment        - Generate SEPA mandate + setup payment link
 //   POST /mollie-create-subscription  - Activate monthly subscription
 //   POST /mollie-webhook              - Handle Mollie payment/subscription webhooks
+//   POST /save-demande                - Save intervention request + SMS to artisan
+//   GET  /get-demandes                - Get all requests for a site
+//   POST /update-demande              - Update request status
 
 const SUPABASE_URL = 'https://tykjkpnlvuxwrurmacpx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5a2prcG5sdnV4d3J1cm1hY3B4Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MjQ0MTYwNywiZXhwIjoyMDg4MDE3NjA3fQ.HkOkAPAjf2RDkY6qa8bHcunS9QLcNNAanN94SIe5PHI';
+
+// Twilio credentials - set as Worker environment variables:
+// TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM
+const TWILIO_FROM_DEFAULT = '+32800720620';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -101,7 +108,22 @@ export default {
       return handleMollieWebhook(request, env);
     }
 
-    return new Response('Seolia API v6', { status: 200 });
+    // ─── /save-demande ──────────────────────────────────────────────────────────
+    if (url.pathname === '/save-demande' && request.method === 'POST') {
+      return handleSaveDemande(request, env);
+    }
+
+    // ─── /get-demandes ──────────────────────────────────────────────────────────
+    if (url.pathname === '/get-demandes' && request.method === 'GET') {
+      return handleGetDemandes(request, env);
+    }
+
+    // ─── /update-demande ────────────────────────────────────────────────────────
+    if (url.pathname === '/update-demande' && request.method === 'POST') {
+      return handleUpdateDemande(request, env);
+    }
+
+    return new Response('Seolia API v7', { status: 200 });
   }
 };
 
@@ -519,8 +541,6 @@ async function handleMollieSetupPayment(request, env) {
     const amount = setup_amount || pricing.setup || '1.00';
     const isZeroSetup = parseFloat(amount) === 0;
     
-    // If setup is 0 (launch offer), charge 0.01 to collect mandate, then refund
-    // Actually use 0.01 as minimum for mandate collection
     const chargeAmount = isZeroSetup ? '0.01' : amount;
     const description = isZeroSetup
       ? `Seolia - Autorisation SEPA (${formule || 'abonnement'})`
@@ -652,7 +672,6 @@ async function handleMollieWebhook(request, env) {
     if (!contactId) return new Response('ok', { status: 200 });
 
     if (payment.status === 'paid' && payment.sequenceType === 'first') {
-      // First payment paid = mandate created, update contact
       const mandateId = payment.mandateId;
       await fetch(`${SUPABASE_URL}/rest/v1/contacts?id=eq.${contactId}`, {
         method: 'PATCH',
@@ -678,6 +697,164 @@ async function handleMollieWebhook(request, env) {
   } catch (err) {
     console.error('Mollie webhook error:', err);
     return new Response('error', { status: 500 });
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SAVE DEMANDE (intervention request)
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleSaveDemande(request, env) {
+  try {
+    const body = await request.json();
+    const { site_id, nom, telephone, email, description, artisan_phone, artisan_name } = body;
+
+    if (!site_id || !nom || !telephone || !description) {
+      return jsonResponse({ success: false, error: 'Champs obligatoires manquants: site_id, nom, telephone, description' }, 400);
+    }
+
+    // Save to Supabase demandes table
+    const supaRes = await fetch(`${SUPABASE_URL}/rest/v1/demandes`, {
+      method: 'POST',
+      headers: supabaseHeaders(),
+      body: JSON.stringify({
+        site_id,
+        nom,
+        telephone,
+        email: email || null,
+        description,
+        statut: 'nouveau',
+      }),
+    });
+
+    if (!supaRes.ok) {
+      const err = await supaRes.text();
+      return jsonResponse({ success: false, error: 'Erreur Supabase', detail: err }, 500);
+    }
+
+    const demandes = await supaRes.json();
+    const demande = demandes[0];
+
+    // Send SMS via Twilio if artisan_phone provided
+    if (artisan_phone) {
+      const twilioSid = env.TWILIO_ACCOUNT_SID;
+      const twilioToken = env.TWILIO_AUTH_TOKEN;
+      const twilioFrom = env.TWILIO_FROM || TWILIO_FROM_DEFAULT;
+
+      if (twilioSid && twilioToken) {
+        const shortDesc = description.length > 50 ? description.substring(0, 50) + '...' : description;
+        const smsBody = `🔔 Nouvelle demande sur votre site ! ${nom} - ${telephone} - ${shortDesc} Connectez-vous a votre espace pour voir les details.`;
+
+        const twilioCredentials = btoa(`${twilioSid}:${twilioToken}`);
+        const twilioRes = await fetch(
+          `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Basic ${twilioCredentials}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              From: twilioFrom,
+              To: artisan_phone,
+              Body: smsBody,
+            }).toString(),
+          }
+        );
+
+        if (!twilioRes.ok) {
+          const twilioErr = await twilioRes.text();
+          console.error('Twilio SMS error:', twilioErr);
+          // Don't fail the whole request if SMS fails
+        }
+      }
+    }
+
+    return jsonResponse({ success: true, id: demande?.id });
+  } catch (err) {
+    console.error('Save demande error:', err);
+    return jsonResponse({ error: err.message }, 500);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GET DEMANDES
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleGetDemandes(request, env) {
+  try {
+    const url = new URL(request.url);
+    const site_id = url.searchParams.get('site_id');
+    const token = url.searchParams.get('token');
+
+    if (!site_id || !token) {
+      return jsonResponse({ error: 'site_id et token requis' }, 400);
+    }
+
+    // Validate token
+    const expectedToken = site_id + '_seolia2026';
+    if (token !== expectedToken) {
+      return jsonResponse({ error: 'Token invalide' }, 401);
+    }
+
+    const supaRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/demandes?site_id=eq.${encodeURIComponent(site_id)}&order=created_at.desc`,
+      { headers: supabaseHeaders() }
+    );
+
+    if (!supaRes.ok) {
+      const err = await supaRes.text();
+      return jsonResponse({ error: 'Erreur Supabase', detail: err }, 500);
+    }
+
+    const demandes = await supaRes.json();
+    return jsonResponse({ demandes });
+  } catch (err) {
+    console.error('Get demandes error:', err);
+    return jsonResponse({ error: err.message }, 500);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UPDATE DEMANDE
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleUpdateDemande(request, env) {
+  try {
+    const body = await request.json();
+    const { id, statut, token, site_id } = body;
+
+    if (!id || !statut || !token || !site_id) {
+      return jsonResponse({ error: 'id, statut, token et site_id requis' }, 400);
+    }
+
+    // Validate token
+    const expectedToken = site_id + '_seolia2026';
+    if (token !== expectedToken) {
+      return jsonResponse({ error: 'Token invalide' }, 401);
+    }
+
+    // Validate statut
+    const validStatuts = ['nouveau', 'contacté', 'devis envoyé', 'terminé'];
+    if (!validStatuts.includes(statut)) {
+      return jsonResponse({ error: `Statut invalide. Valeurs acceptées: ${validStatuts.join(', ')}` }, 400);
+    }
+
+    const supaRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/demandes?id=eq.${encodeURIComponent(id)}&site_id=eq.${encodeURIComponent(site_id)}`,
+      {
+        method: 'PATCH',
+        headers: { ...supabaseHeaders(), 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ statut }),
+      }
+    );
+
+    if (!supaRes.ok) {
+      const err = await supaRes.text();
+      return jsonResponse({ error: 'Erreur Supabase', detail: err }, 500);
+    }
+
+    return jsonResponse({ success: true });
+  } catch (err) {
+    console.error('Update demande error:', err);
+    return jsonResponse({ error: err.message }, 500);
   }
 }
 

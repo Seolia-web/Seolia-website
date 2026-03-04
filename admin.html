@@ -361,6 +361,118 @@
     .paiement-amount-field { flex: 1; }
     .paiement-amount-field label { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; }
     .paiement-amount-field input { width: 100%; padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; box-sizing: border-box; }
+  
+/* ======= CRM v2 ENHANCEMENTS ======= */
+/* Score badges */
+.score-badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: .3px; }
+.score-hot { background: rgba(0,214,143,.15); color: #00b87a; }
+.score-warm { background: rgba(243,156,18,.15); color: #d48806; }
+.score-cold { background: rgba(231,76,60,.15); color: #e74c3c; }
+.stagnant-badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; background: rgba(231,76,60,.12); color: #e74c3c; }
+tr.stagnant-row > td:first-child { border-left: 3px solid #e74c3c; }
+tr.stagnant-row { background: rgba(231,76,60,.03) !important; }
+/* Top header bar */
+.top-header { position: fixed; top: 0; left: var(--sidebar-w); right: 0; height: 56px; background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; gap: 12px; z-index: 150; box-shadow: 0 1px 0 var(--border); }
+@media (max-width: 768px) { .top-header { left: 0; } }
+.top-search-wrap { flex: 1; max-width: 480px; position: relative; }
+.top-search-wrap input { width: 100%; padding: 8px 12px 8px 36px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; outline: none; background: var(--bg); color: var(--text); font-family: inherit; transition: border-color .2s, box-shadow .2s; }
+.top-search-wrap input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(0,214,143,.1); background: #fff; }
+.top-search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-light); font-size: 14px; pointer-events: none; }
+.search-results-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.12); z-index: 1000; max-height: 320px; overflow-y: auto; display: none; }
+.search-results-dropdown.open { display: block; }
+.search-result-item { padding: 10px 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background .15s; font-size: 13px; }
+.search-result-item:hover { background: var(--bg); }
+.search-result-item .sr-name { font-weight: 600; color: var(--text); }
+.search-result-item .sr-sub { font-size: 11px; color: var(--text-light); display: block; }
+/* Adjust main for top header */
+.main { padding-top: 76px !important; }
+/* KPI Cards */
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.kpi-card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04); transition: transform .15s, box-shadow .15s; }
+.kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+.kpi-value { font-size: 22px; font-weight: 800; color: var(--navy); line-height: 1; margin-bottom: 4px; }
+.kpi-label { font-size: 11px; color: var(--text-light); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+.kpi-sub { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+.kpi-card.kpi-green .kpi-value { color: #00b87a; }
+.kpi-card.kpi-red .kpi-value { color: var(--red); }
+.kpi-card.kpi-gold .kpi-value { color: #d48806; }
+.kpi-progress { margin-top: 8px; height: 5px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+.kpi-progress-bar { height: 100%; background: var(--green); border-radius: 3px; transition: width .3s ease; }
+.obj-card { background: linear-gradient(135deg, #0a1628, #1a2b4a) !important; color: #fff; }
+.obj-card .kpi-label { color: rgba(255,255,255,.55); }
+.obj-card .kpi-value { color: #fff; }
+.obj-progress { margin-top: 8px; height: 5px; background: rgba(255,255,255,.15); border-radius: 3px; overflow: hidden; }
+.obj-progress-bar { height: 100%; background: var(--green); border-radius: 3px; }
+/* Today section */
+.today-items { display: flex; flex-direction: column; gap: 6px; }
+.today-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--bg); border-radius: 8px; font-size: 13px; cursor: pointer; transition: background .15s; }
+.today-item:hover { background: var(--border); }
+.today-item .ti-text { flex: 1; font-weight: 500; }
+.today-item .ti-contact { font-size: 11px; color: #00b87a; font-weight: 600; }
+.today-item .ti-time { font-size: 11px; color: var(--text-light); }
+/* Hot leads */
+.hot-leads-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; margin-top: 12px; }
+.hot-lead-card { background: #fff; border-radius: 10px; padding: 14px; border: 1px solid var(--border); cursor: pointer; transition: transform .15s, box-shadow .15s, border-color .15s; position: relative; }
+.hot-lead-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.1); border-color: var(--green); }
+.hlc-name { font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+.hlc-company { font-size: 12px; color: var(--text-light); margin-bottom: 8px; }
+.hlc-bottom { display: flex; align-items: center; justify-content: space-between; }
+.hlc-stagnant { position: absolute; top: 8px; right: 8px; }
+/* Activity feed */
+.activity-feed { display: flex; flex-direction: column; }
+.feed-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--bg); }
+.feed-item:last-child { border-bottom: none; }
+.fi-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.fi-body { flex: 1; }
+.fi-title { font-size: 13px; font-weight: 500; }
+.fi-sub { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+.fi-date { font-size: 11px; color: var(--text-light); white-space: nowrap; }
+/* Saved views */
+.saved-views-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
+.saved-view-pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: var(--bg); border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); transition: .15s; }
+.saved-view-pill:hover, .saved-view-pill.active { background: rgba(0,214,143,.1); border-color: var(--green); color: #00b87a; }
+.pill-del { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 10px; padding: 0; margin-left: 2px; line-height: 1; }
+.pill-del:hover { color: var(--red); }
+.btn-save-view { padding: 4px 10px; background: none; border: 1px dashed var(--border); border-radius: 20px; font-size: 12px; cursor: pointer; color: var(--text-light); transition: .15s; font-family: inherit; }
+.btn-save-view:hover { border-color: var(--green); color: #00b87a; }
+/* Onboarding checklist */
+.ocl-progress-bar-wrap { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; margin-top: 4px; margin-bottom: 12px; }
+.ocl-progress-bar { height: 100%; background: var(--green); border-radius: 3px; transition: width .3s; }
+.ocl-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--bg); cursor: pointer; }
+.ocl-item:last-child { border-bottom: none; }
+.ocl-item input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; flex-shrink: 0; }
+.ocl-item label { font-size: 13px; cursor: pointer; flex: 1; }
+.ocl-item.ocl-done label { text-decoration: line-through; color: var(--text-light); }
+/* Bottom nav */
+.bottom-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: var(--bottom-nav-h); background: #fff; border-top: 1px solid var(--border); z-index: 200; }
+.bottom-nav-items { display: flex; height: 100%; }
+.bottom-nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; font-size: 10px; color: var(--text-light); font-weight: 500; transition: color .15s; border: none; background: none; font-family: inherit; padding: 4px 0; }
+.bottom-nav-item.active { color: var(--green); }
+.bni-icon { font-size: 18px; }
+.bni-plus .bni-icon { background: var(--green); color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 12px rgba(0,214,143,.4); }
+@media (max-width: 768px) {
+  .bottom-nav { display: flex; }
+  .main { padding-bottom: calc(var(--bottom-nav-h) + 16px) !important; }
+}
+/* CSV dropzone */
+.drop-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 28px; text-align: center; cursor: pointer; transition: .2s; }
+.drop-zone:hover, .drop-zone.drag-over { border-color: var(--green); background: rgba(0,214,143,.04); }
+.drop-zone-icon { font-size: 28px; margin-bottom: 8px; }
+.drop-zone p { color: var(--text-light); font-size: 13px; margin: 0; }
+.csv-preview-table { font-size: 11px; border-collapse: collapse; width: 100%; overflow-x: auto; display: block; }
+.csv-preview-table th { background: var(--bg); padding: 5px 8px; text-align: left; font-weight: 600; border: 1px solid var(--border); }
+.csv-preview-table td { padding: 4px 8px; border: 1px solid var(--border); }
+/* WhatsApp btn */
+.btn-whatsapp { background: #25D366; color: #fff; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; font-family: inherit; display: inline-flex; align-items: center; gap: 5px; transition: background .15s; text-decoration: none; }
+.btn-whatsapp:hover { background: #1ebe57; }
+/* Questionnaire link */
+.btn-qlink { background: rgba(59,130,246,.1); color: #3b82f6; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; font-family: inherit; transition: .15s; }
+.btn-qlink:hover { background: rgba(59,130,246,.2); }
+/* Stagnant alert */
+.detail-stagnant-alert { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; background: rgba(231,76,60,.1); color: #e74c3c; border-radius: 20px; font-size: 12px; font-weight: 600; }
+/* Filters export btn */
+.btn-export { margin-left: auto; }
+
   </style>
 </head>
 <body>
@@ -394,6 +506,36 @@
 
 <!-- APP -->
 <div id="app">
+
+  <!-- TOP HEADER BAR -->
+  <header class="top-header" id="top-header">
+    <div class="top-search-wrap">
+      <span class="top-search-icon">🔍</span>
+      <input type="text" id="global-search-input" placeholder="Rechercher contacts, entreprises..." oninput="globalSearch(this.value)" autocomplete="off">
+      <div class="search-results-dropdown" id="search-dropdown"></div>
+    </div>
+    <div id="header-notif-wrapper" style="margin-left:auto"></div>
+  </header>
+  <!-- BOTTOM NAV (mobile) -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <div class="bottom-nav-items">
+      <button class="bottom-nav-item active" id="bnav-dashboard" onclick="showView('dashboard');updateBottomNav('dashboard')">
+        <span class="bni-icon">🏠</span><span>Dashboard</span>
+      </button>
+      <button class="bottom-nav-item" id="bnav-contacts" onclick="showView('contacts');updateBottomNav('contacts')">
+        <span class="bni-icon">👥</span><span>Contacts</span>
+      </button>
+      <button class="bottom-nav-item bni-plus" onclick="openNewContactModal()">
+        <span class="bni-icon">+</span><span>Nouveau</span>
+      </button>
+      <button class="bottom-nav-item" id="bnav-planning" onclick="showView('planning');updateBottomNav('planning')">
+        <span class="bni-icon">📅</span><span>Planning</span>
+      </button>
+      <button class="bottom-nav-item" id="bnav-revenus" onclick="showViewRoleAdapted();updateBottomNav('revenus')">
+        <span class="bni-icon">💰</span><span id="bnav-rev-label">Revenus</span>
+      </button>
+    </div>
+  </nav>
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
@@ -435,15 +577,66 @@
       <div class="page-header">
         <div>
           <h1>Dashboard</h1>
-          <p id="dash-subtitle">Vue d'ensemble de votre activité</p>
+          <p id="dash-subtitle">Vue d'ensemble</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="refreshDashboard()">↻ Rafraîchir</button>
+      </div>
+      <!-- KPI Row -->
+      <div class="kpi-row" id="kpi-row">
+        <div class="kpi-card kpi-green" id="kpi-mrr" style="display:none">
+          <div class="kpi-label">MRR Total HTVA</div>
+          <div class="kpi-value" id="kpi-mrr-val">—</div>
+          <div class="kpi-sub" id="kpi-mrr-sub">clients actifs</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Clients actifs</div>
+          <div class="kpi-value" id="kpi-clients">—</div>
+          <div class="kpi-sub">Base clients</div>
+        </div>
+        <div class="kpi-card kpi-gold">
+          <div class="kpi-label">Leads HOT</div>
+          <div class="kpi-value" id="kpi-hot">—</div>
+          <div class="kpi-sub">Statut RDV</div>
+        </div>
+        <div class="kpi-card" id="kpi-retard-card">
+          <div class="kpi-label">Activités retard</div>
+          <div class="kpi-value" id="kpi-retard">—</div>
+          <div class="kpi-sub">À traiter</div>
+        </div>
+        <div class="kpi-card obj-card" id="kpi-obj-card" style="display:none">
+          <div class="kpi-label">Mon objectif</div>
+          <div class="kpi-value" id="kpi-obj-val">—</div>
+          <div class="obj-progress"><div class="obj-progress-bar" id="kpi-obj-bar" style="width:0%"></div></div>
+          <div class="kpi-sub" id="kpi-obj-sub"></div>
         </div>
       </div>
-      <div class="stats-grid" id="dash-stats"></div>
+      <!-- Today -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-title" style="justify-content:space-between;align-items:center">
+          <span>📅 Aujourd'hui</span>
+          <span id="today-date" style="font-size:12px;font-weight:400;color:var(--text-light)"></span>
+        </div>
+        <div id="today-items" class="today-items">
+          <div style="color:var(--text-light);font-size:13px;padding:8px 0">Aucune activité prévue ✓</div>
+        </div>
+      </div>
+      <!-- Hot Leads -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-title" style="justify-content:space-between;align-items:center">
+          <span>🔥 Leads chauds</span>
+          <button class="btn btn-ghost btn-sm" onclick="showView('contacts')">Voir tous →</button>
+        </div>
+        <div id="hot-leads-grid" class="hot-leads-grid">
+          <div style="color:var(--text-light);font-size:13px">Aucun lead chaud</div>
+        </div>
+      </div>
+      <!-- Recent Activity -->
       <div class="card">
-        <div class="section-title">&#x1F4DD; Activité récente</div>
-        <div id="dash-activity"><div class="loading-center"><span class="spinner spinner-dark"></span></div></div>
+        <div class="section-title">📝 Activité récente</div>
+        <div id="dash-activity" class="activity-feed"><div class="loading-center"><span class="spinner spinner-dark"></span></div></div>
       </div>
     </div>
+
 
     <!-- PIPELINE -->
     <!-- CONTACTS + PIPELINE -->
@@ -459,9 +652,14 @@
             <button id="toggle-kanban" onclick="setContactsView('kanban')" style="padding:6px 14px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--text-light)">⬛ Kanban</button>
           </div>
         </div>
-        <button class="btn btn-green" onclick="openNewContactModal()">&#x2B; Nouveau contact</button>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="openImportCSVModal()" title="Importer CSV">⬆️ Import</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()" title="Exporter CSV">⬇️ Export</button>
+          <button class="btn btn-green" onclick="openNewContactModal()">&#x2B; Nouveau</button>
+        </div>
       </div>
       <div id="contacts-list-section">
+      <div id="saved-views-row" class="saved-views-row" style="display:none"></div>
       <div class="filters-bar">
         <input type="text" class="search-input" id="contacts-search" placeholder="&#x1F50D; Rechercher..." oninput="filterContacts()">
         <select class="filter-select" id="contacts-filter-status" onchange="filterContacts()">
@@ -483,13 +681,14 @@
         <select class="filter-select" id="contacts-filter-ville" onchange="filterContacts()">
           <option value="">Toutes les villes</option>
         </select>
+        <button class="btn-save-view" onclick="promptSaveView()">💾 Sauvegarder vue</button>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Nom</th><th>Entreprise</th><th>Téléphone</th><th>Ville</th>
-              <th>Statut</th><th>Formule</th><th>Assigné</th><th>Actions</th>
+              <th>Nom</th><th>Entreprise</th><th>Score</th><th>Téléphone</th><th>Ville</th>
+              <th>Statut</th><th>Formule</th><th>Assigné</th><th>Dernière activité</th><th>Actions</th>
             </tr>
           </thead>
           <tbody id="contacts-tbody"></tbody>
@@ -512,6 +711,7 @@
           <button class="btn btn-ghost btn-sm" onclick="showView('contacts')">&#x2190; Retour</button>
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px">
             <h1 id="detail-name">-</h1>
+            <span id="detail-stagnant-badge" style="display:none" class="detail-stagnant-alert">🔴 Stagnant</span>
             <div id="detail-client-id-badge" style="display:none;background:rgba(0,214,143,0.12);border:1px solid rgba(0,214,143,0.3);border-radius:8px;padding:4px 12px;display:flex;align-items:center;gap:8px">
               <span style="font-size:11px;color:#8892a4;font-weight:600;letter-spacing:1px">ID CLIENT</span>
               <span id="detail-client-id" style="font-size:15px;font-weight:700;color:#00d68f;letter-spacing:2px">-</span>
@@ -521,7 +721,8 @@
           </div>
         </div>
         <div class="flex-gap">
-          <a id="btn-call" href="#" class="btn btn-green btn-sm" style="display:none;text-decoration:none">&#x1F4DE; Appeler</a>
+          <a id="btn-call" href="#" class="btn btn-green btn-sm" style="display:none;text-decoration:none">📞 Appeler</a>
+          <button id="btn-whatsapp" class="btn-whatsapp" style="display:none" onclick="openWhatsApp()">💬 WhatsApp</button>
           <button class="btn btn-navy btn-sm" onclick="openQuoteModal()">&#x1F4C4; Devis PDF</button>
           <button class="btn btn-ghost btn-sm" onclick="openComposeModal()">&#x2709;&#xFE0F; Email</button>
           <button class="btn btn-red btn-sm" onclick="deleteContact()">&#x1F5D1; Supprimer</button>
@@ -595,11 +796,24 @@
             <div id="detail-modifications"><p style="color:#8892a4;font-size:13px">Aucune modification demandée.</p></div>
           </div>
 
+          <!-- ONBOARDING CHECKLIST -->
+          <div class="card" id="detail-onboarding-checklist" style="margin-bottom:16px;display:none">
+            <div class="section-title" style="justify-content:space-between;align-items:center">
+              <span>✅ Checklist onboarding</span>
+              <span id="ocl-progress-text" style="font-size:12px;color:var(--text-light)">0/6</span>
+            </div>
+            <div class="ocl-progress-bar-wrap"><div class="ocl-progress-bar" id="ocl-progress-bar" style="width:0%"></div></div>
+            <div id="ocl-items"></div>
+          </div>
+
           <!-- QUESTIONNAIRE -->
           <div class="card">
             <div class="section-title" style="justify-content:space-between;align-items:center">
               <span>&#x1F4CB; Questionnaire onboarding</span>
               <button id="btn-copy-brief" class="btn btn-ghost btn-sm" onclick="copyBriefById(currentContactId)" style="display:none">&#x1F4CB; Copier brief Tasklet</button>
+            </div>
+            <div style="margin-bottom:8px">
+              <button class="btn-qlink" onclick="copyQuestionnaireLink(currentContactId)">📋 Copier lien questionnaire client</button>
             </div>
             <div id="detail-questionnaire"><p style="color:#8892a4;font-size:13px">Pas encore reçu.</p></div>
           </div>
@@ -3057,7 +3271,39 @@ function copyBriefById(contactId) {
   }).catch(() => {
     // Fallback: text area modal
     const w = window.open('', '_blank', 'width=750,height=620');
-    w.document.write(`<html><head><title>Brief Tasklet — ${data.nom_entreprise || 'Client'}</title></head><body style="margin:0;padding:12px;font-family:monospace;background:#0a0e1a;color:#fff"><h3 style="color:#00d68f;margin:0 0 8px">Brief Tasklet — ${data.nom_entreprise || ''}</h3><textarea id="t" style="width:100%;height:80vh;background:#141929;color:#fff;border:1px solid #333;padding:12px;font-family:monospace;font-size:12px;line-height:1.5">${brief}</textarea><br><button onclick="document.getElementById('t').select();document.execCommand('copy');document.title='✅ Copié !'" style="background:#00d68f;color:#000;border:none;padding:10px 24px;font-weight:700;cursor:pointer;border-radius:8px;margin-top:8px">Sélectionner & Copier</button></body></html>`);
+    w.document.write(`<html><head><title>Brief Tasklet — ${data.nom_entreprise || 'Client'}</title></head><body style="margin:0;padding:12px;font-family:monospace;background:#0a0e1a;color:#fff"><h3 style="color:#00d68f;margin:0 0 8px">Brief Tasklet — ${data.nom_entreprise || ''}</h3><textarea id="t" style="width:100%;height:80vh;background:#141929;color:#fff;border:1px solid #333;padding:12px;font-family:monospace;font-size:12px;line-height:1.5">${brief}</textarea><br><button onclick="document.getElementById('t').select();document.execCommand('copy');document.title='✅ Copié !'" style="background:#00d68f;color:#000;border:none;padding:10px 24px;font-weight:700;cursor:pointer;border-radius:8px;margin-top:8px">Sélectionner & Copier</button>
+  <!-- IMPORT CSV MODAL -->
+  <div class="modal-overlay" id="modal-import-csv" style="display:none" onclick="if(event.target===this)closeModal('modal-import-csv')">
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header">
+        <div class="modal-title">⬆️ Importer des contacts CSV</div>
+        <button class="modal-close" onclick="closeModal('modal-import-csv')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px;color:var(--text-light);margin-bottom:12px">
+          Format attendu (colonnes): <code>nom, prenom, entreprise, telephone, email, ville, secteur, statut, assignee</code><br>
+          La première ligne doit être l'en-tête. Statut: prospect/rdv/client/perdu. Assignee: email du commercial.
+        </p>
+        <div class="drop-zone" id="csv-drop-zone" onclick="document.getElementById('csv-file-input').click()">
+          <div class="drop-zone-icon">📄</div>
+          <p>Cliquez ou glissez votre fichier CSV ici</p>
+          <p style="margin-top:4px;font-size:11px">Fichier .csv uniquement</p>
+        </div>
+        <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="handleCSVFile(event)">
+        <div id="csv-preview-section" style="display:none;margin-top:16px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:8px" id="csv-preview-title"></div>
+          <div style="overflow-x:auto"><table class="csv-preview-table" id="csv-preview-table"></table></div>
+          <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+            <button class="btn btn-green" onclick="doImportCSV()" id="btn-do-import">Importer</button>
+            <button class="btn btn-ghost" onclick="document.getElementById('csv-preview-section').style.display='none'">Annuler</button>
+            <span id="csv-import-progress" style="font-size:13px;color:var(--text-light)"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body></html>`);
   });
 }
 
@@ -3885,6 +4131,602 @@ async function loadContact(contactId) {
     console.error('loadContact error:', e);
   }
 }
+
+
+// ============================================================
+// CRM SEOLIA v2 — NEW FEATURES
+// ============================================================
+
+// ── CONSTANTS ──────────────────────────────────────────────
+const TVA_RATE_V2 = 1.21;
+const FORMULES_V2 = ['Essentiel IA','Business IA','Premium IA','Web Essentiel','Web Business','Web Premium'];
+const FORMULE_PRIX_V2 = {
+  'Essentiel IA': { setup: 499, mensuel: 109 },
+  'Business IA': { setup: 949, mensuel: 249 },
+  'Premium IA': { setup: 1499, mensuel: 449 },
+  'Web Essentiel': { setup: 149, mensuel: 69 },
+  'Web Business': { setup: 299, mensuel: 119 },
+  'Web Premium': { setup: 499, mensuel: 199 },
+};
+
+// ── LEAD SCORING ─────────────────────────────────────────
+function calculateScore(contact, notesCount=0, activitesCount=0, lastActivityDate=null) {
+  let score = 0;
+  // Statut
+  const statutScore = { prospect: 20, rdv: 50, client: 80, perdu: 0 };
+  score += statutScore[contact.statut] || 0;
+  // Notes
+  score += Math.min(notesCount * 5, 20);
+  // Activités
+  score += Math.min(activitesCount * 5, 20);
+  // Formule
+  const formuleScore = {
+    'Essentiel IA': 5, 'Web Essentiel': 5,
+    'Business IA': 10, 'Web Business': 10,
+    'Premium IA': 15, 'Web Premium': 15
+  };
+  score += formuleScore[contact.formule] || 0;
+  // Dernière activité
+  if (lastActivityDate) {
+    const days = (Date.now() - new Date(lastActivityDate)) / 86400000;
+    if (days < 7) score += 10;
+    else if (days < 14) score += 5;
+  }
+  // Email
+  if (contact.email) score += 5;
+  // Adresse
+  if (contact.ville || contact.adresse) score += 3;
+  return Math.min(Math.max(score, 0), 100);
+}
+
+function renderScoreBadge(score) {
+  if (score >= 75) return `<span class="score-badge score-hot">🔥 ${score}</span>`;
+  if (score >= 50) return `<span class="score-badge score-warm">${score}</span>`;
+  return `<span class="score-badge score-cold">${score}</span>`;
+}
+
+function isStagnant(contact, lastActivityDate) {
+  if (!lastActivityDate) {
+    // Check created_at
+    if (!contact.created_at) return false;
+    const daysCreated = (Date.now() - new Date(contact.created_at)) / 86400000;
+    if ((contact.statut === 'rdv') && daysCreated > 7) return true;
+    return false;
+  }
+  const days = (Date.now() - new Date(lastActivityDate)) / 86400000;
+  if (contact.statut === 'rdv' && days > 7) return true;
+  if (contact.statut === 'prospect' && days > 14) return true;
+  return false;
+}
+
+function formatRelativeDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diff = now - d;
+  const mins = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  if (mins < 2) return 'à l\'instant';
+  if (mins < 60) return `il y a ${mins} min`;
+  if (hours < 24) return `il y a ${hours}h`;
+  if (days < 2) return 'hier';
+  if (days < 7) return `il y a ${days} jours`;
+  const months = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+  return `${d.getDate()} ${months[d.getMonth()]}`;
+}
+
+// ── ENHANCED DASHBOARD ────────────────────────────────────
+async function refreshDashboard() {
+  if (typeof loadDashboard === 'function') await loadDashboard();
+  renderEnhancedDashboard();
+}
+
+async function renderEnhancedDashboard() {
+  if (!allContacts || allContacts.length === 0) return;
+  // Set today date
+  const todayEl = document.getElementById('today-date');
+  if (todayEl) {
+    const now = new Date();
+    todayEl.textContent = now.toLocaleDateString('fr-BE', { weekday:'long', day:'numeric', month:'long' });
+  }
+  // KPIs
+  const clients = allContacts.filter(c => c.statut === 'client' && c.actif !== false);
+  const hotLeads = allContacts.filter(c => c.statut === 'rdv');
+  const mrrHTVA = clients.reduce((s,c) => s+(parseFloat(c.prix_mensuel)||0),0) / TVA_RATE_V2;
+
+  const kpiClients = document.getElementById('kpi-clients');
+  if (kpiClients) kpiClients.textContent = clients.length;
+  const kpiHot = document.getElementById('kpi-hot');
+  if (kpiHot) kpiHot.textContent = hotLeads.length;
+
+  // Admin: show MRR
+  if (currentProfile && currentProfile.role === 'admin') {
+    const kpiMrr = document.getElementById('kpi-mrr');
+    if (kpiMrr) kpiMrr.style.display = '';
+    const kpiMrrVal = document.getElementById('kpi-mrr-val');
+    if (kpiMrrVal) kpiMrrVal.textContent = fmtEur ? fmtEur(mrrHTVA) : `€${Math.round(mrrHTVA)}`;
+    const kpiMrrSub = document.getElementById('kpi-mrr-sub');
+    if (kpiMrrSub) kpiMrrSub.textContent = clients.length + ' clients actifs';
+  }
+  // Commercial: show objective
+  if (currentProfile && currentProfile.role === 'commercial' && currentProfile.objectif_mensuel) {
+    const myClients = clients.filter(c => c.created_by === currentProfile.id || c.assigned_to === currentProfile.id);
+    const objCard = document.getElementById('kpi-obj-card');
+    if (objCard) {
+      objCard.style.display = '';
+      const pct = Math.min((myClients.length / currentProfile.objectif_mensuel) * 100, 100);
+      const objVal = document.getElementById('kpi-obj-val');
+      if (objVal) objVal.textContent = `${myClients.length}/${currentProfile.objectif_mensuel}`;
+      const objBar = document.getElementById('kpi-obj-bar');
+      if (objBar) objBar.style.width = pct + '%';
+      const objSub = document.getElementById('kpi-obj-sub');
+      if (objSub) objSub.textContent = `${Math.round(pct)}% atteint`;
+    }
+  }
+
+  // Load activités for today + overdue
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const acts = await sbFetch(`/rest/v1/activites?select=*,contacts(nom,prenom,entreprise)&fait=eq.false&order=date_echeance.asc`) || [];
+    const todayActs = acts.filter(a => a.date_echeance && a.date_echeance.startsWith(today));
+    const overdueActs = acts.filter(a => a.date_echeance && a.date_echeance < today);
+
+    const kpiRetard = document.getElementById('kpi-retard');
+    if (kpiRetard) kpiRetard.textContent = overdueActs.length;
+    const kpiRetardCard = document.getElementById('kpi-retard-card');
+    if (kpiRetardCard) {
+      if (overdueActs.length > 0) kpiRetardCard.classList.add('kpi-red');
+      else kpiRetardCard.classList.remove('kpi-red');
+    }
+
+    // Render today items
+    const todayItemsEl = document.getElementById('today-items');
+    if (todayItemsEl) {
+      const allToday = [...todayActs.map(a=>({...a, _type:'activite'}))];
+      // Also get today's followups
+      const fups = await sbFetch(`/rest/v1/followups?select=*,contacts(nom,prenom,entreprise)&fait=eq.false&order=date_rappel.asc`) || [];
+      const todayFups = fups.filter(f => f.date_rappel && f.date_rappel.startsWith(today));
+      todayFups.forEach(f => allToday.push({...f, _type:'followup'}));
+      allToday.sort((a,b) => {
+        const da = a.date_echeance || a.date_rappel || '';
+        const db = b.date_echeance || b.date_rappel || '';
+        return da.localeCompare(db);
+      });
+      if (allToday.length === 0) {
+        todayItemsEl.innerHTML = '<div style="color:var(--text-light);font-size:13px;padding:8px 0">Aucune activité prévue aujourd\'hui ✓</div>';
+      } else {
+        const typeIcons = { appel:'📞', reunion:'🤝', email:'✉️', tache:'✅', followup:'📅' };
+        todayItemsEl.innerHTML = allToday.map(item => {
+          const contact = item.contacts || {};
+          const contactName = [contact.prenom, contact.nom].filter(Boolean).join(' ') || contact.entreprise || '';
+          const type = item._type === 'followup' ? 'followup' : (item.type || 'tache');
+          const icon = typeIcons[type] || '📌';
+          const text = item.titre || item.message || item.type || 'Activité';
+          const contactId = item.contact_id;
+          return `<div class="today-item" onclick="loadContact(${contactId})">
+            <span>${icon}</span>
+            <span class="ti-text">${escHtml(text)}</span>
+            <span class="ti-contact">${escHtml(contactName)}</span>
+          </div>`;
+        }).join('');
+      }
+    }
+  } catch(e) {
+    console.warn('Error loading today activities:', e);
+  }
+
+  // Hot leads
+  const hotLeadsEl = document.getElementById('hot-leads-grid');
+  if (hotLeadsEl && hotLeads.length > 0) {
+    hotLeadsEl.innerHTML = hotLeads.slice(0, 8).map(c => {
+      const score = calculateScore(c, 0, 0, c.last_activity || c.updated_at);
+      const stagnant = isStagnant(c, c.last_activity || c.updated_at);
+      return `<div class="hot-lead-card" onclick="loadContact(${c.id})">
+        ${stagnant ? '<span class="stagnant-badge hlc-stagnant">🔴 Stagnant</span>' : ''}
+        <div class="hlc-name">${escHtml((c.prenom||'')+' '+(c.nom||'')).trim() || escHtml(c.entreprise||'—')}</div>
+        <div class="hlc-company">${escHtml(c.entreprise||'')}</div>
+        <div class="hlc-bottom">
+          ${renderScoreBadge(score)}
+          <span style="font-size:11px;color:var(--text-light)">${escHtml(c.assignee_name||'')}</span>
+        </div>
+      </div>`;
+    }).join('');
+  } else if (hotLeadsEl) {
+    hotLeadsEl.innerHTML = '<div style="color:var(--text-light);font-size:13px">Aucun lead chaud</div>';
+  }
+}
+
+// Override loadDashboard to also render enhanced sections
+const _origLoadDashboard = typeof loadDashboard !== 'undefined' ? loadDashboard : null;
+async function loadDashboard() {
+  if (_origLoadDashboard) await _origLoadDashboard();
+  setTimeout(renderEnhancedDashboard, 100);
+}
+
+// ── ENHANCED CONTACTS RENDERING ──────────────────────────
+// Patch renderContacts to add score column + stagnant
+const _origRenderContacts = typeof renderContacts !== 'undefined' ? renderContacts : null;
+function renderContacts(data) {
+  if (_origRenderContacts) _origRenderContacts(data);
+  // Add score badges after original render
+  setTimeout(() => {
+    const tbody = document.getElementById('contacts-tbody');
+    if (!tbody) return;
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach((row, i) => {
+      if (!data || i >= data.length) return;
+      const c = data[i];
+      if (!c) return;
+      const score = calculateScore(c, 0, 0, c.last_activity || c.updated_at);
+      const stagnant = isStagnant(c, c.last_activity || c.updated_at);
+      // Insert score cell after 2nd <td> (Entreprise)
+      const tds = row.querySelectorAll('td');
+      if (tds.length > 1 && !row.querySelector('.score-td')) {
+        const scoreTd = document.createElement('td');
+        scoreTd.className = 'score-td';
+        scoreTd.innerHTML = renderScoreBadge(score);
+        tds[1].after(scoreTd);
+        // Add last activity cell before actions
+        const lastActTd = document.createElement('td');
+        const lastDate = c.last_activity || c.updated_at;
+        lastActTd.innerHTML = lastDate ? formatRelativeDate(lastDate) : '<span style="color:var(--text-light)">—</span>';
+        if (tds.length > 2) tds[tds.length-1].before(lastActTd);
+      }
+      // Stagnant row
+      if (stagnant) {
+        row.classList.add('stagnant-row');
+        const nameTd = row.querySelector('td');
+        if (nameTd && !nameTd.querySelector('.stagnant-badge')) {
+          nameTd.insertAdjacentHTML('beforeend', ' <span class="stagnant-badge">🔴</span>');
+        }
+      }
+    });
+  }, 50);
+  // Render saved views
+  renderSavedViews();
+}
+
+// ── SAVED VIEWS ───────────────────────────────────────────
+function getSavedViews() {
+  try { return JSON.parse(localStorage.getItem('seolia_saved_views') || '[]'); } catch(e) { return []; }
+}
+function saveSavedViews(views) {
+  localStorage.setItem('seolia_saved_views', JSON.stringify(views));
+}
+function promptSaveView() {
+  const name = prompt('Nom de cette vue (ex: "Mes HOT", "Plombiers à rappeler"):');
+  if (!name || !name.trim()) return;
+  const filters = {
+    statut: document.getElementById('contacts-filter-status')?.value || '',
+    secteur: document.getElementById('contacts-filter-sector')?.value || '',
+    assignee: document.getElementById('contacts-filter-assignee')?.value || '',
+    formule: document.getElementById('contacts-filter-formule')?.value || '',
+    ville: document.getElementById('contacts-filter-ville')?.value || '',
+    search: document.getElementById('contacts-search')?.value || '',
+  };
+  const views = getSavedViews();
+  views.push({ name: name.trim(), filters });
+  saveSavedViews(views);
+  renderSavedViews();
+  showToast('Vue sauvegardée : ' + name.trim(), 'success');
+}
+function loadSavedView(index) {
+  const views = getSavedViews();
+  if (!views[index]) return;
+  const f = views[index].filters;
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  setVal('contacts-filter-status', f.statut);
+  setVal('contacts-filter-sector', f.secteur);
+  setVal('contacts-filter-assignee', f.assignee);
+  setVal('contacts-filter-formule', f.formule);
+  setVal('contacts-filter-ville', f.ville);
+  setVal('contacts-search', f.search);
+  if (typeof filterContacts === 'function') filterContacts();
+  // Highlight active pill
+  document.querySelectorAll('.saved-view-pill').forEach((p,i) => {
+    p.classList.toggle('active', i === index);
+  });
+}
+function deleteSavedView(index) {
+  const views = getSavedViews();
+  views.splice(index, 1);
+  saveSavedViews(views);
+  renderSavedViews();
+}
+function renderSavedViews() {
+  const row = document.getElementById('saved-views-row');
+  if (!row) return;
+  const views = getSavedViews();
+  if (views.length === 0) { row.style.display = 'none'; return; }
+  row.style.display = 'flex';
+  row.innerHTML = '<span style="font-size:11px;color:var(--text-light);font-weight:600">Vues:</span>' +
+    views.map((v, i) => `<span class="saved-view-pill" onclick="loadSavedView(${i})">
+      ${escHtml(v.name)}
+      <button class="pill-del" onclick="event.stopPropagation();deleteSavedView(${i})" title="Supprimer">✕</button>
+    </span>`).join('');
+}
+
+// ── IMPORT CSV ────────────────────────────────────────────
+let csvData = [];
+function openImportCSVModal() {
+  csvData = [];
+  document.getElementById('csv-preview-section').style.display = 'none';
+  document.getElementById('csv-file-input').value = '';
+  openModal('modal-import-csv');
+}
+function handleCSVFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => parseCSVContent(e.target.result);
+  reader.readAsText(file, 'UTF-8');
+}
+// CSV drop zone
+(function setupCSVDrop() {
+  document.addEventListener('DOMContentLoaded', () => {
+    const dz = document.getElementById('csv-drop-zone');
+    if (!dz) return;
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+    dz.addEventListener('drop', e => {
+      e.preventDefault(); dz.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) { const r = new FileReader(); r.onload = ev => parseCSVContent(ev.target.result); r.readAsText(file,'UTF-8'); }
+    });
+  });
+})();
+function parseCSVContent(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) { showToast('CSV invalide ou vide', 'error'); return; }
+  const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g,''));
+  csvData = lines.slice(1).map(line => {
+    const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g,''));
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = vals[i] || ''; });
+    return obj;
+  }).filter(r => r.nom || r.prenom || r.entreprise);
+  // Show preview
+  const previewEl = document.getElementById('csv-preview-section');
+  const titleEl = document.getElementById('csv-preview-title');
+  const tableEl = document.getElementById('csv-preview-table');
+  const btnImport = document.getElementById('btn-do-import');
+  if (!previewEl) return;
+  titleEl.textContent = `${csvData.length} contact(s) détectés — Aperçu des 5 premiers:`;
+  btnImport.textContent = `Importer ${csvData.length} contact(s)`;
+  const preview = csvData.slice(0, 5);
+  const cols = ['nom','prenom','entreprise','telephone','email','ville','statut'];
+  tableEl.innerHTML = `<thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+    <tbody>${preview.map(row=>`<tr>${cols.map(c=>`<td>${escHtml(row[c]||'')}</td>`).join('')}</tr>`).join('')}</tbody>`;
+  previewEl.style.display = '';
+}
+async function doImportCSV() {
+  if (!csvData || csvData.length === 0) return;
+  const progressEl = document.getElementById('csv-import-progress');
+  const btnImport = document.getElementById('btn-do-import');
+  btnImport.disabled = true;
+  let ok = 0, err = 0;
+  for (let i = 0; i < csvData.length; i++) {
+    const row = csvData[i];
+    if (progressEl) progressEl.textContent = `Import: ${i+1}/${csvData.length}...`;
+    const payload = {
+      nom: row.nom || '',
+      prenom: row.prenom || '',
+      entreprise: row.entreprise || '',
+      telephone: row.telephone || '',
+      email: row.email || '',
+      ville: row.ville || '',
+      secteur: row.secteur || '',
+      statut: ['prospect','rdv','client','perdu'].includes(row.statut) ? row.statut : 'prospect',
+      source: 'import_csv',
+    };
+    if (row.assignee) payload.assignee_email = row.assignee;
+    if (currentProfile) payload.created_by = currentProfile.id;
+    try {
+      const res = await sbFetch('/rest/v1/contacts', { method: 'POST', body: JSON.stringify(payload) });
+      ok++;
+    } catch(e) { err++; }
+  }
+  if (progressEl) progressEl.textContent = `✓ ${ok} importé(s)${err>0?`, ${err} erreur(s)`:''}`;
+  btnImport.disabled = false;
+  showToast(`Import terminé: ${ok} contact(s) importés`, 'success');
+  if (typeof loadContacts === 'function') await loadContacts();
+  setTimeout(() => closeModal('modal-import-csv'), 1500);
+}
+
+// ── EXPORT CSV ────────────────────────────────────────────
+function exportCSV() {
+  const contacts_to_export = allContacts || [];
+  if (contacts_to_export.length === 0) { showToast('Aucun contact à exporter', 'error'); return; }
+  const cols = ['id','nom','prenom','entreprise','telephone','email','ville','adresse','secteur','statut','formule','prix_setup','prix_mensuel','date_debut','source','created_at'];
+  const header = cols.join(',');
+  const rows = contacts_to_export.map(c => cols.map(col => {
+    const val = c[col] != null ? String(c[col]).replace(/"/g, '""') : '';
+    return `"${val}"`;
+  }).join(','));
+  const csv = [header, ...rows].join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `seolia_contacts_${new Date().toISOString().split('T')[0]}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast(`${contacts_to_export.length} contacts exportés`, 'success');
+}
+
+// ── GLOBAL SEARCH ─────────────────────────────────────────
+function globalSearch(query) {
+  const dropdown = document.getElementById('search-dropdown');
+  if (!dropdown) return;
+  if (!query || query.length < 2) { dropdown.classList.remove('open'); return; }
+  const q = query.toLowerCase();
+  const results = (allContacts || []).filter(c =>
+    (c.nom||'').toLowerCase().includes(q) ||
+    (c.prenom||'').toLowerCase().includes(q) ||
+    (c.entreprise||'').toLowerCase().includes(q) ||
+    (c.telephone||'').toLowerCase().includes(q) ||
+    (c.email||'').toLowerCase().includes(q) ||
+    (c.ville||'').toLowerCase().includes(q)
+  ).slice(0, 10);
+  if (results.length === 0) {
+    dropdown.innerHTML = '<div style="padding:12px 14px;color:var(--text-light);font-size:13px">Aucun résultat</div>';
+  } else {
+    dropdown.innerHTML = results.map(c => {
+      const name = [c.prenom, c.nom].filter(Boolean).join(' ') || c.entreprise || 'Sans nom';
+      const sub = [c.entreprise, c.telephone, c.ville].filter(Boolean).join(' · ');
+      return `<div class="search-result-item" onclick="globalSearchSelect(${c.id})">
+        <span>👤</span>
+        <div>
+          <div class="sr-name">${escHtml(name)}</div>
+          <span class="sr-sub">${escHtml(sub)}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  dropdown.classList.add('open');
+}
+function globalSearchSelect(contactId) {
+  const dropdown = document.getElementById('search-dropdown');
+  if (dropdown) dropdown.classList.remove('open');
+  const inp = document.getElementById('global-search-input');
+  if (inp) inp.value = '';
+  loadContact(contactId);
+}
+// Close dropdown on click outside
+document.addEventListener('click', (e) => {
+  const dd = document.getElementById('search-dropdown');
+  if (dd && !e.target.closest('.top-search-wrap')) dd.classList.remove('open');
+});
+
+// ── WHATSAPP ──────────────────────────────────────────────
+function openWhatsApp() {
+  const contact = allContacts && currentContactId ? allContacts.find(c => c.id === currentContactId) : null;
+  if (!contact || !contact.telephone) { showToast('Numéro de téléphone manquant', 'error'); return; }
+  const name = [contact.prenom, contact.nom].filter(Boolean).join(' ') || contact.entreprise || 'vous';
+  const msg = `Bonjour ${name}, je suis de l'équipe Seolia. Comment puis-je vous aider ?`;
+  const phone = contact.telephone.replace(/\D/g,'');
+  window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+// Update WhatsApp button visibility when contact is loaded
+const _origOpenContactDetail = typeof openContactDetail !== 'undefined' ? openContactDetail : null;
+function showContactDetailButtons(contact) {
+  const waBtn = document.getElementById('btn-whatsapp');
+  if (waBtn) waBtn.style.display = contact.telephone ? '' : 'none';
+  // Stagnant
+  const stagnantBadge = document.getElementById('detail-stagnant-badge');
+  if (stagnantBadge) {
+    const stagnant = isStagnant(contact, contact.last_activity || contact.updated_at);
+    stagnantBadge.style.display = stagnant ? '' : 'none';
+  }
+  // Onboarding checklist (only for clients)
+  const checklistCard = document.getElementById('detail-onboarding-checklist');
+  if (checklistCard) {
+    checklistCard.style.display = contact.statut === 'client' ? '' : 'none';
+    if (contact.statut === 'client') renderOnboardingChecklist(contact.id);
+  }
+}
+
+// ── QUESTIONNAIRE LINK ────────────────────────────────────
+function copyQuestionnaireLink(contactId) {
+  if (!contactId) { showToast('Aucun contact sélectionné', 'error'); return; }
+  const url = `https://seolia.be/questionnaire?id=${contactId}`;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(url).then(() => showToast('Lien questionnaire copié !', 'success'));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = url; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('Lien questionnaire copié !', 'success');
+  }
+}
+
+// ── ONBOARDING CHECKLIST ──────────────────────────────────
+const OCL_ITEMS = [
+  { key: 'questionnaire', label: 'Questionnaire reçu' },
+  { key: 'setup_paye', label: 'Paiement setup reçu' },
+  { key: 'contrat_signe', label: 'Contrat signé' },
+  { key: 'site_production', label: 'Site en production' },
+  { key: 'google_business', label: 'Google Business vérifié' },
+  { key: 'premier_paiement', label: 'Premier paiement mensuel reçu' },
+];
+function getOnboardingChecklist(contactId) {
+  try { return JSON.parse(localStorage.getItem(`checklist_${contactId}`) || '{}'); } catch(e) { return {}; }
+}
+function toggleChecklistItem(contactId, key) {
+  const cl = getOnboardingChecklist(contactId);
+  cl[key] = !cl[key];
+  localStorage.setItem(`checklist_${contactId}`, JSON.stringify(cl));
+  renderOnboardingChecklist(contactId);
+}
+function renderOnboardingChecklist(contactId) {
+  const el = document.getElementById('ocl-items');
+  const progressBar = document.getElementById('ocl-progress-bar');
+  const progressText = document.getElementById('ocl-progress-text');
+  if (!el) return;
+  const cl = getOnboardingChecklist(contactId);
+  const done = OCL_ITEMS.filter(i => cl[i.key]).length;
+  const pct = (done / OCL_ITEMS.length) * 100;
+  if (progressBar) progressBar.style.width = pct + '%';
+  if (progressText) progressText.textContent = `${done}/${OCL_ITEMS.length}`;
+  el.innerHTML = OCL_ITEMS.map(item => `
+    <div class="ocl-item${cl[item.key]?' ocl-done':''}" onclick="toggleChecklistItem(${contactId},'${item.key}')">
+      <input type="checkbox" ${cl[item.key]?'checked':''} onclick="event.stopPropagation();toggleChecklistItem(${contactId},'${item.key}')">
+      <label>${item.label}</label>
+    </div>`).join('');
+}
+
+// ── BOTTOM NAV ────────────────────────────────────────────
+function updateBottomNav(viewId) {
+  document.querySelectorAll('.bottom-nav-item').forEach(el => el.classList.remove('active'));
+  const btn = document.getElementById('bnav-' + viewId);
+  if (btn) btn.classList.add('active');
+}
+function showViewRoleAdapted() {
+  if (currentProfile && currentProfile.role === 'admin') showView('revenus');
+  else showView('commissions');
+}
+
+// ── PATCH loadContact to call showContactDetailButtons ────
+const _origLoadContact = typeof loadContact !== 'undefined' ? loadContact : null;
+async function loadContact(id) {
+  if (_origLoadContact) await _origLoadContact(id);
+  // Find the contact in allContacts
+  const contact = (allContacts || []).find(c => c.id == id);
+  if (contact) showContactDetailButtons(contact);
+}
+
+// ── INIT ENHANCEMENTS ─────────────────────────────────────
+// Move notification bell to header
+function moveNotifBellToHeader() {
+  const nw = document.getElementById('notif-wrapper');
+  const hw = document.getElementById('header-notif-wrapper');
+  if (nw && hw) {
+    hw.appendChild(nw);
+    nw.style.display = '';
+  }
+}
+
+// Patch initApp to call enhancements
+const _origInitApp = typeof initApp !== 'undefined' ? initApp : null;
+async function initApp() {
+  if (_origInitApp) await _origInitApp();
+  setTimeout(() => {
+    moveNotifBellToHeader();
+    renderSavedViews();
+    renderEnhancedDashboard();
+    // Update bottom nav label
+    const bnRevLabel = document.getElementById('bnav-rev-label');
+    if (bnRevLabel && currentProfile) {
+      bnRevLabel.textContent = currentProfile.role === 'admin' ? 'Revenus' : 'Commissions';
+    }
+  }, 200);
+}
+
+// ── HELPER ────────────────────────────────────────────────
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 </script>
 
 <!-- Modal détail commercial -->

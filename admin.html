@@ -477,6 +477,12 @@
         <select class="filter-select" id="contacts-filter-assignee" onchange="filterContacts()">
           <option value="">Tous les commerciaux</option>
         </select>
+        <select class="filter-select" id="contacts-filter-formule" onchange="filterContacts()">
+          <option value="">Toutes les formules</option>
+        </select>
+        <select class="filter-select" id="contacts-filter-ville" onchange="filterContacts()">
+          <option value="">Toutes les villes</option>
+        </select>
       </div>
       <div class="table-wrap">
         <table>
@@ -541,6 +547,13 @@
               </div>
             </div>
             <div id="detail-info-grid"></div>
+          </div>
+          <div class="card" style="margin-bottom:16px">
+            <div class="section-title" style="justify-content:space-between;align-items:center">
+              <span>&#x26A1; Activités</span>
+              <button class="btn btn-ghost btn-sm" onclick="openAddActiviteModal()">+ Activité</button>
+            </div>
+            <div id="detail-activites"></div>
           </div>
           <div class="card" style="margin-bottom:16px">
             <div class="section-title" style="justify-content:space-between">
@@ -797,6 +810,37 @@
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-note')">Annuler</button>
       <button class="btn btn-green" onclick="saveNote()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Activite Modal -->
+<div class="modal-overlay" id="modal-activite">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Nouvelle activité</div>
+      <button class="modal-close" onclick="closeModal('modal-activite')">&#x2715;</button>
+    </div>
+    <div class="form-group">
+      <label>Type</label>
+      <select id="activite-type">
+        <option value="appel">📞 Appel à passer</option>
+        <option value="reunion">🤝 Réunion</option>
+        <option value="email">✉️ Email à envoyer</option>
+        <option value="tache">✅ Tâche</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <input type="text" id="activite-titre" placeholder="Ex: Rappeler pour devis, Envoyer contrat...">
+    </div>
+    <div class="form-group">
+      <label>Échéance (optionnel)</label>
+      <input type="date" id="activite-echeance">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-activite')">Annuler</button>
+      <button class="btn btn-green" onclick="saveActivite()">Enregistrer</button>
     </div>
   </div>
 </div>
@@ -1429,6 +1473,24 @@ function renderContacts() {
       assignees.map(a => '<option value="' + esc(a) + '"' + (a===curA?' selected':'') + '>' + esc(a) + '</option>').join('');
   }
 
+  // Formule filter
+  const formules = [...new Set(allContacts.map(c => c.formule).filter(Boolean))].sort();
+  const formuleSel = document.getElementById('contacts-filter-formule');
+  if (formuleSel) {
+    const curF = formuleSel.value;
+    formuleSel.innerHTML = '<option value="">Toutes les formules</option>' +
+      formules.map(f => '<option value="' + esc(f) + '"' + (f===curF?' selected':'') + '>' + esc(f) + '</option>').join('');
+  }
+
+  // Ville filter
+  const villes = [...new Set(allContacts.map(c => c.ville).filter(Boolean))].sort();
+  const villeSel = document.getElementById('contacts-filter-ville');
+  if (villeSel) {
+    const curV = villeSel.value;
+    villeSel.innerHTML = '<option value="">Toutes les villes</option>' +
+      villes.map(v => '<option value="' + esc(v) + '"' + (v===curV?' selected':'') + '>' + esc(v) + '</option>').join('');
+  }
+
   // Table
   const tbody = document.getElementById('contacts-tbody');
   tbody.innerHTML = filteredContacts.map(c =>
@@ -1469,10 +1531,14 @@ function getFilteredContacts() {
   const statusF = document.getElementById('contacts-filter-status')?.value||'';
   const sectorF = document.getElementById('contacts-filter-sector')?.value||'';
   const assigneeF = document.getElementById('contacts-filter-assignee')?.value||'';
+  const formuleF = document.getElementById('contacts-filter-formule')?.value||'';
+  const villeF = document.getElementById('contacts-filter-ville')?.value||'';
   return allContacts.filter(c => {
     if (statusF && c.statut !== statusF) return false;
     if (sectorF && c.secteur !== sectorF) return false;
     if (assigneeF && c.assignee !== assigneeF) return false;
+    if (formuleF && c.formule !== formuleF) return false;
+    if (villeF && c.ville !== villeF) return false;
     if (search) {
       const hay = [c.nom, c.entreprise, c.email, c.telephone, c.ville, c.secteur].join(' ').toLowerCase();
       if (!hay.includes(search)) return false;
@@ -1546,6 +1612,7 @@ async function openContactDetail(id) {
   }
 
   showView('contact-detail');
+  loadDetailActivites(id);
   loadDetailNotes(id);
   loadDetailFollowups(id);
   loadDetailDocs(id);
@@ -1774,6 +1841,101 @@ async function deleteDocument(docId, filePath) {
   } catch(e) {
     alert('Erreur suppression: ' + e.message);
   }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  ACTIVITÉS (Pipedrive-style tasks)
+// ════════════════════════════════════════════════════════════════
+function activiteTypeIcon(type) {
+  const icons = { appel: '📞', reunion: '🤝', email: '✉️', tache: '✅' };
+  return icons[type] || '✅';
+}
+function activiteTypeLabel(type) {
+  const labels = { appel: 'Appel', reunion: 'Réunion', email: 'Email', tache: 'Tâche' };
+  return labels[type] || type;
+}
+
+async function loadDetailActivites(contactId) {
+  const el = document.getElementById('detail-activites');
+  if (!el) return;
+  el.innerHTML = '<div class="loading-center"><span class="spinner spinner-dark"></span></div>';
+  try {
+    const acts = await sbFetch('/rest/v1/activites?contact_id=eq.' + contactId + '&order=echeance.asc,created_at.asc&select=*') || [];
+    if (acts.length === 0) {
+      el.innerHTML = '<div class="empty-state"><div class="icon">⚡</div><p>Aucune activité</p></div>';
+      return;
+    }
+    const today = new Date(); today.setHours(0,0,0,0);
+    el.innerHTML = acts.map(a => {
+      const isOverdue = a.echeance && !a.fait && new Date(a.echeance) < today;
+      const echeanceStr = a.echeance ? new Date(a.echeance).toLocaleDateString('fr-BE', {day:'2-digit',month:'short',year:'numeric'}) : '';
+      return '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f0f1f5">' +
+        '<div style="font-size:20px;padding-top:2px">' + activiteTypeIcon(a.type) + '</div>' +
+        '<div style="flex:1">' +
+        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+        '<span style="font-weight:600;font-size:13px;color:' + (a.fait ? '#8892a4' : '#0a1628') + ';text-decoration:' + (a.fait ? 'line-through' : 'none') + '">' + esc(a.titre) + '</span>' +
+        '<span style="font-size:11px;color:#8892a4;background:#f5f6fa;padding:2px 8px;border-radius:20px">' + activiteTypeLabel(a.type) + '</span>' +
+        (echeanceStr ? '<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:' + (isOverdue ? '#fee2e2' : '#f0fdf4') + ';color:' + (isOverdue ? '#dc2626' : '#16a34a') + '">' + (isOverdue ? '⚠️ ' : '📅 ') + echeanceStr + '</span>' : '') +
+        '</div>' +
+        '<div style="display:flex;gap:6px;margin-top:6px">' +
+        (!a.fait ? '<button class="btn btn-ghost btn-sm" style="font-size:11px" onclick="markActiviteFait('' + a.id + '')">✅ Marquer fait</button>' : '<span style="font-size:11px;color:#00d68f">✅ Terminé</span>') +
+        '<button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;border:none;font-size:11px" onclick="deleteActivite('' + a.id + '')">🗑️</button>' +
+        '</div>' +
+        '</div></div>';
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<p class="text-muted">Erreur: ' + e.message + '</p>';
+  }
+}
+
+function openAddActiviteModal() {
+  document.getElementById('activite-titre').value = '';
+  document.getElementById('activite-echeance').value = '';
+  document.getElementById('activite-type').value = 'appel';
+  openModal('modal-activite');
+}
+
+async function saveActivite() {
+  const titre = document.getElementById('activite-titre').value.trim();
+  if (!titre) { showToast('Décris l'activité', 'error'); return; }
+  const type = document.getElementById('activite-type').value;
+  const echeance = document.getElementById('activite-echeance').value || null;
+  try {
+    await sbFetch('/rest/v1/activites', {
+      method: 'POST',
+      headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        contact_id: currentContactId,
+        type, titre, echeance,
+        created_by: currentProfile?.nom || 'admin'
+      })
+    });
+    closeModal('modal-activite');
+    showToast('Activité ajoutée', 'success');
+    loadDetailActivites(currentContactId);
+  } catch(e) { showToast('Erreur: ' + e.message, 'error'); }
+}
+
+async function markActiviteFait(id) {
+  try {
+    await sbFetch('/rest/v1/activites?id=eq.' + id, {
+      method: 'PATCH', headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ fait: true })
+    });
+    showToast('Activité terminée ✅', 'success');
+    loadDetailActivites(currentContactId);
+  } catch(e) { showToast('Erreur: ' + e.message, 'error'); }
+}
+
+async function deleteActivite(id) {
+  if (!confirm('Supprimer cette activité ?')) return;
+  try {
+    await sbFetch('/rest/v1/activites?id=eq.' + id, {
+      method: 'DELETE', headers: { 'Prefer': 'return=minimal' }
+    });
+    showToast('Activité supprimée', 'success');
+    loadDetailActivites(currentContactId);
+  } catch(e) { showToast('Erreur: ' + e.message, 'error'); }
 }
 
 async function loadDetailNotes(contactId) {
@@ -2907,7 +3069,7 @@ async function loadCommerciaux() {
     allProfiles = await sbFetch('/rest/v1/profiles?select=*&order=nom.asc') || [];
     const clients = allContacts.filter(c => c.statut === 'client');
     el.innerHTML = '<div class="table-wrap"><table>' +
-      '<thead><tr><th>Nom</th><th>Email</th><th>Taux commission</th><th>Clients actifs</th><th>MRR généré</th><th>Statut</th><th>Actions</th></tr></thead>' +
+      '<thead><tr><th>Nom</th><th>Email</th><th>Taux commission</th><th>Clients actifs</th><th>MRR généré</th><th>Objectif mensuel</th><th>Statut</th><th>Actions</th></tr></thead>' +
       '<tbody>' + profiles.map(p => {
         const myClients = clients.filter(c => c.created_by === p.email || c.assignee === p.nom);
         const mrr = myClients.reduce((s,c) => s+(parseFloat(c.prix_mensuel)||0),0);
@@ -2918,6 +3080,27 @@ async function loadCommerciaux() {
           '<button class="action-btn" onclick="editCommissionRate(\'' + p.id + '\',' + (parseFloat(p.taux_commission)||0.35) + ')">✏️</button></td>' +
           '<td>' + myClients.length + '</td>' +
           '<td>' + fmtEur(mrr) + '</td>' +
+          (function() {
+            const now = new Date();
+            const moisKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+            // Count new clients signed this month by this commercial
+            const signesThisMonth = allContacts.filter(c =>
+              c.statut === 'client' &&
+              (c.assignee === p.nom) &&
+              c.updated_at && c.updated_at.startsWith(moisKey)
+            ).length;
+            const objectif = parseInt(p.objectif_mensuel) || 5;
+            const pct = Math.min(100, Math.round((signesThisMonth / objectif) * 100));
+            const color = pct >= 100 ? '#00d68f' : pct >= 60 ? '#f5a623' : '#e74c3c';
+            return '<td>' +
+              '<div style="display:flex;align-items:center;gap:8px">' +
+              '<div style="flex:1;background:#f0f1f5;border-radius:20px;height:8px;overflow:hidden;min-width:80px">' +
+              '<div style="width:' + pct + '%;height:100%;background:' + color + ';border-radius:20px;transition:width .3s"></div>' +
+              '</div>' +
+              '<span style="font-size:12px;font-weight:700;color:' + color + ';white-space:nowrap">' + signesThisMonth + '/' + objectif + '</span>' +
+              '<button class="action-btn" title="Modifier objectif" onclick="editObjectif(\'' + p.id + '\',' + objectif + ')">✏️</button>' +
+              '</div></td>';
+          })() +
           '<td><span class="badge ' + (p.actif ? 'badge-client' : 'badge-perdu') + '">' + (p.actif?'Actif':'Inactif') + '</span></td>' +
           '<td><button class="btn btn-ghost btn-sm" onclick="toggleCommercialActif(\'' + p.id + '\',' + p.actif + ')">' + (p.actif?'Désactiver':'Activer') + '</button></td>' +
           '</tr>';
@@ -2925,6 +3108,21 @@ async function loadCommerciaux() {
   } catch(e) {
     el.innerHTML = '<p class="text-muted">Erreur: ' + e.message + '</p>';
   }
+}
+
+async function editObjectif(id, currentObjectif) {
+  const newVal = prompt('Objectif mensuel (nombre de signatures) :', currentObjectif);
+  if (newVal === null) return;
+  const val = parseInt(newVal);
+  if (isNaN(val) || val < 1 || val > 100) { showToast('Valeur invalide (1-100)', 'error'); return; }
+  try {
+    await sbFetch('/rest/v1/profiles?id=eq.' + id, {
+      method: 'PATCH', headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ objectif_mensuel: val })
+    });
+    showToast('Objectif mis à jour : ' + val + ' signatures/mois', 'success');
+    loadCommerciaux();
+  } catch(e) { showToast('Erreur: ' + e.message, 'error'); }
 }
 
 async function toggleCommercialActif(id, current) {

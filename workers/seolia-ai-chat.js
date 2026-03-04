@@ -263,8 +263,11 @@ async function handleVapiWebhook(request, env) {
       structured.disponibilites ? `Disponibilités : ${structured.disponibilites}` : null,
       structured.formule_interesse ? `Formule intéressée : ${structured.formule_interesse}` : null,
       `Durée appel : ${Math.round((call.endedAt ? new Date(call.endedAt) - new Date(call.startedAt) : 0) / 1000)}s`,
-      transcript ? `\n--- Transcription ---\n${transcript.substring(0, 1000)}` : null,
-    ].filter(Boolean).join('\n');
+      transcript ? `
+--- Transcription ---
+${transcript.substring(0, 1000)}` : null,
+    ].filter(Boolean).join('
+');
 
     // Create contact in Supabase
     const contactRes = await fetch(`${SUPABASE_URL}/rest/v1/contacts`, {
@@ -373,7 +376,8 @@ async function handleSaveOnboarding(request, env) {
 
     // Store questionnaire in notes_generales with marker
     const notesJson = JSON.stringify(data, null, 2);
-    const questMarker = `[QUESTIONNAIRE_ONBOARDING]\n${notesJson}`;
+    const questMarker = `[QUESTIONNAIRE_ONBOARDING]
+${notesJson}`;
 
     // Update contact with questionnaire data
     const updatePayload = {
@@ -442,6 +446,7 @@ async function handleSaveModification(request, env) {
         client_id,
         description,
         statut: 'en_attente',
+        fichiers: data.fichiers || [],
       }),
     });
 

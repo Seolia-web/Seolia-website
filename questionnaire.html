@@ -231,6 +231,35 @@
     .modif-textarea { min-height: 160px; font-size: 15px; }
     .modif-hint-list { margin: 12px 0 0 0; padding-left: 20px; }
     .modif-hint-list li { font-size: 13px; color: var(--grey); margin-bottom: 4px; }
+
+    /* ─── FILE UPLOAD ZONE ───────────────────────────────────────────────── */
+    .upload-zone {
+      border: 2px dashed rgba(0,214,143,0.3);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: rgba(0,214,143,0.03);
+      margin-top: 10px;
+    }
+    .upload-zone:hover { border-color: var(--green); background: rgba(0,214,143,0.07); }
+    .upload-zone input[type="file"] { display: none; }
+    .upload-zone-label { font-size: 13px; color: var(--grey); cursor: pointer; display: block; }
+    .upload-zone-label span { color: var(--green); font-weight: 600; }
+    .upload-files-list { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .upload-file-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(0,214,143,0.1); border: 1px solid rgba(0,214,143,0.2);
+      border-radius: 20px; padding: 4px 10px; font-size: 12px; color: var(--green);
+    }
+    .upload-file-tag button {
+      background: none; border: none; color: var(--grey); cursor: pointer;
+      font-size: 14px; padding: 0; line-height: 1; display: flex; align-items: center;
+    }
+    .upload-file-tag button:hover { color: #f87171; }
+    .upload-progress { font-size: 12px; color: var(--grey); margin-top: 6px; }
+    .upload-error { font-size: 12px; color: #f87171; margin-top: 6px; }
   </style>
 </head>
 <body>
@@ -422,6 +451,18 @@
               <option value="non">Non — je n'ai pas de logo</option>
             </select>
           </div>
+          <div class="form-group" id="logo-upload-group">
+            <label>Envoyer votre logo directement</label>
+            <div class="upload-zone" onclick="document.getElementById('logo-file-input').click()">
+              <input type="file" id="logo-file-input" accept="image/*,.svg,.ai,.eps,.pdf" multiple onchange="handleFileSelect(this, 'logo')">
+              <label class="upload-zone-label">
+                <span>Cliquez pour ajouter votre logo</span><br>
+                PNG, JPG, SVG, AI, PDF — max 10MB
+              </label>
+              <div class="upload-files-list" id="logo-files-list"></div>
+              <div class="upload-progress" id="logo-upload-progress"></div>
+            </div>
+          </div>
           <div class="form-row">
             <div class="form-group">
               <label>Couleurs souhaitées</label>
@@ -456,6 +497,18 @@
               <option value="oui_contact">Oui — je les transmettrai via Seolia</option>
               <option value="non">Non — utiliser des photos génériques</option>
             </select>
+          </div>
+          <div class="form-group" id="photos-upload-group">
+            <label>Envoyer vos photos de réalisations</label>
+            <div class="upload-zone" onclick="document.getElementById('photos-file-input').click()">
+              <input type="file" id="photos-file-input" accept="image/*,video/*" multiple onchange="handleFileSelect(this, 'photos')">
+              <label class="upload-zone-label">
+                <span>Cliquez pour ajouter vos photos</span><br>
+                JPG, PNG, MP4 — max 10MB par fichier — plusieurs fichiers possibles
+              </label>
+              <div class="upload-files-list" id="photos-files-list"></div>
+              <div class="upload-progress" id="photos-upload-progress"></div>
+            </div>
           </div>
           <div class="form-group">
             <label>Témoignages clients existants ?</label>
@@ -632,6 +685,18 @@
           <textarea id="modif-description" class="form-control modif-textarea" required
             placeholder="Décrivez précisément les modifications souhaitées..."></textarea>
         </div>
+        <div class="form-group">
+          <label>Joindre des photos ou fichiers (optionnel)</label>
+          <div class="upload-zone" onclick="document.getElementById('modif-file-input').click()">
+            <input type="file" id="modif-file-input" accept="image/*,video/*,.pdf,.doc,.docx" multiple onchange="handleFileSelect(this, 'modif')">
+            <label class="upload-zone-label">
+              <span>Cliquez pour ajouter des fichiers</span><br>
+              Photos avant/après, captures d'écran, documents — max 10MB
+            </label>
+            <div class="upload-files-list" id="modif-files-list"></div>
+            <div class="upload-progress" id="modif-upload-progress"></div>
+          </div>
+        </div>
         <div style="background:rgba(0,214,143,0.05);border-radius:8px;padding:14px;margin-bottom:16px">
           <p style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:8px">Exemples de demandes :</p>
           <ul class="modif-hint-list">
@@ -682,6 +747,94 @@
 
   <script>
     const WORKER_URL = 'https://seolia-ai-chat.seolia.workers.dev';
+    const SUPABASE_URL = 'https://tykjkpnlvuxwrurmacpx.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5a2prcG5sdnV4d3J1cm1hY3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NDE2MDcsImV4cCI6MjA4ODAxNzYwN30.Nq1BU9DldMmDwidLMlPusuXT9qsjOotNMenwbpCFa0o';
+    
+    // Stockage des URLs uploadées par zone
+    const uploadedFiles = { logo: [], photos: [], modif: [] };
+
+    function handleFileSelect(input, zone) {
+      const files = Array.from(input.files);
+      if (!files.length) return;
+      files.forEach(file => {
+        if (file.size > 10 * 1024 * 1024) {
+          showUploadError(zone, `${file.name} dépasse 10MB`);
+          return;
+        }
+        addFilePending(zone, file);
+      });
+      input.value = '';
+    }
+
+    function addFilePending(zone, file) {
+      const listEl = document.getElementById(`${zone}-files-list`);
+      const tag = document.createElement('div');
+      tag.className = 'upload-file-tag';
+      tag.dataset.filename = file.name;
+      tag.innerHTML = `<span>&#128206; ${file.name.length > 20 ? file.name.substring(0,20)+'...' : file.name}</span><button type="button" onclick="removeFilePending(this, '${zone}', '${file.name}')" title="Supprimer">&#x2715;</button>`;
+      tag._file = file;
+      listEl.appendChild(tag);
+    }
+
+    function removeFilePending(btn, zone, filename) {
+      const tag = btn.closest('.upload-file-tag');
+      if (tag) tag.remove();
+      uploadedFiles[zone] = uploadedFiles[zone].filter(u => !u.name.includes(filename.substring(0,15)));
+    }
+
+    function showUploadError(zone, msg) {
+      const el = document.getElementById(`${zone}-upload-progress`);
+      if (el) { el.className = 'upload-error'; el.textContent = msg; }
+    }
+
+    async function uploadAllFiles(clientId, zone) {
+      const listEl = document.getElementById(`${zone}-files-list`);
+      const progressEl = document.getElementById(`${zone}-upload-progress`);
+      const tags = listEl ? Array.from(listEl.querySelectorAll('.upload-file-tag')) : [];
+      const toUpload = tags.filter(t => t._file);
+      
+      if (!toUpload.length) return uploadedFiles[zone];
+
+      if (progressEl) { progressEl.className = 'upload-progress'; progressEl.textContent = `Upload en cours (0/${toUpload.length})...`; }
+
+      for (let i = 0; i < toUpload.length; i++) {
+        const tag = toUpload[i];
+        const file = tag._file;
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const path = `${clientId}/${zone}/${Date.now()}_${safeName}`;
+
+        try {
+          const res = await fetch(`${SUPABASE_URL}/storage/v1/object/client-files/${path}`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${SUPABASE_ANON}`,
+              'apikey': SUPABASE_ANON,
+              'Content-Type': file.type || 'application/octet-stream',
+              'x-upsert': 'true',
+            },
+            body: file,
+          });
+
+          if (res.ok) {
+            const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/client-files/${path}`;
+            uploadedFiles[zone].push({ name: file.name, url: publicUrl, type: file.type });
+            tag._file = null;
+            tag.style.background = 'rgba(0,214,143,0.2)';
+          } else {
+            const err = await res.text();
+            console.error('Upload error:', err);
+            tag.style.background = 'rgba(248,113,113,0.2)';
+          }
+        } catch (e) {
+          console.error('Upload exception:', e);
+        }
+
+        if (progressEl) progressEl.textContent = `Upload en cours (${i+1}/${toUpload.length})...`;
+      }
+
+      if (progressEl) { progressEl.textContent = uploadedFiles[zone].length > 0 ? `${uploadedFiles[zone].length} fichier(s) envoyé(s)` : ''; }
+      return uploadedFiles[zone];
+    }
     let currentFlow = null;      // 'onboarding' | 'modification'
     let validatedId = null;
     let validatedContact = null; // { contact_id, nom, formule }
@@ -703,8 +856,8 @@
         flow === 'onboarding' ? 'Entrez votre ID client' : 'Entrez votre ID client';
       document.getElementById('id-screen-desc').textContent =
         flow === 'onboarding'
-          ? 'Votre ID à 6 chiffres vous a été communiqué par l\'équipe Seolia lors de votre inscription.'
-          : 'Votre ID à 6 chiffres vous a été communiqué par l\'équipe Seolia lors de votre inscription.';
+          ? 'Votre ID à 6 chiffres vous a été communiqué par l'équipe Seolia lors de votre inscription.'
+          : 'Votre ID à 6 chiffres vous a été communiqué par l'équipe Seolia lors de votre inscription.';
       // Reset ID screen
       document.getElementById('id-input').value = '';
       document.getElementById('id-input').className = 'id-input';
@@ -751,7 +904,7 @@
         } else {
           document.getElementById('id-input').className = 'id-input error';
           showIdMsg('error',
-            'Cet ID est inconnu. Contactez l\'équipe Seolia pour retrouver votre identifiant :<br>' +
+            'Cet ID est inconnu. Contactez l'équipe Seolia pour retrouver votre identifiant :<br>' +
             '<strong>+32 470 92 21 88</strong> ou <strong>contact@seolia.be</strong>');
         }
       } catch(e) {
@@ -826,10 +979,20 @@
       btn.innerHTML = '<span class="spinner"></span> Envoi en cours...';
 
       try {
+        // Upload files first
+        btn.innerHTML = '<span class="spinner"></span> Upload des fichiers...';
+        const logoFiles = await uploadAllFiles(validatedId, 'logo');
+        const photosFiles = await uploadAllFiles(validatedId, 'photos');
+
+        btn.innerHTML = '<span class="spinner"></span> Envoi en cours...';
         const form = document.getElementById('form-onboarding');
         const fd = new FormData(form);
         const data = { client_id: validatedId, formule: validatedContact.formule, submitted_at: new Date().toISOString() };
         for (const [k, v] of fd.entries()) { if (v) data[k] = v; }
+        
+        // Include uploaded file URLs
+        const allFichiers = [...logoFiles.map(f => ({...f, zone: 'logo'})), ...photosFiles.map(f => ({...f, zone: 'photos'}))];
+        if (allFichiers.length > 0) data.fichiers = allFichiers;
 
         const res = await fetch(`${WORKER_URL}/save-onboarding`, {
           method: 'POST',
@@ -843,7 +1006,8 @@
           throw new Error(result.error || 'Erreur serveur');
         }
       } catch(e) {
-        alert('Une erreur est survenue : ' + e.message + '\nVeuillez réessayer ou contacter Seolia.');
+        alert('Une erreur est survenue : ' + e.message + '
+Veuillez réessayer ou contacter Seolia.');
         btn.disabled = false;
         btn.innerHTML = 'Envoyer mon questionnaire ✓';
       }
@@ -858,13 +1022,22 @@
       }
       const btn = document.getElementById('btn-submit-modif');
       btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Envoi en cours...';
+      btn.innerHTML = '<span class="spinner"></span> Upload des fichiers...';
 
       try {
+        // Upload files first
+        const modifFiles = await uploadAllFiles(validatedId, 'modif');
+        
+        btn.innerHTML = '<span class="spinner"></span> Envoi en cours...';
         const res = await fetch(`${WORKER_URL}/save-modification`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ client_id: validatedId, description, submitted_at: new Date().toISOString() })
+          body: JSON.stringify({ 
+            client_id: validatedId, 
+            description, 
+            fichiers: modifFiles,
+            submitted_at: new Date().toISOString() 
+          })
         });
         const result = await res.json();
         if (result.success) {
@@ -873,7 +1046,8 @@
           throw new Error(result.error || 'Erreur serveur');
         }
       } catch(e) {
-        alert('Une erreur est survenue : ' + e.message + '\nVeuillez réessayer ou contacter Seolia.');
+        alert('Une erreur est survenue : ' + e.message + '
+Veuillez réessayer ou contacter Seolia.');
         btn.disabled = false;
         btn.innerHTML = 'Envoyer ma demande ✓';
       }

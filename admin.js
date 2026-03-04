@@ -450,9 +450,9 @@ function renderKanban() {
 
 function makeKanbanCard(contact) {
   return '<div class="kanban-card" draggable="true" ' +
-    'ondragstart="draggedContactId=\'' + contact.id + '\';this.classList.add(\'dragging\')" ' +
-    'ondragend="draggedContactId=null;this.classList.remove(\'dragging\')" ' +
-    'onclick="openContactDetail(\'' + contact.id + '\')">' +
+    'ondragstart="draggedContactId='' + contact.id + '';this.classList.add('dragging')" ' +
+    'ondragend="draggedContactId=null;this.classList.remove('dragging')" ' +
+    'onclick="openContactDetail('' + contact.id + '')">' +
     '<div class="kcard-name">' + esc(contact.nom||'') + '</div>' +
     '<div class="kcard-company">' + esc(contact.entreprise||'') + '</div>' +
     '<div class="kcard-info">' +
@@ -463,7 +463,7 @@ function makeKanbanCard(contact) {
     (currentProfile?.role === 'admin'
       ? '<div class="kcard-assignee" onclick="event.stopPropagation()">' +
         '<select style="border:none;background:#f1f5f9;font-size:11px;font-weight:500;color:#64748b;padding:2px 4px;border-radius:20px;cursor:pointer;max-width:120px" ' +
-        'onchange="quickUpdateAssignee(\'' + contact.id + '\',this.value);renderKanban()">' +
+        'onchange="quickUpdateAssignee('' + contact.id + '',this.value);renderKanban()">' +
         '<option value="">👤 Non assigné</option>' +
         commercials.map(p => '<option value="' + esc(p.nom) + '"' + (contact.assignee === p.nom ? ' selected' : '') + '>👤 ' + esc(p.nom) + '</option>').join('') +
         '</select></div>'
@@ -603,7 +603,7 @@ function renderContacts() {
   // Table
   const tbody = document.getElementById('contacts-tbody');
   tbody.innerHTML = filteredContacts.map(c =>
-    '<tr onclick="openContactDetail(\'' + c.id + '\')">' +
+    '<tr onclick="openContactDetail('' + c.id + '')">' +
         '<td onclick="event.stopPropagation()" style="text-align:center"><input type="checkbox" class="contact-select-cb" value="' + c.id + '" onchange="updateBulkDeleteBtn()" style="cursor:pointer;accent-color:var(--green)"></td>' +
 '<td class="fw700">' + esc(c.nom||'-') + '</td>' +
     '<td>' + esc(c.entreprise||'-') + '</td>' +
@@ -612,18 +612,18 @@ function renderContacts() {
     '<td>' + esc(c.formule||'-') + '</td>' +
     '<td style="text-align:center">' + renderLastActionCell(c) + '</td>' +
     (currentProfile.role === 'admin'
-      ? '<td onclick="event.stopPropagation()"><select style="border:1px solid #ddd;border-radius:6px;padding:3px 6px;font-size:12px;cursor:pointer;max-width:130px" onchange="quickUpdateAssignee(\'' + c.id + '\',this.value)">' + commOpts.replace('value="' + esc(c.assignee||'') + '"', 'value="' + esc(c.assignee||'') + '" selected') + '</select></td>'
+      ? '<td onclick="event.stopPropagation()"><select style="border:1px solid #ddd;border-radius:6px;padding:3px 6px;font-size:12px;cursor:pointer;max-width:130px" onchange="quickUpdateAssignee('' + c.id + '',this.value)">' + commOpts.replace('value="' + esc(c.assignee||'') + '"', 'value="' + esc(c.assignee||'') + '" selected') + '</select></td>'
       : '<td>' + esc(c.assignee||'-') + '</td>') +
     '<td onclick="event.stopPropagation()">' +
-    '<button class="action-btn" title="Voir" onclick="openContactDetail(\'' + c.id + '\')">👁️</button>' +
-    (currentProfile.role === 'admin' || c.assignee === currentProfile.nom ? '<button class="action-btn" title="Modifier" onclick="openEditContactModalById(\'' + c.id + '\')">✏️</button>' : '') +
+    '<button class="action-btn" title="Voir" onclick="openContactDetail('' + c.id + '')">👁️</button>' +
+    (currentProfile.role === 'admin' || c.assignee === currentProfile.nom ? '<button class="action-btn" title="Modifier" onclick="openEditContactModalById('' + c.id + '')">✏️</button>' : '') +
     '</td></tr>'
   ).join('');
 
   // Cards (mobile)
   const cardsEl = document.getElementById('contacts-cards');
   cardsEl.innerHTML = filteredContacts.map(c =>
-    '<div class="contact-card" onclick="openContactDetail(\'' + c.id + '\')">' +
+    '<div class="contact-card" onclick="openContactDetail('' + c.id + '')">' +
     '<div class="contact-card-header">' +
     '<div><div class="contact-card-name">' + esc(c.nom||'-') + '</div><div class="contact-card-company">' + esc(c.entreprise||'-') + '</div></div>' +
     '<span class="badge badge-' + (c.statut||'prospect') + '">' + (c.statut||'-') + '</span>' +
@@ -715,7 +715,7 @@ async function openContactDetail(id) {
   if (toggleEl) {
     if (contact.statut === 'client' && currentProfile && currentProfile.role === 'admin') {
       const isActif = contact.actif !== false;
-      toggleEl.innerHTML = '<button onclick="toggleClientActif(\'' + contact.id + '\',' + isActif + ')" style="padding:5px 12px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:' + (isActif ? '#e8f5e9;color:#2e7d32' : '#ffebee;color:#c62828') + '">' + (isActif ? '✅ Actif' : '❌ Inactif') + '</button>';
+      toggleEl.innerHTML = '<button onclick="toggleClientActif('' + contact.id + '',' + isActif + ')" style="padding:5px 12px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:' + (isActif ? '#e8f5e9;color:#2e7d32' : '#ffebee;color:#c62828') + '">' + (isActif ? '✅ Actif' : '❌ Inactif') + '</button>';
     } else {
       toggleEl.innerHTML = '';
     }
@@ -773,6 +773,11 @@ async function loadDetailModifications(contactId, contact) {
         </div>
         <p style="font-size:14px;color:#e2e8f0;margin-bottom:${m.note_interne?'8px':'0'}">${esc(m.description)}</p>
         ${m.note_interne ? `<div style="background:rgba(0,214,143,0.07);border-left:3px solid #00d68f;padding:8px 10px;border-radius:0 6px 6px 0;font-size:12px;color:#a0aec0">📝 ${esc(m.note_interne)}</div>` : ''}
+        ${(m.fichiers && m.fichiers.length > 0) ? `<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${m.fichiers.map(f => {
+          const isImg = f.type && f.type.startsWith('image/');
+          if (isImg) return `<a href="${f.url}" target="_blank"><img src="${f.url}" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid rgba(0,214,143,0.3)" onerror="this.style.display='none'"></a>`;
+          return `<a href="${f.url}" target="_blank" style="font-size:11px;color:#00d68f;text-decoration:none;background:rgba(0,214,143,0.08);border-radius:12px;padding:3px 10px">📎 ${esc(f.name)}</a>`;
+        }).join('')}</div>` : ''}
         <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
           <input id="note-modif-${m.id}" type="text" placeholder="Ajouter une note interne..." style="flex:1;background:#141929;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px 10px;color:#fff;font-size:12px">
           <button onclick="addModifNote('${m.id}')" class="btn btn-ghost btn-sm" style="white-space:nowrap">+ Note</button>
@@ -836,17 +841,33 @@ function loadDetailQuestionnaire(contact) {
   }
 
   const dateStr = data.submitted_at ? new Date(data.submitted_at).toLocaleDateString('fr-BE', { day:'2-digit', month:'long', year:'numeric' }) : '';
+  const fichiers = Array.isArray(data.fichiers) ? data.fichiers : [];
   const rows = Object.entries(data)
-    .filter(([k]) => !['client_id','submitted_at','tier','formule'].includes(k))
+    .filter(([k]) => !['client_id','submitted_at','tier','formule','fichiers'].includes(k))
     .map(([k, v]) => {
       if (typeof v === 'object') v = JSON.stringify(v);
       const label = k.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
       return `<div class="detail-field"><label>${label}</label><span style="white-space:pre-wrap">${esc(String(v||'-'))}</span></div>`;
     }).join('');
 
+  const fichiersHtml = fichiers.length > 0 ? `
+    <div style="margin-top:16px">
+      <p style="font-size:12px;font-weight:600;color:#8892a4;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Fichiers envoyés</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${fichiers.map(f => {
+          const isImage = f.type && f.type.startsWith('image/');
+          if (isImage) {
+            return `<a href="${f.url}" target="_blank" title="${esc(f.name)}" style="display:inline-block"><img src="${f.url}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid rgba(0,214,143,0.3)" onerror="this.style.display='none'"></a>`;
+          }
+          return `<a href="${f.url}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,214,143,0.1);border:1px solid rgba(0,214,143,0.2);border-radius:20px;padding:4px 12px;font-size:12px;color:#00d68f;text-decoration:none">📎 ${esc(f.name)}</a>`;
+        }).join('')}
+      </div>
+    </div>` : '';
+
   el.innerHTML = `
     <div style="margin-bottom:10px;font-size:12px;color:#8892a4">Reçu le ${dateStr} — Formule : <strong style="color:#00d68f">${data.formule||data.tier||'-'}</strong></div>
-    <div class="detail-info-grid">${rows}</div>`;
+    <div class="detail-info-grid">${rows}</div>
+    ${fichiersHtml}`;
 }
 
 function formatFileSize(bytes) {
@@ -989,8 +1010,8 @@ async function loadDetailActivites(contactId) {
         (echeanceStr ? '<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:' + (isOverdue ? '#fee2e2' : '#f0fdf4') + ';color:' + (isOverdue ? '#dc2626' : '#16a34a') + '">' + (isOverdue ? '⚠️ ' : '📅 ') + echeanceStr + '</span>' : '') +
         '</div>' +
         '<div style="display:flex;gap:6px;margin-top:6px">' +
-        (!a.fait ? '<button class="btn btn-ghost btn-sm" style="font-size:11px" onclick="markActiviteFait(\'' + a.id + '\')">✅ Marquer fait</button>' : '<span style="font-size:11px;color:#00d68f">✅ Terminé</span>') +
-        '<button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;border:none;font-size:11px" onclick="deleteActivite(\'' + a.id + '\')" >🗑️</button>' +
+        (!a.fait ? '<button class="btn btn-ghost btn-sm" style="font-size:11px" onclick="markActiviteFait('' + a.id + '')">✅ Marquer fait</button>' : '<span style="font-size:11px;color:#00d68f">✅ Terminé</span>') +
+        '<button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;border:none;font-size:11px" onclick="deleteActivite('' + a.id + '')" >🗑️</button>' +
         '</div>' +
         '</div></div>';
     }).join('');
@@ -1090,8 +1111,8 @@ async function loadDetailFollowups(contactId) {
         '<div class="planning-desc">' + esc(f.description||'') + '</div>' +
         '<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">' +
         (f.fait ? '<span style="color:var(--green);font-size:12px">✅ Fait</span>' :
-          '<button class="btn btn-ghost btn-sm" onclick="markFollowupDone(\'' + f.id + '\')">✅ Marquer fait</button>') +
-        '<button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;border:none" onclick="deleteFollowup(\'' + f.id + '\')">🗑️ Supprimer</button>' +
+          '<button class="btn btn-ghost btn-sm" onclick="markFollowupDone('' + f.id + '')">✅ Marquer fait</button>') +
+        '<button class="btn btn-sm" style="background:#fee2e2;color:#dc2626;border:none" onclick="deleteFollowup('' + f.id + '')">🗑️ Supprimer</button>' +
         '</div>' +
         '</div></div>'
       ).join('');
@@ -1186,7 +1207,9 @@ async function deleteContact() {
   if (!currentContactId) return;
   const contact = allContacts.find(c => c.id === currentContactId);
   const name = contact ? (contact.nom || contact.entreprise || 'ce contact') : 'ce contact';
-  if (!confirm('Supprimer définitivement ' + name + ' ?\n\nCette action est irréversible.')) return;
+  if (!confirm('Supprimer définitivement ' + name + ' ?
+
+Cette action est irréversible.')) return;
   try {
     await sbFetch('/rest/v1/contacts?id=eq.' + currentContactId, { method: 'DELETE', headers: { 'Prefer': 'return=minimal' } });
     allContacts = allContacts.filter(c => c.id !== currentContactId);
@@ -1437,7 +1460,9 @@ async function saveContact(editId) {
       const duplicate = allContacts.find(c => c.telephone === telInput && c.id !== editId);
       if (duplicate) {
         const name = duplicate.nom || duplicate.entreprise || 'contact inconnu';
-        if (!confirm('⚠️ Ce numéro existe déjà pour : ' + name + '\n\nContinuer quand même ?')) {
+        if (!confirm('⚠️ Ce numéro existe déjà pour : ' + name + '
+
+Continuer quand même ?')) {
           btn.disabled = false;
           btn.innerHTML = 'Enregistrer';
           return;
@@ -1533,7 +1558,9 @@ async function saveNote() {
     if (type === 'appel' && (result === 'interesse' || result === 'messagerie')) {
       setTimeout(() => {
         const label = result === 'interesse' ? 'RDV de confirmation' : 'Rappel (messagerie)';
-        if (confirm('Créer un rappel automatique pour ce contact ?\n\n"' + label + '"')) {
+        if (confirm('Créer un rappel automatique pour ce contact ?
+
+"' + label + '"')) {
           const nextDate = new Date();
           nextDate.setDate(nextDate.getDate() + (result === 'interesse' ? 2 : 3));
           nextDate.setHours(10, 0, 0, 0);
@@ -1653,7 +1680,7 @@ async function loadPlanning() {
           d.toLocaleString('fr',{month:'short'}) + '</div></div>' +
           '<div class="planning-info">' +
           '<span class="type-badge ' + item.type + '">' + (item.type==='rdv'?'RDV':'Rappel') + '</span>' +
-          '<div class="contact-name" onclick="openContactDetail(\'' + item.id + '\')" style="cursor:pointer">' + esc(item.contactName) + '</div>' +
+          '<div class="contact-name" onclick="openContactDetail('' + item.id + '')" style="cursor:pointer">' + esc(item.contactName) + '</div>' +
           (item.desc ? '<div class="planning-desc">' + esc(item.desc) + '</div>' : '') +
           (item.assignee ? '<div class="text-muted" style="margin-top:3px">👤 ' + esc(item.assignee) + '</div>' : '') +
           '<div class="text-muted">' + formatDateTime(item.date) + '</div>' +
@@ -1886,7 +1913,7 @@ async function loadRevenusMois(moisKey) {
     } else {
       nouvEl.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding:4px 0">' +
         nouveaux.map(c =>
-          '<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer" onclick="openContact(\'' + c.id + '\')">' +
+          '<div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer" onclick="openContact('' + c.id + '')">' +
           '<div style="font-weight:700;font-size:14px;margin-bottom:6px">' + esc(c.nom||c.entreprise||'-') + '</div>' +
           '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:3px">&#x1F4CB; ' + esc(c.formule||'Non renseigné') + '</div>' +
           '<div style="font-size:12px;color:var(--text-secondary)">&#x1F464; ' + esc(c.assignee||'Florian') + '</div>' +
@@ -2009,7 +2036,7 @@ async function loadOnboarding() {
   try {
     const contacts = await sbFetch('/rest/v1/contacts?source=eq.questionnaire&order=created_at.desc&select=*') || [];
     if (!contacts.length) {
-      el.innerHTML = '<div class="empty-state"><div style="font-size:2.5rem;margin-bottom:12px">📭</div><p>Aucun questionnaire reçu pour l\'instant.</p><p style="font-size:12px;color:var(--text-light);margin-top:4px">Les questionnaires remplis sur seolia.be/questionnaire apparaîtront ici.</p></div>';
+      el.innerHTML = '<div class="empty-state"><div style="font-size:2.5rem;margin-bottom:12px">📭</div><p>Aucun questionnaire reçu pour l'instant.</p><p style="font-size:12px;color:var(--text-light);margin-top:4px">Les questionnaires remplis sur seolia.be/questionnaire apparaîtront ici.</p></div>';
       return;
     }
     let html = '';
@@ -2021,7 +2048,8 @@ async function loadOnboarding() {
       try {
         const notes = c.notes_generales || '';
         if (notes.startsWith('[QUESTIONNAIRE_ONBOARDING]')) {
-          data = JSON.parse(notes.replace('[QUESTIONNAIRE_ONBOARDING]\n', ''));
+          data = JSON.parse(notes.replace('[QUESTIONNAIRE_ONBOARDING]
+', ''));
         }
       } catch(e) {}
       window._onboardingData[c.id] = data;
@@ -2271,7 +2299,7 @@ async function loadCommerciaux() {
           '<td class="fw700">' + esc(p.nom) + '</td>' +
           '<td>' + esc(p.email) + '</td>' +
           '<td>' + ((parseFloat(p.taux_commission)||0.35)*100).toFixed(0) + '%' +
-          '<button class="action-btn" onclick="editCommissionRate(\'' + p.id + '\',' + (parseFloat(p.taux_commission)||0.35) + ')">✏️</button></td>' +
+          '<button class="action-btn" onclick="editCommissionRate('' + p.id + '',' + (parseFloat(p.taux_commission)||0.35) + ')">✏️</button></td>' +
           '<td>' + myClients.length + '</td>' +
           '<td>' + fmtEur(mrr) + '</td>' +
           (function() {
@@ -2292,11 +2320,11 @@ async function loadCommerciaux() {
               '<div style="width:' + pct + '%;height:100%;background:' + color + ';border-radius:20px;transition:width .3s"></div>' +
               '</div>' +
               '<span style="font-size:12px;font-weight:700;color:' + color + ';white-space:nowrap">' + signesThisMonth + '/' + objectif + '</span>' +
-              '<button class="action-btn" title="Modifier objectif" onclick="editObjectif(\'' + p.id + '\',' + objectif + ')">✏️</button>' +
+              '<button class="action-btn" title="Modifier objectif" onclick="editObjectif('' + p.id + '',' + objectif + ')">✏️</button>' +
               '</div></td>';
           })() +
           '<td><span class="badge ' + (p.actif ? 'badge-client' : 'badge-perdu') + '">' + (p.actif?'Actif':'Inactif') + '</span></td>' +
-          '<td><button class="btn btn-ghost btn-sm" onclick="toggleCommercialActif(\'' + p.id + '\',' + p.actif + ')">' + (p.actif?'Désactiver':'Activer') + '</button></td>' +
+          '<td><button class="btn btn-ghost btn-sm" onclick="toggleCommercialActif('' + p.id + '',' + p.actif + ')">' + (p.actif?'Désactiver':'Activer') + '</button></td>' +
           '</tr>';
       }).join('') + '</tbody></table></div>';
   } catch(e) {
@@ -2393,7 +2421,8 @@ async function sendEmail() {
         sender: { name: 'Seolia', email: BREVO_FROM },
         to: [{ email: to }],
         subject: subject,
-        htmlContent: '<p>' + body.replace(/\n/g,'<br>') + '</p>'
+        htmlContent: '<p>' + body.replace(/
+/g,'<br>') + '</p>'
       })
     });
     if (!res.ok) throw new Error('Erreur Brevo ' + res.status);
@@ -2807,9 +2836,9 @@ function renderPaiementSection(contact) {
   };
   const s = statusLabels[statut] || statusLabels['non_configure'];
 
-  const nomEsc = (contact.nom||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-  const emailEsc = (contact.email||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-  const formuleEsc = (contact.formule||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const nomEsc = (contact.nom||'').replace(/\\/g,'\\\').replace(/'/g,"\'");
+  const emailEsc = (contact.email||'').replace(/\\/g,'\\\').replace(/'/g,"\'");
+  const formuleEsc = (contact.formule||'').replace(/\\/g,'\\\').replace(/'/g,"\'");
   const mollieCustomerId = contact.mollie_customer_id || '';
   const mollieMandateId = contact.mollie_mandate_id || '';
 
@@ -2937,7 +2966,7 @@ async function mollieSetupPayment(contactId, mollieCustomerId, formule) {
       const linkBox = `
         <div class="paiement-link-box" id="mol-checkout-link">${checkoutUrl}</div>
         <div class="paiement-actions" style="margin-top:8px;">
-          <button class="btn-mollie btn-mollie-copy" onclick="navigator.clipboard.writeText('${checkoutUrl.replace(/'/g,"\\'")}').then(()=>showToast('Lien copié !','success'))">
+          <button class="btn-mollie btn-mollie-copy" onclick="navigator.clipboard.writeText('${checkoutUrl.replace(/'/g,"\'")}').then(()=>showToast('Lien copié !','success'))">
             📋 Copier le lien
           </button>
           <a href="https://wa.me/?text=${waText}" target="_blank" class="btn-mollie btn-mollie-green" style="text-decoration:none;display:inline-flex;align-items:center;">
@@ -3025,7 +3054,7 @@ async function loadCommentaires(contactId) {
             + '<strong style="color:var(--green);margin-right:6px;">' + escHtml(c.prenom_commercial) + '</strong>'
             + '<span style="color:var(--text)">' + escHtml(c.texte) + '</span>'
             + '</div>'
-            + '<button onclick="deleteCommentaire(' + c.id + ')" title="Supprimer" style="flex-shrink:0;background:none;border:none;cursor:pointer;color:var(--text-light);font-size:14px;padding:2px 4px;border-radius:4px;line-height:1;" onmouseover="this.style.color=\'#e74c3c\'" onmouseout="this.style.color=\'var(--text-light)\'">&#x1F5D1;</button>'
+            + '<button onclick="deleteCommentaire(' + c.id + ')" title="Supprimer" style="flex-shrink:0;background:none;border:none;cursor:pointer;color:var(--text-light);font-size:14px;padding:2px 4px;border-radius:4px;line-height:1;" onmouseover="this.style.color='#e74c3c'" onmouseout="this.style.color='var(--text-light)'">&#x1F5D1;</button>'
             + '</div>';
         }).join('');
   } catch(e) {
@@ -3248,7 +3277,7 @@ function formatRelativeDate(dateStr) {
   const mins = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
-  if (mins < 2) return 'à l\'instant';
+  if (mins < 2) return 'à l'instant';
   if (mins < 60) return `il y a ${mins} min`;
   if (hours < 24) return `il y a ${hours}h`;
   if (days < 2) return 'hier';
@@ -3335,7 +3364,7 @@ async function renderEnhancedDashboard() {
         return da.localeCompare(db);
       });
       if (allToday.length === 0) {
-        todayItemsEl.innerHTML = '<div style="color:var(--text-light);font-size:13px;padding:8px 0">Aucune activité prévue aujourd\'hui ✓</div>';
+        todayItemsEl.innerHTML = '<div style="color:var(--text-light);font-size:13px;padding:8px 0">Aucune activité prévue aujourd'hui ✓</div>';
       } else {
         const typeIcons = { appel:'📞', reunion:'🤝', email:'✉️', tache:'✅', followup:'📅' };
         todayItemsEl.innerHTML = allToday.map(item => {
@@ -3389,7 +3418,7 @@ async function renderEnhancedDashboard() {
     } else {
       stagnantGrid.innerHTML = stagnantContacts.map(c => {
         const days = c.updated_at ? Math.floor((Date.now() - new Date(c.updated_at).getTime()) / 86400000) : '?';
-        return '<div class="hot-lead-card" style="cursor:pointer;border-left:3px solid #ef4444" onclick="openContactDetail(\'' + c.id + '\')">' +
+        return '<div class="hot-lead-card" style="cursor:pointer;border-left:3px solid #ef4444" onclick="openContactDetail('' + c.id + '')">' +
           '<div style="font-weight:700;font-size:13px">' + esc(c.nom||c.entreprise||'—') + '</div>' +
           '<div style="font-size:11px;color:var(--text-light);margin:3px 0">' + esc(c.secteur||c.ville||'—') + '</div>' +
           '<div style="font-size:11px;color:#ef4444;font-weight:600">Aucun contact depuis ' + days + ' jours</div>' +
@@ -3494,7 +3523,8 @@ function handleCSVFile(event) {
   });
 })();
 function parseCSVContent(text) {
-  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  const lines = text.split(/\r?
+/).filter(l => l.trim());
   if (lines.length < 2) { showToast('CSV invalide ou vide', 'error'); return; }
   const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/"/g,''));
   csvData = lines.slice(1).map(line => {
@@ -3561,7 +3591,8 @@ function exportCSV() {
     const val = c[col] != null ? String(c[col]).replace(/"/g, '""') : '';
     return `"${val}"`;
   }).join(','));
-  const csv = [header, ...rows].join('\n');
+  const csv = [header, ...rows].join('
+');
   const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = `seolia_contacts_${new Date().toISOString().split('T')[0]}.csv`;
@@ -4098,37 +4129,37 @@ function generateContrat() {
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(8);
   doc.setTextColor(...GRAY);
-  doc.text('Ces conditions font partie integrante du contrat signe en page 1 et s\'appliquent a l\'ensemble des prestations fournies par Seolia.', marginL, y, { maxWidth: contentW });
+  doc.text('Ces conditions font partie integrante du contrat signe en page 1 et s'appliquent a l'ensemble des prestations fournies par Seolia.', marginL, y, { maxWidth: contentW });
   y += 10;
 
   const articles = [
     {
       title: 'Article 1 — Objet du contrat',
-      text: 'Seolia (Florian Moers, BE 0727.941.547, ci-apres "le Prestataire") s\'engage a concevoir, deployer et maintenir un site web professionnel et/ou des services numeriques selon le forfait souscrit par le client. Les prestations incluses dans le forfait sont celles detaillees sur la fiche commerciale remise au client lors de la souscription, qui fait partie integrante du present contrat.'
+      text: 'Seolia (Florian Moers, BE 0727.941.547, ci-apres "le Prestataire") s'engage a concevoir, deployer et maintenir un site web professionnel et/ou des services numeriques selon le forfait souscrit par le client. Les prestations incluses dans le forfait sont celles detaillees sur la fiche commerciale remise au client lors de la souscription, qui fait partie integrante du present contrat.'
     },
     {
       title: 'Article 2 — Duree et engagement minimal',
-      text: 'Le present contrat est conclu pour une duree minimale de 6 (six) mois calendaires a compter de la date de signature. Apres cette periode d\'engagement, le contrat se poursuit tacitement de mois en mois et peut etre resilie par l\'une ou l\'autre des parties avec un preavis minimum d\'1 (un) mois, notifie par ecrit (courrier electronique ou courrier recommande).'
+      text: 'Le present contrat est conclu pour une duree minimale de 6 (six) mois calendaires a compter de la date de signature. Apres cette periode d'engagement, le contrat se poursuit tacitement de mois en mois et peut etre resilie par l'une ou l'autre des parties avec un preavis minimum d'1 (un) mois, notifie par ecrit (courrier electronique ou courrier recommande).'
     },
     {
       title: 'Article 3 — Resiliation anticipee',
-      text: 'Toute demande de resiliation formulee avant l\'echeance de la periode d\'engagement de 6 mois entraine la facturation immediate et integrale de l\'ensemble des mensualites restantes jusqu\'au terme de ladite periode, majorees de 150 EUR TVAC de frais administratifs de cloture. Ces montants sont exigibles sans delai a reception de la facture correspondante.'
+      text: 'Toute demande de resiliation formulee avant l'echeance de la periode d'engagement de 6 mois entraine la facturation immediate et integrale de l'ensemble des mensualites restantes jusqu'au terme de ladite periode, majorees de 150 EUR TVAC de frais administratifs de cloture. Ces montants sont exigibles sans delai a reception de la facture correspondante.'
     },
     {
       title: 'Article 4 — Conditions de paiement',
-      text: 'Les frais de mise en place sont exigibles a la date de signature du contrat. L\'abonnement mensuel est preleve automatiquement par prelevement SEPA direct le 1er de chaque mois. Le client autorise Seolia a prelever les montants dus via le mandat SEPA signe lors de la souscription. Tout refus de prelevement sans motif valable constitue un defaut de paiement soumis a l\'article 5.'
+      text: 'Les frais de mise en place sont exigibles a la date de signature du contrat. L'abonnement mensuel est preleve automatiquement par prelevement SEPA direct le 1er de chaque mois. Le client autorise Seolia a prelever les montants dus via le mandat SEPA signe lors de la souscription. Tout refus de prelevement sans motif valable constitue un defaut de paiement soumis a l'article 5.'
     },
     {
       title: 'Article 5 — Non-paiement et suspension',
-      text: 'En cas de non-paiement d\'une echeance, Seolia adresse une mise en demeure par courrier electronique. Sans regularisation dans un delai de 15 (quinze) jours calendaires suivant l\'envoi de cette mise en demeure, Seolia se reserve le droit de suspendre l\'integralite des services sans preavis supplementaire. La suspension du service ne met pas fin au contrat et ne supprime pas les obligations de paiement du client, qui restent integralement dues.'
+      text: 'En cas de non-paiement d'une echeance, Seolia adresse une mise en demeure par courrier electronique. Sans regularisation dans un delai de 15 (quinze) jours calendaires suivant l'envoi de cette mise en demeure, Seolia se reserve le droit de suspendre l'integralite des services sans preavis supplementaire. La suspension du service ne met pas fin au contrat et ne supprime pas les obligations de paiement du client, qui restent integralement dues.'
     },
     {
       title: 'Article 6 — Propriete intellectuelle',
-      text: 'L\'ensemble du code source, des maquettes graphiques, des fichiers de design, des scripts et de tout autre element technique cree ou configure par Seolia dans le cadre du contrat reste la propriete exclusive de Florian Moers (Seolia), pendant toute la duree du contrat et apres sa resiliation, quelle qu\'en soit la cause. Le client ne peut en aucun cas reclamer le transfert, la cession ou la copie du code source.'
+      text: 'L'ensemble du code source, des maquettes graphiques, des fichiers de design, des scripts et de tout autre element technique cree ou configure par Seolia dans le cadre du contrat reste la propriete exclusive de Florian Moers (Seolia), pendant toute la duree du contrat et apres sa resiliation, quelle qu'en soit la cause. Le client ne peut en aucun cas reclamer le transfert, la cession ou la copie du code source.'
     },
     {
       title: 'Article 7 — Nom de domaine',
-      text: 'Le nom de domaine enregistre dans le cadre du contrat reste la propriete du client. Seolia en assure uniquement la gestion technique pendant la duree du contrat. En cas de resiliation, quelle qu\'en soit la cause, Seolia s\'engage a restituer l\'integralite des acces et le controle du nom de domaine au client dans un delai maximum de 30 (trente) jours suivant la date effective de resiliation.'
+      text: 'Le nom de domaine enregistre dans le cadre du contrat reste la propriete du client. Seolia en assure uniquement la gestion technique pendant la duree du contrat. En cas de resiliation, quelle qu'en soit la cause, Seolia s'engage a restituer l'integralite des acces et le controle du nom de domaine au client dans un delai maximum de 30 (trente) jours suivant la date effective de resiliation.'
     },
     {
       title: 'Article 8 — Garanties et responsabilites',
@@ -4136,11 +4167,11 @@ function generateContrat() {
     },
     {
       title: 'Article 9 — Protection des donnees personnelles (RGPD)',
-      text: 'Seolia traite les donnees personnelles du client et, le cas echeant, de ses clients finaux, conformement au Reglement General sur la Protection des Donnees (UE) 2016/679 (RGPD) et a la loi belge du 30 juillet 2018. Les donnees collectees sont utilisees exclusivement aux fins de l\'execution du present contrat et de la relation commerciale. Le client dispose d\'un droit d\'acces, de rectification, d\'effacement et d\'opposition, exercable par courrier electronique a florianmoerspro@gmail.com. L\'autorite de controle competente est l\'Autorite de Protection des Donnees (APD) — www.autoriteprotectiondonnees.be.'
+      text: 'Seolia traite les donnees personnelles du client et, le cas echeant, de ses clients finaux, conformement au Reglement General sur la Protection des Donnees (UE) 2016/679 (RGPD) et a la loi belge du 30 juillet 2018. Les donnees collectees sont utilisees exclusivement aux fins de l'execution du present contrat et de la relation commerciale. Le client dispose d'un droit d'acces, de rectification, d'effacement et d'opposition, exercable par courrier electronique a florianmoerspro@gmail.com. L'autorite de controle competente est l'Autorite de Protection des Donnees (APD) — www.autoriteprotectiondonnees.be.'
     },
     {
       title: 'Article 10 — Droit applicable et juridiction',
-      text: 'Le present contrat est soumis exclusivement au droit belge. En cas de litige relatif a son interpretation ou a son execution, les parties s\'engagent a rechercher prioritairement une solution amiable avant toute action judiciaire. A defaut de resolution amiable dans un delai de 30 jours, le litige releve de la competence exclusive des tribunaux de l\'arrondissement judiciaire de Liege.'
+      text: 'Le present contrat est soumis exclusivement au droit belge. En cas de litige relatif a son interpretation ou a son execution, les parties s'engagent a rechercher prioritairement une solution amiable avant toute action judiciaire. A defaut de resolution amiable dans un delai de 30 jours, le litige releve de la competence exclusive des tribunaux de l'arrondissement judiciaire de Liege.'
     },
   ];
 

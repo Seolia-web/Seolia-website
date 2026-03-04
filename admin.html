@@ -2111,7 +2111,7 @@ function openAddActiviteModal() {
 
 async function saveActivite() {
   const titre = document.getElementById('activite-titre').value.trim();
-  if (!titre) { showToast('Décris l'activité', 'error'); return; }
+  if (!titre) { showToast("Décris l'activité", 'error'); return; }
   const type = document.getElementById('activite-type').value;
   const echeance = document.getElementById('activite-echeance').value || null;
   try {

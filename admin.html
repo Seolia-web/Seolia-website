@@ -512,7 +512,6 @@ tr.stagnant-row { background: rgba(231,76,60,.03) !important; }
     <div class="top-search-wrap">
       <span class="top-search-icon">🔍</span>
       <input type="text" id="global-search-input" placeholder="Rechercher contacts, entreprises..." oninput="globalSearch(this.value)" autocomplete="off">
-      <div class="search-results-dropdown" id="search-dropdown"></div>
     </div>
     <div id="header-notif-wrapper" style="margin-left:auto"></div>
   </header>
@@ -976,6 +975,9 @@ tr.stagnant-row { background: rgba(231,76,60,.03) !important; }
     </div>
 
   </main><!-- /main -->
+
+  <!-- SEARCH DROPDOWN (outside header to avoid stacking context issues) -->
+  <div class="search-results-dropdown" id="search-dropdown" style="position:fixed;z-index:9998;display:none;max-height:320px;overflow-y:auto;"></div>
 
   <!-- BOTTOM NAV (mobile) -->
   <nav id="bottom-nav">
@@ -4526,8 +4528,9 @@ function exportCSV() {
 // ── GLOBAL SEARCH ─────────────────────────────────────────
 function globalSearch(query) {
   const dropdown = document.getElementById('search-dropdown');
+  const inp = document.getElementById('global-search-input');
   if (!dropdown) return;
-  if (!query || query.length < 2) { dropdown.classList.remove('open'); return; }
+  if (!query || query.length < 2) { dropdown.style.display = 'none'; return; }
   const q = query.toLowerCase();
   const results = (allContacts || []).filter(c =>
     (c.nom||'').toLowerCase().includes(q) ||
@@ -4543,7 +4546,7 @@ function globalSearch(query) {
     dropdown.innerHTML = results.map(c => {
       const name = [c.prenom, c.nom].filter(Boolean).join(' ') || c.entreprise || 'Sans nom';
       const sub = [c.entreprise, c.telephone, c.ville].filter(Boolean).join(' · ');
-      return `<div class="search-result-item" onclick="globalSearchSelect(${c.id})">
+      return `<div class="search-result-item" onmousedown="event.preventDefault();globalSearchSelect(${c.id})">
         <span>👤</span>
         <div>
           <div class="sr-name">${escHtml(name)}</div>
@@ -4552,11 +4555,18 @@ function globalSearch(query) {
       </div>`;
     }).join('');
   }
-  dropdown.classList.add('open');
+  // Position dropdown under the input field (fixed, in global stacking context)
+  if (inp) {
+    const rect = inp.getBoundingClientRect();
+    dropdown.style.top = (rect.bottom + 4) + 'px';
+    dropdown.style.left = rect.left + 'px';
+    dropdown.style.width = rect.width + 'px';
+  }
+  dropdown.style.display = 'block';
 }
 function globalSearchSelect(contactId) {
   const dropdown = document.getElementById('search-dropdown');
-  if (dropdown) dropdown.classList.remove('open');
+  if (dropdown) dropdown.style.display = 'none';
   const inp = document.getElementById('global-search-input');
   if (inp) inp.value = '';
   loadContact(contactId);
@@ -4564,7 +4574,9 @@ function globalSearchSelect(contactId) {
 // Close dropdown on click outside
 document.addEventListener('click', (e) => {
   const dd = document.getElementById('search-dropdown');
-  if (dd && !e.target.closest('.top-search-wrap')) dd.classList.remove('open');
+  if (dd && !e.target.closest('.top-search-wrap') && e.target !== dd && !dd.contains(e.target)) {
+    dd.style.display = 'none';
+  }
 });
 
 // ── WHATSAPP ──────────────────────────────────────────────

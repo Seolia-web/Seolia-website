@@ -3671,21 +3671,27 @@ function noteTypeLabel(type) {
 
 function autoFillFormule(val) {
   const map = {
-    'Web Essentiel':      { setup: 199, mensuel: 69 },
-    'Web Business':       { setup: 349, mensuel: 119 },
+    'Web Essentiel':      { setup: 149, mensuel: 69 },
+    'Web Business':       { setup: 299, mensuel: 119 },
     'Web Premium':        { setup: 499, mensuel: 199 },
-    'Starter IA':         { setup: 299, mensuel: 50 },
-    'Business IA':        { setup: 599, mensuel: 150 },
-    'Premium IA':         { setup: 999, mensuel: 300 },
-    'Bundle Essentiel IA':{ setup: 499, mensuel: 109 },
-    'Bundle Business IA': { setup: 949, mensuel: 249 },
-    'Bundle Premium IA':  { setup: 1499, mensuel: 449 },
+    'Essentiel IA':            { setup: 499, mensuel: 109 },
+    'Business IA':             { setup: 949, mensuel: 249 },
+    'Premium IA':              { setup: 1499, mensuel: 449 },
+    'Bundle Essentiel IA':     { setup: 499, mensuel: 109 },
+    'Bundle Business IA':      { setup: 949, mensuel: 249 },
+    'Bundle Premium IA':       { setup: 1499, mensuel: 449 },
   };
   if (map[val]) {
-    const s = document.getElementById('cf-setup');
-    const m = document.getElementById('cf-mensuel');
-    if (s) s.value = map[val].setup;
-    if (m) m.value = map[val].mensuel;
+    // Formulaire création (cf-)
+    const cs = document.getElementById('cf-setup');
+    const cm = document.getElementById('cf-mensuel');
+    if (cs) cs.value = map[val].setup;
+    if (cm) cm.value = map[val].mensuel;
+    // Formulaire édition fiche (dif-)
+    const ds = document.getElementById('dif-setup');
+    const dm = document.getElementById('dif-mensuel');
+    if (ds) ds.value = map[val].setup;
+    if (dm) dm.value = map[val].mensuel;
   }
 }
 

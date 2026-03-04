@@ -1220,10 +1220,20 @@ function getHeaders(extra = {}) {
 
 async function sbFetch(path, opts = {}) {
   const url = SUPABASE_URL + path;
-  const res = await fetch(url, {
+  let res = await fetch(url, {
     ...opts,
     headers: { ...getHeaders(), ...(opts.headers || {}) }
   });
+  // Auto-refresh si JWT expired (401)
+  if (res.status === 401) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed) {
+      res = await fetch(url, {
+        ...opts,
+        headers: { ...getHeaders(), ...(opts.headers || {}) }
+      });
+    }
+  }
   if (!res.ok) {
     let msg = 'Erreur ' + res.status;
     try { const j = await res.json(); msg = j.message || j.error || msg; } catch(e) {}
@@ -1255,6 +1265,7 @@ async function doLogin() {
     currentToken = data.access_token;
     currentUser = data.user;
     localStorage.setItem('seolia_token', currentToken);
+    localStorage.setItem('seolia_refresh_token', data.refresh_token || '');
     localStorage.setItem('seolia_user', JSON.stringify({ email: data.user.email }));
     await initApp();
   } catch(e) {
@@ -1270,8 +1281,27 @@ document.getElementById('login-password').addEventListener('keydown', e => {
   if (e.key === 'Enter') doLogin();
 });
 
+async function refreshAccessToken() {
+  const refreshToken = localStorage.getItem('seolia_refresh_token');
+  if (!refreshToken) return false;
+  try {
+    const res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=refresh_token', {
+      method: 'POST',
+      headers: { 'apikey': ANON_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken })
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    currentToken = data.access_token;
+    localStorage.setItem('seolia_token', currentToken);
+    if (data.refresh_token) localStorage.setItem('seolia_refresh_token', data.refresh_token);
+    return true;
+  } catch(e) { return false; }
+}
+
 function doLogout() {
   localStorage.removeItem('seolia_token');
+  localStorage.removeItem('seolia_refresh_token');
   localStorage.removeItem('seolia_user');
   currentToken = null; currentUser = null; currentProfile = null;
   allContacts = []; currentContactId = null;
@@ -3087,14 +3117,15 @@ async function toggleClientActif(contactId, currentActif) {
   try {
     await sbFetch('/rest/v1/contacts?id=eq.' + contactId, {
       method: 'PATCH',
-      body: JSON.stringify({ actif: newActif })
+      headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ actif: newActif, updated_at: new Date().toISOString() })
     });
-    // Mettre à jour localement
     const idx = allContacts.findIndex(c => c.id === contactId);
     if (idx !== -1) allContacts[idx].actif = newActif;
+    showToast((newActif ? 'Client activé' : 'Client désactivé') + ' avec succès', 'success');
     openContactDetail(contactId);
   } catch(e) {
-    alert('Erreur lors de la mise à jour');
+    showToast('Erreur: ' + e.message, 'error');
   }
 }
 

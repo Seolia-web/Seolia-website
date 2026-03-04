@@ -1358,7 +1358,6 @@ function showView(viewId) {
   updateNavActive(viewId);
   if (viewId === 'dashboard') loadDashboard();
   else if (viewId === 'contacts') { setTimeout(() => setContactsView(_contactsViewMode), 50); }
-  else if (viewId === 'contacts') renderContacts();
   else if (viewId === 'planning') loadPlanning();
   else if (viewId === 'commissions') loadCommissions();
   else if (viewId === 'revenus') loadRevenus();
@@ -1489,6 +1488,7 @@ function setContactsView(mode) {
   if (mode === 'list') {
     listSection.style.display = '';
     kanbanSection.style.display = 'none';
+    renderContacts();
     if (btnList) { btnList.style.background='#fff'; btnList.style.color='var(--navy)'; btnList.style.boxShadow='0 1px 3px rgba(0,0,0,.08)'; }
     if (btnKanban) { btnKanban.style.background='transparent'; btnKanban.style.color='var(--text-light)'; btnKanban.style.boxShadow='none'; }
   } else {

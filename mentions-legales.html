@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico"/>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mentions légales & Politique de confidentialité — Seolia</title>
+  <meta name="description" content="Mentions légales, politique de confidentialité et informations RGPD de Seolia, agence web pour artisans en Belgique."/>
+  <meta name="robots" content="noindex, follow"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .legal-hero {
+      padding: 140px 40px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    @media (max-width: 768px) { .legal-hero { padding: 110px 20px 60px; } }
+    .legal-hero-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 30%, rgba(0,214,143,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .legal-hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 800;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 1;
+    }
+    .legal-hero p {
+      font-size: 1rem;
+      color: var(--grey);
+      max-width: 560px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .legal-content {
+      background: var(--navy-light);
+      border-top: 1px solid var(--border);
+      padding: 80px 40px;
+    }
+    @media (max-width: 768px) { .legal-content { padding: 60px 20px; } }
+
+    .legal-inner {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .legal-section {
+      background: var(--navy-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 40px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 600px) { .legal-section { padding: 24px 20px; } }
+
+    .legal-section h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--green);
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .legal-section h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--grey-light);
+      margin: 24px 0 10px;
+    }
+    .legal-section h3:first-of-type { margin-top: 0; }
+
+    .legal-section p {
+      font-size: 0.9rem;
+      color: var(--grey);
+      line-height: 1.75;
+      margin-bottom: 12px;
+    }
+    .legal-section p:last-child { margin-bottom: 0; }
+
+    .legal-section ul {
+      padding-left: 20px;
+      margin: 10px 0;
+    }
+    .legal-section ul li {
+      font-size: 0.9rem;
+      color: var(--grey);
+      line-height: 1.75;
+      margin-bottom: 6px;
+    }
+
+    .legal-section a {
+      color: var(--green);
+      text-decoration: underline;
+      transition: opacity 0.2s;
+    }
+    .legal-section a:hover { opacity: 0.8; }
+
+    .legal-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,214,143,0.08);
+      border: 1px solid rgba(0,214,143,0.2);
+      border-radius: 50px;
+      padding: 8px 18px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--green);
+      margin-bottom: 40px;
+    }
+
+    .update-notice {
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--grey);
+      margin-top: 40px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--navy-card);
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV OVERLAY MOBILE -->
+<div class="nav-overlay" id="navOverlay">
+  <span class="close-btn" id="closeNav">&#x2715;</span>
+  <a href="index.html">Accueil</a>
+  <a href="formules.html">Formules</a>
+  <a href="portfolio.html">Portfolio</a>
+  <a href="blog/index.html">Blog</a>
+  <a href="contact.html">Contact</a>
+  <a href="contact.html" style="color:var(--green);border:2px solid var(--green);padding:12px 32px;border-radius:50px;margin-top:8px;">Appel gratuit</a>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <a href="index.html" class="nav-logo">Seo<span>lia</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="formules.html">Formules</a></li>
+    <li><a href="portfolio.html">Portfolio</a></li>
+    <li><a href="blog/index.html">Blog</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    <li><a href="contact.html" class="nav-cta">Appel gratuit</a></li>
+  </ul>
+  <div class="burger" id="burger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="legal-hero">
+  <div class="legal-hero-bg"></div>
+  <div class="legal-badge">&#128274; Informations légales</div>
+  <h1>Mentions légales &amp;<br/><span class="highlight">Politique de confidentialité</span></h1>
+  <p>Conformément au droit belge et au Règlement général sur la protection des données (RGPD — UE 2016/679).</p>
+</div>
+
+<!-- CONTENT -->
+<div class="legal-content">
+  <div class="legal-inner">
+
+    <!-- 1. IDENTIFICATION -->
+    <div class="legal-section">
+      <h2>&#127981; 1. Identification de l'éditeur</h2>
+      <p><strong style="color:var(--grey-light);">Nom commercial :</strong> Seolia</p>
+      <p><strong style="color:var(--grey-light);">Exploitant :</strong> Florian Moers (personne physique — indépendant)</p>
+      <p><strong style="color:var(--grey-light);">Numéro d'entreprise / TVA :</strong> BE 0727.941.547</p>
+      <p><strong style="color:var(--grey-light);">Adresse :</strong> Belgique</p>
+      <p><strong style="color:var(--grey-light);">Téléphone :</strong> <a href="tel:+32470922188">+32 470 92 21 88</a></p>
+      <p><strong style="color:var(--grey-light);">Email :</strong> <a href="mailto:contact@seolia.be">contact@seolia.be</a></p>
+    </div>
+
+    <!-- 2. HÉBERGEMENT -->
+    <div class="legal-section">
+      <h2>&#9729; 2. Hébergement</h2>
+      <p>Ce site est hébergé par :</p>
+      <p>
+        <strong style="color:var(--grey-light);">Cloudflare, Inc.</strong><br/>
+        101 Townsend St, San Francisco, CA 94107, USA<br/>
+        <a href="https://www.cloudflare.com" target="_blank" rel="noopener">https://www.cloudflare.com</a>
+      </p>
+    </div>
+
+    <!-- 3. PROPRIÉTÉ INTELLECTUELLE -->
+    <div class="legal-section">
+      <h2>&#128196; 3. Propriété intellectuelle</h2>
+      <p>L'ensemble du contenu de ce site (textes, images, logos, code source) est la propriété exclusive de Florian Moers (Seolia), sauf mention contraire. Toute reproduction, distribution ou utilisation sans autorisation écrite préalable est interdite.</p>
+    </div>
+
+    <!-- 4. RGPD -->
+    <div class="legal-section">
+      <h2>&#128274; 4. Politique de confidentialité (RGPD)</h2>
+
+      <h3>4.1 Responsable du traitement</h3>
+      <p>Florian Moers (Seolia) — BE 0727.941.547 — <a href="mailto:contact@seolia.be">contact@seolia.be</a></p>
+
+      <h3>4.2 Données collectées</h3>
+      <ul>
+        <li>Via le formulaire de contact/chatbot : nom, prénom, numéro de téléphone, adresse email, type d'activité professionnelle, code postal, message</li>
+        <li>Via les cookies : données de navigation anonymes (Google Analytics si activé)</li>
+      </ul>
+
+      <h3>4.3 Finalités du traitement</h3>
+      <ul>
+        <li>Répondre aux demandes de contact et de devis</li>
+        <li>Établir des propositions commerciales et contrats</li>
+        <li>Gérer la relation client (facturation, abonnements)</li>
+        <li>Améliorer nos services</li>
+      </ul>
+
+      <h3>4.4 Base légale</h3>
+      <ul>
+        <li>Intérêt légitime (demandes commerciales)</li>
+        <li>Exécution d'un contrat (clients)</li>
+        <li>Consentement (communications marketing)</li>
+      </ul>
+
+      <h3>4.5 Durée de conservation</h3>
+      <p>Les données sont conservées maximum 3 ans après le dernier contact, ou pendant toute la durée du contrat + 5 ans (obligations comptables belges).</p>
+
+      <h3>4.6 Destinataires des données</h3>
+      <p>Vos données ne sont pas vendues ni partagées avec des tiers à des fins commerciales. Elles peuvent être transmises à nos sous-traitants techniques (hébergement, paiement) dans le cadre strict de la prestation de service :</p>
+      <ul>
+        <li><strong style="color:var(--grey-light);">Supabase</strong> (base de données) — USA/EU, conforme RGPD</li>
+        <li><strong style="color:var(--grey-light);">Mollie</strong> (paiements) — Pays-Bas, conforme RGPD</li>
+        <li><strong style="color:var(--grey-light);">Cloudflare</strong> (hébergement) — USA, Privacy Shield</li>
+      </ul>
+
+      <h3>4.7 Vos droits</h3>
+      <p>Conformément au Règlement (UE) 2016/679 (RGPD) et à la loi belge du 30 juillet 2018, vous disposez des droits suivants :</p>
+      <ul>
+        <li>Droit d'accès à vos données</li>
+        <li>Droit de rectification</li>
+        <li>Droit à l'effacement ("droit à l'oubli")</li>
+        <li>Droit à la limitation du traitement</li>
+        <li>Droit à la portabilité</li>
+        <li>Droit d'opposition</li>
+      </ul>
+      <p>Pour exercer ces droits, contactez-nous à : <a href="mailto:contact@seolia.be">contact@seolia.be</a></p>
+      <p>Vous pouvez également introduire une réclamation auprès de l'Autorité de Protection des Données belge : <a href="https://www.autoriteprotectiondonnees.be" target="_blank" rel="noopener">www.autoriteprotectiondonnees.be</a></p>
+
+      <h3>4.8 Cookies</h3>
+      <p>Ce site utilise des cookies techniques nécessaires au fonctionnement. Aucun cookie publicitaire n'est installé sans votre consentement.</p>
+    </div>
+
+    <!-- 5. LIENS HYPERTEXTES -->
+    <div class="legal-section">
+      <h2>&#128279; 5. Liens hypertextes</h2>
+      <p>Seolia ne peut être tenue responsable du contenu des sites externes vers lesquels des liens sont proposés.</p>
+    </div>
+
+    <!-- 6. DROIT APPLICABLE -->
+    <div class="legal-section">
+      <h2>&#9878; 6. Droit applicable</h2>
+      <p>Le présent site et les présentes mentions légales sont soumis au droit belge. Tout litige sera soumis aux tribunaux compétents de Belgique.</p>
+    </div>
+
+    <!-- 7. MODIFICATIONS -->
+    <div class="legal-section">
+      <h2>&#128260; 7. Modifications</h2>
+      <p>Seolia se réserve le droit de modifier ces mentions légales à tout moment. La version en vigueur est celle publiée sur ce site.</p>
+    </div>
+
+    <div class="update-notice">
+      <strong>Dernière mise à jour :</strong> mars 2026
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <h3>Seo<span style="color:var(--green)">lia</span></h3>
+        <p>Agence web spécialisée en SEO local pour artisans et PME en Belgique. On ne vend pas des sites web — on vend de la visibilité Google et des appels clients.</p>
+        <p class="tagline">"Parce que votre société mérite d'être trouvée."</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="index.html">Accueil</a></li>
+          <li><a href="formules.html">Formules &amp; tarifs</a></li>
+          <li><a href="portfolio.html">Portfolio</a></li>
+          <li><a href="blog/index.html">Blog SEO</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="tel:+32470922188">+32 470 92 21 88</a></li>
+          <li><a href="mailto:contact@seolia.be">contact@seolia.be</a></li>
+          <li><a href="#">Belgique</a></li>
+          <li><a href="contact.html">Audit gratuit</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Seolia — Tous droits réservés</p>
+      <p>TVA : BE 0727.941.547 — <a href="/mentions-legales.html" style="color:var(--grey); text-decoration:underline;">Mentions légales &amp; Confidentialité</a></p>
+    </div>
+  </div>
+</footer>
+
+<!-- JAVASCRIPT -->
+<script>
+const burger = document.getElementById('burger');
+const navOverlay = document.getElementById('navOverlay');
+const closeNav = document.getElementById('closeNav');
+const navbar = document.getElementById('navbar');
+
+if (burger && navOverlay) {
+  burger.addEventListener('click', () => navOverlay.classList.add('open'));
+  closeNav.addEventListener('click', () => navOverlay.classList.remove('open'));
+  navOverlay.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => navOverlay.classList.remove('open'));
+  });
+}
+
+window.addEventListener('scroll', () => {
+  if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 50);
+});
+</script>
+
+</body>
+</html>

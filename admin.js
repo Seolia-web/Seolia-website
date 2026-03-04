@@ -9,6 +9,35 @@ const BREVO_FROM = 'contact@seolia.be';
 const TAUX_COMMISSION = 0.35;
 const TVA_RATE = 1.21;
 
+// ===== HELPERS SUIVI =====
+function daysAgo(dateStr) {
+  if (!dateStr) return '—';
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return 'Auj.';
+  if (days === 1) return 'Hier';
+  return days + 'j';
+}
+
+function renderLastActionCell(contact) {
+  const diff = contact.updated_at ? Date.now() - new Date(contact.updated_at).getTime() : null;
+  const days = diff !== null ? Math.floor(diff / 86400000) : null;
+  let color = '#8892a4';
+  let label = '—';
+  if (days === null) { label = '—'; }
+  else if (days === 0) { label = 'Auj.'; color = '#00d68f'; }
+  else if (days === 1) { label = 'Hier'; color = '#00d68f'; }
+  else if (days <= 6) { label = days + 'j'; color = '#4a9eff'; }
+  else if (days <= 13) { label = days + 'j'; color = '#f5a623'; }
+  else { label = days + 'j'; color = '#ef4444'; }
+  return '<span style="font-size:12px;font-weight:700;color:' + color + '">' + label + '</span>';
+}
+
+function toggleNoteResultField(type) {
+  const group = document.getElementById('note-result-group');
+  if (group) group.style.display = type === 'appel' ? '' : 'none';
+}
+
 // ===== STATE =====
 let currentUser = null;
 let currentToken = null;
@@ -298,14 +327,7 @@ async function loadDashboard() {
     ];
   }
 
-  const statsEl = document.getElementById('dash-stats');
-  statsEl.innerHTML = stats.map(s =>
-    '<div class="stat-card ' + s.cls + '">' +
-    '<div class="stat-label">' + s.label + '</div>' +
-    '<div class="stat-value">' + s.value + '</div>' +
-    (s.sub ? '<div class="stat-sub">' + s.sub + '</div>' : '') +
-    '</div>'
-  ).join('');
+  // dash-stats section removed (element no longer exists in HTML)
 
   document.getElementById('dash-subtitle').textContent = isAdmin
     ? 'Bonjour Florian — Vue globale'
@@ -586,9 +608,9 @@ function renderContacts() {
 '<td class="fw700">' + esc(c.nom||'-') + '</td>' +
     '<td>' + esc(c.entreprise||'-') + '</td>' +
     '<td>' + esc(c.telephone||'-') + '</td>' +
-    '<td>' + esc(c.ville||'-') + '</td>' +
     '<td><span class="badge badge-' + (c.statut||'prospect') + '">' + (c.statut||'-') + '</span></td>' +
     '<td>' + esc(c.formule||'-') + '</td>' +
+    '<td style="text-align:center">' + renderLastActionCell(c) + '</td>' +
     (currentProfile.role === 'admin'
       ? '<td onclick="event.stopPropagation()"><select style="border:1px solid #ddd;border-radius:6px;padding:3px 6px;font-size:12px;cursor:pointer;max-width:130px" onchange="quickUpdateAssignee(\'' + c.id + '\',this.value)">' + commOpts.replace('value="' + esc(c.assignee||'') + '"', 'value="' + esc(c.assignee||'') + '" selected') + '</select></td>'
       : '<td>' + esc(c.assignee||'-') + '</td>') +
@@ -1117,6 +1139,25 @@ async function quickChangeStatus(newStatus) {
       if (newStatus === 'client') renderOnboardingChecklist(currentContactId);
     }
     showToast('Statut mis à jour: ' + newStatus, 'success');
+    // Suggérer une activité selon le nouveau statut
+    if (newStatus === 'rdv') {
+      setTimeout(() => {
+        if (confirm('Statut passé en RDV — créer un rappel pour ce rendez-vous ?')) {
+          openFollowupModal();
+        }
+      }, 400);
+    } else if (newStatus === 'prospect' && oldStatus === 'rdv') {
+      setTimeout(() => {
+        if (confirm('RDV non conclu — planifier une relance ?')) {
+          const nextDate = new Date();
+          nextDate.setDate(nextDate.getDate() + 7);
+          nextDate.setHours(9, 0, 0, 0);
+          document.getElementById('followup-date').value = nextDate.toISOString().substring(0,16);
+          document.getElementById('followup-desc').value = 'Relance après RDV non conclu';
+          openModal('modal-followup');
+        }
+      }, 400);
+    }
     if (newStatus === 'client' && oldStatus !== 'client') {
       await recordSetupCommission(contact);
     }
@@ -1248,45 +1289,6 @@ function renderDetailInfoForm(contact) {
       <div class="form-group" style="margin:0"><label>Assigné à</label>${assigneeOpts}</div>
       <div class="form-group" style="margin:0;grid-column:1/-1"><label>Notes générales</label><textarea id="dif-notes" rows="3">${esc(contact.notes_generales||'')}</textarea></div>
     </div>`;
-}
-
-function renderDetailInfoReadOnly(contact) {
-  const commercials = (allProfiles || []).filter(p => p.role === 'commercial');
-  const infoFields = [
-    { label: 'Nom', value: contact.nom },
-    { label: 'Entreprise', value: contact.entreprise },
-    { label: 'Email', value: contact.email },
-    { label: 'Téléphone', value: contact.telephone, isPhone: true },
-    { label: 'Ville', value: contact.ville },
-    { label: 'Code postal', value: contact.code_postal },
-    { label: 'Adresse', value: contact.adresse },
-    { label: 'Secteur', value: contact.secteur },
-    { label: 'Source', value: contact.source },
-    { label: 'Formule', value: contact.formule },
-    { label: 'Date début', value: contact.date_debut ? formatDate(contact.date_debut) : null },
-    { label: 'Date RDV', value: contact.date_rdv ? formatDateTime(contact.date_rdv) : null },
-    { label: 'Créé par', value: contact.created_by },
-    { label: 'Notes', value: contact.notes_generales, full: true },
-  ];
-  document.getElementById('detail-info-grid').className = 'detail-info-grid';
-  let gridHtml = infoFields
-    .filter(f => f.value)
-    .map(f => '<div class="detail-field' + (f.full ? '" style="grid-column:1/-1' : '') + '">' +
-      '<label>' + f.label + '</label>' +
-      (f.isPhone ? '<span><a href="tel:' + f.value.replace(/[^0-9+]/g,'') + '" style="color:#00d68f;font-weight:600;text-decoration:none">' + esc(f.value) + '</a></span>' : '<span>' + esc(f.value) + '</span>') +
-      '</div>')
-    .join('');
-  // Champ "Assigné à" — dropdown inline pour admin, texte pour commercial
-  if (currentProfile?.role === 'admin') {
-    const opts = commercials.map(p => '<option value="' + esc(p.nom) + '"' + (contact.assignee === p.nom ? ' selected' : '') + '>' + esc(p.nom) + '</option>').join('');
-    gridHtml += '<div class="detail-field"><label>Assigné à</label>' +
-      '<select id="inline-assignee-select" style="border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:13px;color:var(--text-primary);background:#fff;cursor:pointer" ' +
-      'onchange="quickUpdateAssignee(\'' + contact.id + '\',this.value)">' +
-      '<option value="">— Non assigné —</option>' + opts + '</select></div>';
-  } else if (contact.assignee) {
-    gridHtml += '<div class="detail-field"><label>Assigné à</label><span>' + esc(contact.assignee) + '</span></div>';
-  }
-  document.getElementById('detail-info-grid').innerHTML = gridHtml;
 }
 
 async function saveDetailInline() {
@@ -1429,6 +1431,19 @@ async function saveContact(editId) {
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>';
   try {
+    // Vérification doublon téléphone
+    const telInput = document.getElementById('cf-telephone')?.value.trim();
+    if (telInput) {
+      const duplicate = allContacts.find(c => c.telephone === telInput && c.id !== editId);
+      if (duplicate) {
+        const name = duplicate.nom || duplicate.entreprise || 'contact inconnu';
+        if (!confirm('⚠️ Ce numéro existe déjà pour : ' + name + '\n\nContinuer quand même ?')) {
+          btn.disabled = false;
+          btn.innerHTML = 'Enregistrer';
+          return;
+        }
+      }
+    }
     const payload = {
       nom: document.getElementById('cf-nom')?.value.trim()||null,
       entreprise: document.getElementById('cf-entreprise')?.value.trim()||null,
@@ -1493,13 +1508,20 @@ function openAddNoteModal() {
 async function saveNote() {
   const contenu = document.getElementById('note-contenu').value.trim();
   if (!contenu) { showToast('Veuillez saisir un contenu', 'error'); return; }
+  const type = document.getElementById('note-type').value;
+  const result = document.getElementById('note-result')?.value || '';
+  let fullContenu = contenu;
+  if (type === 'appel' && result) {
+    const resultLabels = { interesse: 'Intéressé', messagerie: 'Messagerie', refus: 'Refus', rdv_fixe: 'RDV fixé' };
+    fullContenu = '[' + (resultLabels[result]||result) + '] ' + contenu;
+  }
   try {
     await sbFetch('/rest/v1/notes', {
       method: 'POST', headers: { 'Prefer': 'return=minimal' },
       body: JSON.stringify({
         contact_id: currentContactId,
-        type: document.getElementById('note-type').value,
-        contenu: contenu,
+        type: type,
+        contenu: fullContenu,
         auteur: currentProfile.nom || currentUser.email,
         created_at: new Date().toISOString()
       })
@@ -1507,6 +1529,20 @@ async function saveNote() {
     showToast('Note ajoutée', 'success');
     closeModal('modal-note');
     loadDetailNotes(currentContactId);
+    // Auto-suggest followup for appel with positive result
+    if (type === 'appel' && (result === 'interesse' || result === 'messagerie')) {
+      setTimeout(() => {
+        const label = result === 'interesse' ? 'RDV de confirmation' : 'Rappel (messagerie)';
+        if (confirm('Créer un rappel automatique pour ce contact ?\n\n"' + label + '"')) {
+          const nextDate = new Date();
+          nextDate.setDate(nextDate.getDate() + (result === 'interesse' ? 2 : 3));
+          nextDate.setHours(10, 0, 0, 0);
+          document.getElementById('followup-date').value = nextDate.toISOString().substring(0,16);
+          document.getElementById('followup-desc').value = label;
+          openModal('modal-followup');
+        }
+      }, 300);
+    }
   } catch(e) { showToast('Erreur: ' + e.message, 'error'); }
 }
 
@@ -1598,7 +1634,19 @@ async function loadPlanning() {
     if (items.length === 0) {
       el.innerHTML = '<div class="empty-state"><div class="icon">🗓️</div><p>Aucun événement prévu</p></div>';
     } else {
-      el.innerHTML = items.map(item => {
+      const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+      const tomorrowStart = new Date(todayStart); tomorrowStart.setDate(tomorrowStart.getDate()+1);
+      const weekEnd = new Date(todayStart); weekEnd.setDate(weekEnd.getDate()+7);
+
+      const groups = [
+        { key: 'retard', label: '⚠️ En retard', color: '#ef4444', items: items.filter(i => new Date(i.date) < todayStart) },
+        { key: 'today', label: "📅 Aujourd'hui", color: '#00d68f', items: items.filter(i => { const d = new Date(i.date); return d >= todayStart && d < tomorrowStart; }) },
+        { key: 'tomorrow', label: '🔜 Demain', color: '#4a9eff', items: items.filter(i => { const d = new Date(i.date); return d >= tomorrowStart && d < new Date(tomorrowStart.getTime()+86400000); }) },
+        { key: 'week', label: '📆 Cette semaine', color: '#f5a623', items: items.filter(i => { const d = new Date(i.date); return d >= new Date(tomorrowStart.getTime()+86400000) && d < weekEnd; }) },
+        { key: 'later', label: '🗓️ Plus tard', color: '#8892a4', items: items.filter(i => new Date(i.date) >= weekEnd) },
+      ];
+
+      const renderItem = item => {
         const d = new Date(item.date);
         return '<div class="planning-item">' +
           '<div class="planning-date"><div class="day">' + d.getDate() + '</div><div class="month">' +
@@ -1610,7 +1658,17 @@ async function loadPlanning() {
           (item.assignee ? '<div class="text-muted" style="margin-top:3px">👤 ' + esc(item.assignee) + '</div>' : '') +
           '<div class="text-muted">' + formatDateTime(item.date) + '</div>' +
           '</div></div>';
-      }).join('');
+      };
+
+      let html = '';
+      groups.forEach(g => {
+        if (!g.items.length) return;
+        html += '<div style="margin-bottom:20px">' +
+          '<div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:' + g.color + ';margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid ' + g.color + '33">' + g.label + ' (' + g.items.length + ')</div>' +
+          g.items.map(renderItem).join('') +
+          '</div>';
+      });
+      el.innerHTML = html || '<div class="empty-state"><div class="icon">🗓️</div><p>Aucun événement prévu</p></div>';
     }
   } catch(e) {
     el.innerHTML = '<p class="text-muted">Erreur: ' + e.message + '</p>';
@@ -2365,7 +2423,6 @@ async function sendEmail() {
   }
 }
 
-
 // ===== MODAL HELPERS =====
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
@@ -3117,8 +3174,6 @@ async function renderCalendar() {
   });
 }
 
-
-
 // ============================================================
 // CRM SEOLIA v2 — NEW FEATURES
 // ============================================================
@@ -3321,6 +3376,28 @@ async function renderEnhancedDashboard() {
   } else if (hotLeadsEl) {
     hotLeadsEl.innerHTML = '<div style="color:var(--text-light);font-size:13px">Aucun lead chaud</div>';
   }
+
+  // ── Section stagnants
+  const stagnantContacts = (isAdmin ? allContacts : allContacts.filter(c => c.assignee === currentProfile.nom))
+    .filter(c => c.statut === 'prospect' && typeof isStagnant === 'function' && isStagnant(c))
+    .slice(0, 6);
+  
+  const stagnantGrid = document.getElementById('stagnants-grid');
+  if (stagnantGrid) {
+    if (!stagnantContacts.length) {
+      stagnantGrid.innerHTML = '<div style="color:var(--text-light);font-size:13px">Aucun contact stagnant 🎉</div>';
+    } else {
+      stagnantGrid.innerHTML = stagnantContacts.map(c => {
+        const days = c.updated_at ? Math.floor((Date.now() - new Date(c.updated_at).getTime()) / 86400000) : '?';
+        return '<div class="hot-lead-card" style="cursor:pointer;border-left:3px solid #ef4444" onclick="openContactDetail(\'' + c.id + '\')">' +
+          '<div style="font-weight:700;font-size:13px">' + esc(c.nom||c.entreprise||'—') + '</div>' +
+          '<div style="font-size:11px;color:var(--text-light);margin:3px 0">' + esc(c.secteur||c.ville||'—') + '</div>' +
+          '<div style="font-size:11px;color:#ef4444;font-weight:600">Aucun contact depuis ' + days + ' jours</div>' +
+          '</div>';
+      }).join('');
+    }
+  }
+
 }
 
 // loadDashboard already calls renderEnhancedDashboard
@@ -3681,7 +3758,6 @@ function escHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-
 // ===== BULK DELETE =====
 function toggleSelectAll(checked) {
   document.querySelectorAll('.contact-select-cb').forEach(cb => cb.checked = checked);
@@ -3722,7 +3798,6 @@ async function deleteSelectedContacts() {
   if (btn) btn.style.display = 'none';
   renderContacts();
 }
-
 
 // ===== GÉNÉRATION CONTRAT PDF =====
 function generateContrat() {

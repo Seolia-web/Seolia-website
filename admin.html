@@ -52,26 +52,6 @@
     </div>
     <div id="header-notif-wrapper" style="margin-left:auto"></div>
   </header>
-  <!-- BOTTOM NAV (mobile) -->
-  <nav class="bottom-nav" id="bottom-nav">
-    <div class="bottom-nav-items">
-      <button class="bottom-nav-item active" id="bnav-dashboard" onclick="showView('dashboard');updateBottomNav('dashboard')">
-        <span class="bni-icon">🏠</span><span>Dashboard</span>
-      </button>
-      <button class="bottom-nav-item" id="bnav-contacts" onclick="showView('contacts');updateBottomNav('contacts')">
-        <span class="bni-icon">👥</span><span>Contacts</span>
-      </button>
-      <button class="bottom-nav-item bni-plus" onclick="openNewContactModal()">
-        <span class="bni-icon">+</span><span>Nouveau</span>
-      </button>
-      <button class="bottom-nav-item" id="bnav-planning" onclick="showView('planning');updateBottomNav('planning')">
-        <span class="bni-icon">📅</span><span>Planning</span>
-      </button>
-      <button class="bottom-nav-item" id="bnav-revenus" onclick="showViewRoleAdapted();updateBottomNav('revenus')">
-        <span class="bni-icon">💰</span><span id="bnav-rev-label">Revenus</span>
-      </button>
-    </div>
-  </nav>
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
@@ -167,6 +147,17 @@
         </div>
       </div>
 
+      <!-- Stagnants -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-title" style="justify-content:space-between;align-items:center">
+          <span>⚠️ À réactiver</span>
+          <button class="btn btn-ghost btn-sm" onclick="showView('contacts')">Voir tous →</button>
+        </div>
+        <div id="stagnants-grid" class="hot-leads-grid">
+          <div style="color:var(--text-light);font-size:13px">Aucun contact stagnant</div>
+        </div>
+      </div>
+
       <!-- CALENDRIER SEMAINE -->
       <div class="card" style="margin-bottom:16px">
         <div class="section-title" style="justify-content:space-between;align-items:center">
@@ -239,8 +230,8 @@
           <thead>
             <tr>
               <th style="width:36px"><input type="checkbox" id="select-all-contacts" onchange="toggleSelectAll(this.checked)" style="cursor:pointer;accent-color:var(--green)" title="Tout sélectionner"></th>
-              <th>Nom</th><th>Entreprise</th><th>Téléphone</th><th>Ville</th>
-              <th>Statut</th><th>Formule</th><th>Assigné</th><th>Actions</th>
+              <th>Nom</th><th>Entreprise</th><th>Téléphone</th>
+              <th>Statut</th><th>Formule</th><th>Dernière action</th><th>Assigné</th><th>Actions</th>
             </tr>
           </thead>
           <tbody id="contacts-tbody"></tbody>
@@ -561,12 +552,22 @@
     </div>
     <div class="form-group">
       <label>Type</label>
-      <select id="note-type">
+      <select id="note-type" onchange="toggleNoteResultField(this.value)">
         <option value="note">Note</option>
         <option value="appel">Appel</option>
         <option value="rdv">RDV</option>
         <option value="email">Email</option>
         <option value="whatsapp">WhatsApp</option>
+      </select>
+    </div>
+    <div class="form-group" id="note-result-group" style="display:none">
+      <label>Résultat de l'appel</label>
+      <select id="note-result">
+        <option value="">— Sélectionner —</option>
+        <option value="interesse">Intéressé — RDV à planifier</option>
+        <option value="messagerie">Messagerie — À rappeler</option>
+        <option value="refus">Refus</option>
+        <option value="rdv_fixe">RDV fixé</option>
       </select>
     </div>
     <div class="form-group">

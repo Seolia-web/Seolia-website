@@ -3987,13 +3987,16 @@ function generateContrat() {
   y += 14;
 
   const conditions = [
-    ['Engagement minimal', '6 mois a compter de la date de signature. Resiliation possible apres 6 mois avec 1 mois de preavis ecrit.'],
-    ['Resiliation anticipee', 'En cas de resiliation avant echeance des 6 mois, les mensualites restantes dues sont facturees, majorees de 150 EUR TVAC de frais administratifs.'],
-    ['Paiement', 'Frais de mise en place dus a la signature. Abonnement preleve automatiquement par mandat SEPA le 1er de chaque mois.'],
-    ['Non-paiement', 'Tout impaye entraine la suspension du service apres mise en demeure de 15 jours. Les sommes restent dues.'],
-    ['Propriete intellectuelle', "Le site web et tous ses composants restent la propriete de Florian Moers (Seolia) pendant la duree du contrat. Le client ne peut pas reclamer le code source."],
-    ['Domaine', "Le nom de domaine reste la propriete du client. Seolia en assure la gestion technique. En cas de resiliation, le client recupere la gestion de son domaine."],
-    ['Droit applicable', 'Le present contrat est soumis au droit belge. Tout litige releve de la competence exclusive des tribunaux de Liege.'],
+    ['Art. 1 - Objet', 'Seolia (Florian Moers, BE 0727.941.547) s\'engage a concevoir, deployer et maintenir un site web et/ou des services numeriques selon le forfait souscrit. Les prestations incluses sont celles decrites sur la fiche commerciale remise au client.'],
+    ['Art. 2 - Duree et engagement', 'Le contrat est conclu pour une duree minimale de 6 mois a compter de la date de signature. Apres cette periode, il se poursuit tacitement et peut etre resilie par l\'une ou l\'autre partie avec un preavis d\'1 mois notifie par ecrit (email ou courrier).'],
+    ['Art. 3 - Resiliation anticipee', 'Toute resiliation avant l\'echeance des 6 mois entraine la facturation immediate de l\'ensemble des mensualites restantes jusqu\'au terme de la periode d\'engagement, majorees de 150 EUR TVAC de frais administratifs.'],
+    ['Art. 4 - Paiement', 'Les frais de mise en place sont exigibles a la signature. L\'abonnement mensuel est preleve automatiquement via mandat SEPA le 1er de chaque mois. Tout refus de prelevement sans motif valable constitue un defaut de paiement.'],
+    ['Art. 5 - Non-paiement', 'En cas de non-paiement, Seolia adresse une mise en demeure par email. Sans regularisation dans les 15 jours, le service est suspendu sans remboursement. La suspension ne met pas fin au contrat ni aux obligations de paiement.'],
+    ['Art. 6 - Propriete intellectuelle', 'Le code source, les maquettes, les fichiers de design et tout element technique developpe par Seolia restent la propriete exclusive de Florian Moers (Seolia) pendant toute la duree du contrat et apres resiliation. Le client ne peut reclamer le transfert du code source.'],
+    ['Art. 7 - Nom de domaine', 'Le nom de domaine enregistre reste la propriete du client. Seolia en assure la gestion technique pendant la duree du contrat. En cas de resiliation, le client recupere l\'integralite des acces et la gestion de son domaine sous 30 jours.'],
+    ['Art. 8 - Garanties', 'Seolia garantit la conformite du site aux specifications convenues, une disponibilite cible de 99,5%/an (hors maintenance planifiee), et la conformite au RGPD. Toute reclamation doit etre formulee par ecrit dans les 30 jours. La responsabilite de Seolia est limitee au montant des mensualites des 3 derniers mois.'],
+    ['Art. 9 - Protection des donnees (RGPD)', 'Seolia traite les donnees personnelles du client et de ses clients finaux conformement au RGPD (UE 2016/679) et a la loi belge du 30/07/2018. Les donnees sont utilisees exclusivement pour la gestion du contrat. Le client dispose d\'un droit d\'acces, rectification et suppression via florianmoerspro@gmail.com. L\'autorite de controle est l\'APD (www.autoriteprotectiondonnees.be).'],
+    ['Art. 10 - Droit applicable', 'Le present contrat est soumis au droit belge. En cas de litige, les parties s\'engagent a rechercher une solution amiable avant toute action judiciaire. A defaut, le litige releve de la competence exclusive des tribunaux de Liege.'],
   ];
 
   doc.autoTable({

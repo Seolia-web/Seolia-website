@@ -446,26 +446,22 @@
     </div>
 
     <!-- PIPELINE -->
-    <div class="view" id="view-pipeline">
-      <div class="page-header">
-        <div>
-          <h1>Pipeline</h1>
-          <p>Suivez vos contacts par étape</p>
-        </div>
-        <div class="filters-bar" id="pipeline-filters"></div>
-      </div>
-      <div class="kanban-board" id="kanban-board"></div>
-    </div>
-
-    <!-- CONTACTS -->
+    <!-- CONTACTS + PIPELINE -->
     <div class="view" id="view-contacts">
       <div class="page-header">
-        <div>
-          <h1>Contacts</h1>
-          <p id="contacts-count">-</p>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div>
+            <h1>Contacts</h1>
+            <p id="contacts-count">-</p>
+          </div>
+          <div style="display:flex;gap:2px;background:var(--bg);border-radius:8px;padding:3px">
+            <button id="toggle-list" onclick="setContactsView('list')" style="padding:6px 14px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.08)">≡ Liste</button>
+            <button id="toggle-kanban" onclick="setContactsView('kanban')" style="padding:6px 14px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--text-light)">⬛ Kanban</button>
+          </div>
         </div>
         <button class="btn btn-green" onclick="openNewContactModal()">&#x2B; Nouveau contact</button>
       </div>
+      <div id="contacts-list-section">
       <div class="filters-bar">
         <input type="text" class="search-input" id="contacts-search" placeholder="&#x1F50D; Rechercher..." oninput="filterContacts()">
         <select class="filter-select" id="contacts-filter-status" onchange="filterContacts()">
@@ -494,6 +490,13 @@
         </table>
       </div>
       <div class="contact-cards" id="contacts-cards"></div>
+      </div><!-- end contacts-list-section -->
+
+      <!-- KANBAN (inside contacts view) -->
+      <div id="contacts-kanban-section" style="display:none">
+        <div class="filters-bar" id="pipeline-filters-inline"></div>
+        <div class="kanban-board" id="kanban-board-inline"></div>
+      </div>
     </div>
 
     <!-- CONTACT DETAIL -->
@@ -531,10 +534,9 @@
                   <option value="client">Client</option>
                   <option value="perdu">Perdu</option>
                 </select>
-                <button id="btn-edit-inline" class="btn btn-ghost btn-sm" onclick="toggleDetailEdit(true)">&#x270F; Modifier</button>
                 <div id="btns-save-cancel" style="display:none" class="flex-gap">
                   <button class="btn btn-green btn-sm" onclick="saveDetailInline()">&#x2713; Sauvegarder</button>
-                  <button class="btn btn-ghost btn-sm" onclick="toggleDetailEdit(false)">&#x2715; Annuler</button>
+                  <button class="btn btn-ghost btn-sm" onclick="cancelDetailEdit()">&#x2715; Annuler</button>
                 </div>
               </div>
             </div>
@@ -1032,7 +1034,6 @@ async function initApp() {
 // ===== NAV =====
 const NAV_ADMIN = [
   { id: 'dashboard', icon: '🏠', label: 'Dashboard' },
-  { id: 'pipeline', icon: '📊', label: 'Pipeline' },
   { id: 'contacts', icon: '👥', label: 'Contacts' },
   { id: 'planning', icon: '📅', label: 'Planning' },
   { id: 'revenus', icon: '💰', label: 'Revenus' },
@@ -1041,7 +1042,6 @@ const NAV_ADMIN = [
 ];
 const NAV_COMMERCIAL = [
   { id: 'dashboard', icon: '🏠', label: 'Dashboard' },
-  { id: 'pipeline', icon: '📊', label: 'Pipeline' },
   { id: 'contacts', icon: '👥', label: 'Contacts' },
   { id: 'planning', icon: '📅', label: 'Planning' },
   { id: 'commissions', icon: '💳', label: 'Commissions' },
@@ -1090,7 +1090,7 @@ function showView(viewId) {
   activeView = viewId;
   updateNavActive(viewId);
   if (viewId === 'dashboard') loadDashboard();
-  else if (viewId === 'pipeline') renderKanban();
+  else if (viewId === 'contacts') { setTimeout(() => setContactsView(_contactsViewMode), 50); }
   else if (viewId === 'contacts') renderContacts();
   else if (viewId === 'planning') loadPlanning();
   else if (viewId === 'commissions') loadCommissions();
@@ -1207,12 +1207,37 @@ async function loadDashboard() {
 }
 
 // ===== PIPELINE =====
+// ── CONTACTS VIEW TOGGLE (Liste / Kanban) ────────────────────
+let _contactsViewMode = localStorage.getItem('contactsViewMode') || 'list';
+
+function setContactsView(mode) {
+  _contactsViewMode = mode;
+  localStorage.setItem('contactsViewMode', mode);
+  const listSection = document.getElementById('contacts-list-section');
+  const kanbanSection = document.getElementById('contacts-kanban-section');
+  const btnList = document.getElementById('toggle-list');
+  const btnKanban = document.getElementById('toggle-kanban');
+  if (!listSection || !kanbanSection) return;
+  if (mode === 'list') {
+    listSection.style.display = '';
+    kanbanSection.style.display = 'none';
+    if (btnList) { btnList.style.background='#fff'; btnList.style.color='var(--navy)'; btnList.style.boxShadow='0 1px 3px rgba(0,0,0,.08)'; }
+    if (btnKanban) { btnKanban.style.background='transparent'; btnKanban.style.color='var(--text-light)'; btnKanban.style.boxShadow='none'; }
+  } else {
+    listSection.style.display = 'none';
+    kanbanSection.style.display = '';
+    if (btnKanban) { btnKanban.style.background='#fff'; btnKanban.style.color='var(--navy)'; btnKanban.style.boxShadow='0 1px 3px rgba(0,0,0,.08)'; }
+    if (btnList) { btnList.style.background='transparent'; btnList.style.color='var(--text-light)'; btnList.style.boxShadow='none'; }
+    renderKanban();
+  }
+}
+
 function renderKanban() {
-  const board = document.getElementById('kanban-board');
+  const board = document.getElementById('kanban-board-inline');
   board.innerHTML = '';
 
   // Filters
-  const filtersEl = document.getElementById('pipeline-filters');
+  const filtersEl = document.getElementById('pipeline-filters-inline');
   // Filtre par commercial visible pour tous
   const assignees = [...new Set(allContacts.map(c => c.assignee).filter(Boolean))];
   filtersEl.innerHTML = 
@@ -1475,15 +1500,14 @@ async function openContactDetail(id) {
     btnCall.style.display = '';
   } else { btnCall.style.display = 'none'; }
 
-  // Reset edit mode buttons — only show edit/delete if admin OR assigned commercial
+  // Show edit/delete only if admin OR assigned commercial
   const canEdit = currentProfile.role === 'admin' || contact.assignee === currentProfile.nom;
-  const btnEI = document.getElementById('btn-edit-inline');
   const btnDel = document.querySelector('.btn.btn-red.btn-sm');
   const btnsSC = document.getElementById('btns-save-cancel');
-  if (btnEI) btnEI.style.display = canEdit ? '' : 'none';
   if (btnDel) btnDel.style.display = canEdit ? '' : 'none';
+  if (btnsSC) btnsSC.style.display = 'none'; // hidden until dirty
   if (btnsSC) btnsSC.style.display = 'none';
-  renderDetailInfoReadOnly(contact);
+  renderDetailInfoFormAuto(contact);
 
   // Pricing
   const setup_tvac = parseFloat(contact.prix_setup)||0;
@@ -1871,22 +1895,44 @@ async function deleteContact() {
 
 // ── ÉDITION INLINE FICHE CONTACT ─────────────────────────────
 let _detailEditBackup = null;
+let _detailDirty = false;
+
+// Always-editable form: shown directly when opening a fiche
+function renderDetailInfoFormAuto(contact) {
+  _detailEditBackup = { ...contact };
+  _detailDirty = false;
+  document.getElementById('btns-save-cancel').style.display = 'none';
+  renderDetailInfoForm(contact);
+  // Attach dirty tracking to all inputs in the form
+  setTimeout(() => {
+    document.querySelectorAll('#detail-info-grid input, #detail-info-grid select, #detail-info-grid textarea').forEach(el => {
+      el.addEventListener('input', markDirty);
+      el.addEventListener('change', markDirty);
+    });
+  }, 50);
+}
+
+function markDirty() {
+  if (!_detailDirty) {
+    _detailDirty = true;
+    const canEdit = currentProfile.role === 'admin' || (allContacts.find(c=>c.id===currentContactId)||{}).assignee === currentProfile.nom;
+    if (canEdit) document.getElementById('btns-save-cancel').style.display = '';
+  }
+}
+
+function cancelDetailEdit() {
+  _detailDirty = false;
+  document.getElementById('btns-save-cancel').style.display = 'none';
+  const contact = allContacts.find(c => c.id === currentContactId);
+  if (contact) renderDetailInfoFormAuto(contact);
+}
 
 function toggleDetailEdit(enable) {
+  // Legacy — kept for compatibility
   const contact = allContacts.find(c => c.id === currentContactId);
   if (!contact) return;
-  const btnEdit = document.getElementById('btn-edit-inline');
-  const btnsActions = document.getElementById('btns-save-cancel');
-  if (enable) {
-    _detailEditBackup = { ...contact };
-    btnEdit.style.display = 'none';
-    btnsActions.style.display = '';
-    renderDetailInfoForm(contact);
-  } else {
-    btnEdit.style.display = '';
-    btnsActions.style.display = 'none';
-    renderDetailInfoReadOnly(contact);
-  }
+  if (enable) renderDetailInfoFormAuto(contact);
+  else { _detailDirty = false; document.getElementById('btns-save-cancel').style.display = 'none'; renderDetailInfoFormAuto(contact); }
 }
 
 function renderDetailInfoForm(contact) {
@@ -2011,8 +2057,10 @@ async function saveDetailInline() {
     const updatedContact = allContacts.find(c => c.id === currentContactId);
     // Update header
     document.getElementById('detail-name').textContent = (updatedContact.nom||'') + (updatedContact.entreprise ? ' — ' + updatedContact.entreprise : '');
-    toggleDetailEdit(false);
-    showToast('Contact mis à jour', 'success');
+    _detailDirty = false;
+    document.getElementById('btns-save-cancel').style.display = 'none';
+    renderDetailInfoFormAuto(updatedContact);
+    showToast('Contact mis à jour ✓', 'success');
   } catch(e) {
     showToast('Erreur : ' + e.message, 'error');
   } finally {

@@ -1109,14 +1109,9 @@ function updateNavActive(viewId) {
 async function loadContacts() {
   try {
     let url = '/rest/v1/contacts?select=*&order=created_at.desc';
-    if (currentProfile.role === 'commercial') {
-      url += '&or=(created_by.eq.' + encodeURIComponent(currentProfile.email) + ',assignee.eq.' + encodeURIComponent(currentProfile.nom) + ')';
-    }
     allContacts = await sbFetch(url) || [];
     // Also load profiles for admin
-    if (currentProfile.role === 'admin') {
-      allProfiles = await sbFetch('/rest/v1/profiles?select=*&order=nom.asc') || [];
-    }
+    allProfiles = await sbFetch('/rest/v1/profiles?select=*&order=nom.asc') || [];
   } catch(e) {
     showToast('Erreur chargement contacts: ' + e.message, 'error');
     allContacts = [];
@@ -1229,16 +1224,8 @@ function renderKanban() {
     '</select>';
 
   const filterAssignee = document.getElementById('pipeline-filter-assignee');
-  // Si commercial: forcer le filtre sur son propre nom, cacher le dropdown
-  if (currentProfile.role === 'commercial') {
-    if (filterAssignee) {
-      filterAssignee.value = currentProfile.nom;
-      filterAssignee.style.display = 'none';
-    }
-  } else {
-    if (filterAssignee) filterAssignee.style.display = '';
-  }
-  const assigneeFilter = currentProfile.role === 'commercial' ? currentProfile.nom : (filterAssignee ? filterAssignee.value : '');
+  if (filterAssignee) filterAssignee.style.display = '';
+  const assigneeFilter = filterAssignee ? filterAssignee.value : '';
   const searchEl = document.getElementById('pipeline-search');
   const searchText = (searchEl ? searchEl.value : '').toLowerCase().trim();
   let contacts = allContacts;
@@ -1432,7 +1419,7 @@ function renderContacts() {
       : '<td>' + esc(c.assignee||'-') + '</td>') +
     '<td onclick="event.stopPropagation()">' +
     '<button class="action-btn" title="Voir" onclick="openContactDetail(\'' + c.id + '\')">👁️</button>' +
-    '<button class="action-btn" title="Modifier" onclick="openEditContactModalById(\'' + c.id + '\')">✏️</button>' +
+    (currentProfile.role === 'admin' || c.assignee === currentProfile.nom ? '<button class="action-btn" title="Modifier" onclick="openEditContactModalById(\'' + c.id + '\')">✏️</button>' : '') +
     '</td></tr>'
   ).join('');
 
@@ -1478,7 +1465,9 @@ async function openContactDetail(id) {
   if (!contact) return;
   document.getElementById('detail-name').textContent = (contact.nom||'') + (contact.entreprise ? ' — ' + contact.entreprise : '');
   document.getElementById('detail-statut-badge').innerHTML = '<span class="badge badge-' + contact.statut + '">' + (contact.statut||'-') + '</span>';
-  document.getElementById('detail-status-select').value = contact.statut || 'prospect';
+  const statusSel = document.getElementById('detail-status-select');
+  statusSel.value = contact.statut || 'prospect';
+  statusSel.disabled = !(currentProfile.role === 'admin' || contact.assignee === currentProfile.nom);
   const btnCall = document.getElementById('btn-call');
   if (contact.telephone) {
     const tel = contact.telephone.replace(/[^0-9+]/g,'');
@@ -1486,10 +1475,13 @@ async function openContactDetail(id) {
     btnCall.style.display = '';
   } else { btnCall.style.display = 'none'; }
 
-  // Reset edit mode buttons
+  // Reset edit mode buttons — only show edit/delete if admin OR assigned commercial
+  const canEdit = currentProfile.role === 'admin' || contact.assignee === currentProfile.nom;
   const btnEI = document.getElementById('btn-edit-inline');
+  const btnDel = document.querySelector('.btn.btn-red.btn-sm');
   const btnsSC = document.getElementById('btns-save-cancel');
-  if (btnEI) btnEI.style.display = '';
+  if (btnEI) btnEI.style.display = canEdit ? '' : 'none';
+  if (btnDel) btnDel.style.display = canEdit ? '' : 'none';
   if (btnsSC) btnsSC.style.display = 'none';
   renderDetailInfoReadOnly(contact);
 

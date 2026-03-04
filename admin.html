@@ -977,7 +977,7 @@ tr.stagnant-row { background: rgba(231,76,60,.03) !important; }
   </main><!-- /main -->
 
   <!-- SEARCH DROPDOWN (outside header to avoid stacking context issues) -->
-  <div class="search-results-dropdown" id="search-dropdown" style="position:fixed;z-index:9998;display:none;max-height:320px;overflow-y:auto;"></div>
+  <div class="search-results-dropdown" id="search-dropdown" style="position:fixed;z-index:99999;display:none;max-height:320px;overflow-y:auto;background:#fff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);"></div>
 
   <!-- BOTTOM NAV (mobile) -->
   <nav id="bottom-nav">
@@ -4546,7 +4546,7 @@ function globalSearch(query) {
     dropdown.innerHTML = results.map(c => {
       const name = [c.prenom, c.nom].filter(Boolean).join(' ') || c.entreprise || 'Sans nom';
       const sub = [c.entreprise, c.telephone, c.ville].filter(Boolean).join(' · ');
-      return `<div class="search-result-item" onmousedown="event.preventDefault();globalSearchSelect(${c.id})">
+      return `<div class="search-result-item" data-contact-id="${c.id}" style="cursor:pointer;">
         <span>👤</span>
         <div>
           <div class="sr-name">${escHtml(name)}</div>
@@ -4571,10 +4571,35 @@ function globalSearchSelect(contactId) {
   if (inp) inp.value = '';
   loadContact(contactId);
 }
+// Delegated listener for search dropdown — fires on the dropdown itself
+(function() {
+  function setupSearchDropdown() {
+    const dd = document.getElementById('search-dropdown');
+    if (!dd) return;
+    dd.addEventListener('mousedown', function(e) {
+      const item = e.target.closest('[data-contact-id]');
+      if (item) {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = parseInt(item.getAttribute('data-contact-id'), 10);
+        dd.style.display = 'none';
+        const inp = document.getElementById('global-search-input');
+        if (inp) inp.value = '';
+        loadContact(id);
+      }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupSearchDropdown);
+  } else {
+    setupSearchDropdown();
+  }
+})();
+
 // Close dropdown on click outside
-document.addEventListener('click', (e) => {
+document.addEventListener('mousedown', (e) => {
   const dd = document.getElementById('search-dropdown');
-  if (dd && !e.target.closest('.top-search-wrap') && e.target !== dd && !dd.contains(e.target)) {
+  if (dd && dd.style.display !== 'none' && !e.target.closest('.top-search-wrap') && !dd.contains(e.target)) {
     dd.style.display = 'none';
   }
 });

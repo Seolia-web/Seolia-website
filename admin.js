@@ -4287,12 +4287,15 @@ async function confirmerEnvoiSignature() {
   let deliverables = '';
   
   const pricingMap = {
+    'Bundle Essentiel IA': { setup: '499€ TVAC', monthly: '109€/mois TVAC', del: 'Site one-page, chatbot FAQ, automatisation Google reviews' },
+    'Bundle Business IA':  { setup: '949€ TVAC', monthly: '249€/mois TVAC', del: 'Site multi-pages SEO, automatisation RDV, gestion demandes, notifications SMS' },
+    'Bundle Premium IA':   { setup: '1 499€ TVAC', monthly: '449€/mois TVAC', del: 'Site premium, agent téléphonique IA 200min/mois, WhatsApp, dashboard, rapports hebdomadaires' },
     'Essentiel IA': { setup: '499€ TVAC', monthly: '109€/mois TVAC', del: 'Site one-page, chatbot FAQ, automatisation Google reviews' },
-    'Business IA': { setup: '949€ TVAC', monthly: '249€/mois TVAC', del: 'Site multi-pages SEO, automatisation RDV, gestion demandes, notifications SMS' },
-    'Premium IA': { setup: '1 499€ TVAC', monthly: '449€/mois TVAC', del: 'Site premium, agent téléphonique IA 200min/mois, WhatsApp, dashboard, rapports hebdomadaires' },
+    'Business IA':  { setup: '949€ TVAC', monthly: '249€/mois TVAC', del: 'Site multi-pages SEO, automatisation RDV, gestion demandes, notifications SMS' },
+    'Premium IA':   { setup: '1 499€ TVAC', monthly: '449€/mois TVAC', del: 'Site premium, agent téléphonique IA 200min/mois, WhatsApp, dashboard, rapports hebdomadaires' },
     'Web Essentiel': { setup: '149€ TVAC', monthly: '69€/mois TVAC', del: 'Site one-page professionnel, hébergement, maintenance' },
-    'Web Business': { setup: '299€ TVAC', monthly: '119€/mois TVAC', del: 'Site multi-pages, SEO on-page, hébergement, maintenance' },
-    'Web Premium': { setup: '499€ TVAC', monthly: '199€/mois TVAC', del: 'Site premium, animations, SEO avancé, hébergement, maintenance' }
+    'Web Business':  { setup: '299€ TVAC', monthly: '119€/mois TVAC', del: 'Site multi-pages, SEO on-page, hébergement, maintenance' },
+    'Web Premium':   { setup: '499€ TVAC', monthly: '199€/mois TVAC', del: 'Site premium, animations, SEO avancé, hébergement, maintenance' }
   };
   
   const pricing = pricingMap[formule];

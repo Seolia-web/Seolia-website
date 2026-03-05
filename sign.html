@@ -1004,8 +1004,11 @@ function generateSignedPDF(data, clientSigDataUrl, florianSigDataUrl) {
 
   drawFooter();
 
-  // Return raw base64 (no data URI prefix)
-  return doc.output('base64');
+  // output('base64') doesn't exist in jsPDF 2.5.1 — use datauristring + strip prefix
+  const dataUri = doc.output('datauristring');
+  const b64start = dataUri.indexOf('base64,');
+  if (b64start === -1) return null;
+  return dataUri.substring(b64start + 7);
 }
 
 // ──────────────────────────────────────────────────────────────────────────────

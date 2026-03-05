@@ -556,6 +556,7 @@ async function handleMollieSetupPayment(request, env) {
         customerId: mollie_customer_id,
         sequenceType: 'first',
         method: 'directdebit',
+        profileId: 'pfl_uVBgvWGmYY',
         description,
         redirectUrl: 'https://seolia.be/merci',
         webhookUrl: 'https://seolia-ai-chat.seolia.workers.dev/mollie-webhook',

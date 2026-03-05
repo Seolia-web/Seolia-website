@@ -3982,11 +3982,11 @@ function generateContrat() {
     body: [[forfaitDisplay, setupDisplay, monthlyDisplay, '6 mois minimum']],
     headStyles: {
       fillColor: NAVY, textColor: WHITE, fontStyle: 'bold',
-      fontSize: 8.5, cellPadding: 5,
+      fontSize: 8, cellPadding: 3,
     },
     bodyStyles: {
-      fillColor: LIGHTGREEN, textColor: DARK, fontSize: 10,
-      fontStyle: 'bold', cellPadding: 7,
+      fillColor: LIGHTGREEN, textColor: DARK, fontSize: 9,
+      fontStyle: 'bold', cellPadding: 4,
     },
     columnStyles: {
       0: { cellWidth: 50 },
@@ -4022,8 +4022,9 @@ function generateContrat() {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
   doc.setTextColor(...DARK);
-  doc.text(deliverables, marginL, y, { maxWidth: contentW });
-  y += 10;
+  const delivLines = doc.splitTextToSize(deliverables, contentW);
+  doc.text(delivLines, marginL, y);
+  y += delivLines.length * 3.5 + 5;
 
   // Section: RÉSUMÉ CONDITIONS
   doc.setFont('helvetica', 'bold');
@@ -4046,20 +4047,17 @@ function generateContrat() {
     startY: y,
     margin: { left: marginL, right: marginR },
     body: summary,
-    bodyStyles: { fontSize: 8.5, textColor: DARK, cellPadding: 3 },
+    bodyStyles: { fontSize: 7.5, textColor: DARK, cellPadding: 2 },
     columnStyles: {
-      0: { fontStyle: 'bold', textColor: NAVY, cellWidth: 40, fillColor: LIGHTBG },
-      1: { cellWidth: contentW - 40, fillColor: WHITE },
+      0: { fontStyle: 'bold', textColor: NAVY, cellWidth: 38, fillColor: LIGHTBG },
+      1: { cellWidth: contentW - 38, fillColor: WHITE },
     },
     alternateRowStyles: { fillColor: WHITE },
     tableLineColor: [220, 226, 234],
     tableLineWidth: 0.3,
   });
 
-  y = doc.lastAutoTable.finalY + 5;
-
-  // Safety clamp: SEPA(18) + cgv(8) + sig_label(5) + sig_boxes(42) + bottom_margin(5) = 78mm needed
-  if (y > 203) y = 203;
+  y = doc.lastAutoTable.finalY + 4;
 
   // Mention CGV
   doc.setFont('helvetica', 'italic');

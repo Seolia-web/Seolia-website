@@ -868,13 +868,14 @@ async function loadDetailDocs(contactId) {
     } else {
       el.innerHTML = docs.map(d => {
         const publicUrl = d.file_path.startsWith('https://') ? d.file_path : SUPABASE_URL + '/storage/v1/object/public/documents/' + d.file_path;
-        const isSignedContract = publicUrl.includes('sign.html');
-        const ext = isSignedContract ? 'SIGNÉ' : (d.nom||'').split('.').pop().toUpperCase();
+        const isSignedContractFallback = publicUrl.includes('sign.html');
+        const isSignedPDF = !isSignedContractFallback && (d.uploaded_by === 'Signature électronique');
+        const ext = (isSignedPDF || isSignedContractFallback) ? 'SIGNÉ' : (d.nom||'').split('.').pop().toUpperCase();
         const extColors = { PDF:'#ef4444', DOC:'#3b82f6', DOCX:'#3b82f6', JPG:'#f97316', JPEG:'#f97316', PNG:'#f97316', XLS:'#16a34a', XLSX:'#16a34a', 'SIGNÉ':'#00d68f' };
         const color = extColors[ext] || '#64748b';
         const docId = d.id;
         const docPath = d.file_path;
-        const actionBtn = isSignedContract
+        const actionBtn = isSignedContractFallback
           ? `<a href="${publicUrl}" target="_blank" class="btn btn-ghost btn-sm" title="Voir le contrat signé" style="color:#00d68f">📄 Voir</a>`
           : `<a href="${publicUrl}" download="${esc(d.nom)}" class="btn btn-ghost btn-sm" title="Télécharger">&#x2B07;</a>`;
         return `<div class="note-item" style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">

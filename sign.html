@@ -4,61 +4,64 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Signature de contrat — Seolia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.2.0/dist/signature_pad.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f7fa; color: #333; min-height: 100vh; }
-    
+
     .header { background: #1a1a2e; color: white; padding: 20px; text-align: center; }
     .logo { font-size: 28px; font-weight: 900; }
     .logo span { color: #00d68f; }
-    
+
     .container { max-width: 700px; margin: 0 auto; padding: 30px 20px; }
-    
+
     .card { background: white; border-radius: 12px; padding: 30px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-    
+
     .status-loading { text-align: center; padding: 40px; color: #666; }
     .status-error { background: #fff5f5; border: 1px solid #feb2b2; color: #c53030; border-radius: 8px; padding: 20px; text-align: center; }
     .status-success { background: #f0fdf4; border: 2px solid #00d68f; border-radius: 12px; padding: 30px; text-align: center; }
-    
+
     h2 { color: #1a1a2e; margin-bottom: 20px; font-size: 22px; }
     h3 { color: #1a1a2e; margin-bottom: 12px; font-size: 16px; font-weight: 600; }
-    
+
     .contract-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
     .info-item { background: #f8f9fa; border-radius: 8px; padding: 12px; }
     .info-label { font-size: 12px; color: #666; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
     .info-value { font-weight: 600; color: #1a1a2e; font-size: 15px; }
-    
+
     .legal-notice { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 16px; margin-bottom: 20px; font-size: 13px; color: #92400e; line-height: 1.5; }
-    
+
     .signature-section label { display: block; font-weight: 600; color: #1a1a2e; margin-bottom: 8px; }
-    
+
     .signature-wrapper { position: relative; border: 2px dashed #ddd; border-radius: 8px; background: #fafafa; margin-bottom: 12px; }
     .signature-wrapper canvas { display: block; width: 100%; height: 160px; cursor: crosshair; border-radius: 8px; }
-    
+
     .sig-actions { display: flex; gap: 8px; margin-bottom: 20px; }
     .btn-clear { background: none; border: 1px solid #ddd; color: #666; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
     .btn-clear:hover { background: #f0f0f0; }
-    
+
     .name-input { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 15px; margin-bottom: 20px; transition: border-color 0.2s; }
     .name-input:focus { outline: none; border-color: #00d68f; }
-    
+
     .checkbox-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 24px; cursor: pointer; }
     .checkbox-row input { width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; accent-color: #00d68f; cursor: pointer; }
     .checkbox-row span { font-size: 14px; color: #555; line-height: 1.5; }
-    
+
     .btn-sign { width: 100%; background: #00d68f; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
     .btn-sign:hover { background: #00c07a; }
     .btn-sign:disabled { background: #ccc; cursor: not-allowed; }
-    
+
     .success-icon { font-size: 48px; margin-bottom: 16px; }
     .success-title { color: #1a1a2e; font-size: 22px; font-weight: 700; margin-bottom: 12px; }
     .success-text { color: #555; margin-bottom: 16px; line-height: 1.6; }
     .certificate { background: white; border-radius: 8px; padding: 16px; margin-top: 16px; text-align: left; font-size: 13px; }
     .certificate p { margin-bottom: 6px; }
-    
+
     .footer { text-align: center; padding: 30px 20px; color: #999; font-size: 13px; }
-    
+
     @media (max-width: 500px) {
       .contract-info { grid-template-columns: 1fr; }
       .card { padding: 20px; }
@@ -87,13 +90,16 @@
 <script>
 const WORKER_URL = 'https://seolia-ai-chat.seolia.workers.dev';
 
+// Global storage for PDF generation
+let _contractData = null;
+
 function getToken() {
   const params = new URLSearchParams(window.location.search);
   return params.get('token');
 }
 
 function formatDate(isoDate) {
-  return new Date(isoDate).toLocaleDateString('fr-BE', { 
+  return new Date(isoDate).toLocaleDateString('fr-BE', {
     day: '2-digit', month: 'long', year: 'numeric',
     hour: '2-digit', minute: '2-digit'
   });
@@ -102,16 +108,16 @@ function formatDate(isoDate) {
 async function loadContract() {
   const token = getToken();
   const app = document.getElementById('app');
-  
+
   if (!token) {
     app.innerHTML = '<div class="status-error"><strong>Lien invalide.</strong><br>Ce lien de signature est invalide ou incomplet.</div>';
     return;
   }
-  
+
   try {
     const res = await fetch(`${WORKER_URL}/get-contract?token=${token}`);
     const data = await res.json();
-    
+
     if (!res.ok) {
       if (data.error === 'already_signed') {
         app.innerHTML = `<div class="status-success"><div class="success-icon">✅</div><p class="success-title">Contrat déjà signé</p><p class="success-text">Ce contrat a été signé le ${formatDate(data.signed_at)}. Vous avez reçu une confirmation par email.</p></div>`;
@@ -122,23 +128,24 @@ async function loadContract() {
       }
       return;
     }
-    
+
     renderContract(data, token);
-    
+
   } catch (e) {
     app.innerHTML = '<div class="status-error"><strong>Erreur de connexion.</strong><br>Impossible de charger le contrat. Réessayez dans quelques instants.</div>';
   }
 }
 
 function renderContract(data, token) {
+  _contractData = data; // store globally for PDF generation
   const pkg = data.contract_data || {};
   const app = document.getElementById('app');
-  
+
   app.innerHTML = `
     <div class="card">
       <h2>Contrat à signer</h2>
       <p style="color:#666; margin-bottom:20px;">Bonjour <strong>${data.contact_name}</strong>, veuillez lire attentivement et signer votre contrat ci-dessous.</p>
-      
+
       <div class="contract-info">
         <div class="info-item">
           <div class="info-label">Formule</div>
@@ -157,17 +164,17 @@ function renderContract(data, token) {
           <div class="info-value">6 mois minimum</div>
         </div>
       </div>
-      
+
       ${pkg.deliverables ? `<div style="background:#f8f9fa; border-radius:8px; padding:16px; margin-bottom:20px;"><h3>Prestations incluses</h3><p style="font-size:14px; color:#555; line-height:1.6;">${pkg.deliverables}</p></div>` : ''}
-      
+
       <div class="legal-notice">
         <strong>Conditions importantes :</strong> Engagement minimum de 6 mois. Résiliation possible après 6 mois avec 1 mois de préavis. En cas de résiliation anticipée, les mensualités restantes jusqu'au terme des 6 mois sont dues, plus 150€ de frais administratifs. Le site reste propriété de Seolia jusqu'à résiliation. Paiement par prélèvement SEPA automatique.
       </div>
     </div>
-    
+
     <div class="card">
       <h2>Votre signature</h2>
-      
+
       <div class="signature-section">
         <label>Signez dans le cadre ci-dessous :</label>
         <div class="signature-wrapper">
@@ -176,30 +183,29 @@ function renderContract(data, token) {
         <div class="sig-actions">
           <button class="btn-clear" onclick="clearSignature()">Effacer</button>
         </div>
-        
+
         <label for="signerName">Confirmez votre nom complet :</label>
         <input type="text" id="signerName" class="name-input" placeholder="Prénom Nom" value="${data.contact_name || ''}">
-        
+
         <label class="checkbox-row">
           <input type="checkbox" id="acceptTerms">
           <span>Je reconnais avoir lu et j'accepte les conditions du contrat Seolia, incluant l'engagement de 6 mois et le prélèvement SEPA automatique.</span>
         </label>
-        
+
         <button class="btn-sign" id="btnSign" onclick="submitSignature('${token}')">
           Je signe et accepte le contrat →
         </button>
       </div>
     </div>
   `;
-  
+
   // Initialize signature pad
   const canvas = document.getElementById('signaturePad');
-  // Resize canvas to match display size
   const rect = canvas.getBoundingClientRect();
   canvas.width = rect.width * window.devicePixelRatio || 600;
   canvas.height = 160 * window.devicePixelRatio || 160;
   canvas.getContext('2d').scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
-  
+
   window.sigPad = new SignaturePad(canvas, {
     backgroundColor: 'rgb(255, 255, 255)',
     penColor: '#1a1a2e',
@@ -212,29 +218,417 @@ function clearSignature() {
   if (window.sigPad) window.sigPad.clear();
 }
 
+// ──────────────────────────────────────────────────────────────────────────────
+// PDF GENERATION
+// ──────────────────────────────────────────────────────────────────────────────
+
+async function generateFlorianSig() {
+  // Wait for Dancing Script font to be available
+  await document.fonts.ready;
+  const canvas = document.createElement('canvas');
+  canvas.width = 500;
+  canvas.height = 90;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, 500, 90);
+  ctx.fillStyle = '#0a1628';
+  ctx.font = '48px "Dancing Script"';
+  ctx.fillText('Florian Moers', 10, 65);
+  return canvas.toDataURL('image/png');
+}
+
+function generateSignedPDF(data, clientSigDataUrl, florianSigDataUrl) {
+  if (!window.jspdf) return null;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const pkg = data.contract_data || {};
+
+  // Parse price numbers from strings like "499€ TVAC" or "109€/mois TVAC"
+  const setupFeeStr = pkg.setup_price || '';
+  const monthlyStr = pkg.monthly_price || '';
+  const setupNum = parseFloat((setupFeeStr.match(/\d+/) || [])[0]) || 0;
+  const monthlyNum = parseFloat((monthlyStr.match(/\d+/) || [])[0]) || 0;
+
+  const forfait = pkg.package || '';
+  const clientName = data.contact_name || 'N/A';
+  const deliverables = pkg.deliverables || 'Selon forfait souscrit';
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('fr-BE', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  const GREEN = [0, 214, 143];
+  const NAVY = [10, 22, 40];
+  const DARK = [45, 55, 72];
+  const GRAY = [113, 128, 150];
+  const LIGHTBG = [247, 248, 250];
+  const WHITE = [255, 255, 255];
+  const LIGHTGREEN = [230, 255, 245];
+
+  const pageW = 210;
+  const marginL = 18;
+  const marginR = 18;
+  const contentW = pageW - marginL - marginR;
+
+  function drawHeader(pageNum) {
+    doc.setFillColor(...NAVY);
+    doc.rect(0, 0, pageW, 22, 'F');
+    doc.setFillColor(...GREEN);
+    doc.rect(0, 22, pageW, 2, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(...WHITE);
+    doc.text('CONTRAT DE PRESTATION DE SERVICES', marginL, 10);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...GREEN);
+    doc.text('Seolia  |  BE 0727.941.547  |  seolia.be', marginL, 17);
+    doc.setTextColor(180, 200, 220);
+    doc.text('Page ' + pageNum + '  |  ' + dateStr, pageW - marginR, 17, { align: 'right' });
+  }
+
+  function drawFooter() {
+    doc.setFillColor(...GREEN);
+    doc.rect(0, 289, pageW, 2, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...GRAY);
+    doc.text('Florian Moers (Seolia)  |  BE 0727.941.547  |  florianmoerspro@gmail.com  |  +32 470 92 21 88  |  seolia.be', pageW / 2, 286, { align: 'center' });
+  }
+
+  // ─── PAGE 1 ────────────────────────────────────────────────────────────────
+  drawHeader(1);
+  let y = 32;
+
+  // PARTIES CONTRACTANTES
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GRAY);
+  doc.text('PARTIES CONTRACTANTES', marginL, y + 4);
+  y += 8;
+
+  const boxH = 30;
+  const halfW = (contentW / 2) - 3;
+
+  // Prestataire box
+  doc.setFillColor(...LIGHTBG);
+  doc.roundedRect(marginL, y, halfW, boxH, 2, 2, 'F');
+  doc.setDrawColor(...GREEN);
+  doc.setLineWidth(0.5);
+  doc.line(marginL, y, marginL, y + boxH);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GREEN);
+  doc.text('PRESTATAIRE', marginL + 4, y + 6);
+  doc.setFontSize(10);
+  doc.setTextColor(...NAVY);
+  doc.text('Florian Moers (Seolia)', marginL + 4, y + 13);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...DARK);
+  doc.text('florianmoerspro@gmail.com', marginL + 4, y + 20);
+  doc.text('+32 470 92 21 88', marginL + 4, y + 26);
+
+  // Client box
+  const clientBoxX = marginL + halfW + 6;
+  doc.setFillColor(...LIGHTBG);
+  doc.roundedRect(clientBoxX, y, halfW, boxH, 2, 2, 'F');
+  doc.setDrawColor(...GREEN);
+  doc.line(clientBoxX, y, clientBoxX, y + boxH);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GREEN);
+  doc.text('CLIENT', clientBoxX + 4, y + 6);
+  doc.setFontSize(10);
+  doc.setTextColor(...NAVY);
+  doc.text(clientName, clientBoxX + 4, y + 13, { maxWidth: halfW - 8 });
+
+  y += boxH + 12;
+
+  // FORFAIT SOUSCRIT
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GRAY);
+  doc.text('FORFAIT SOUSCRIT', marginL, y);
+  y += 5;
+
+  doc.autoTable({
+    startY: y,
+    margin: { left: marginL, right: marginR },
+    head: [['Forfait', 'Mise en place', 'Mensuel', 'Engagement']],
+    body: [[
+      forfait || '___________________________',
+      setupFeeStr || '_______________ EUR TVAC',
+      monthlyStr || '_______________ EUR/mois TVAC',
+      '6 mois minimum'
+    ]],
+    headStyles: { fillColor: NAVY, textColor: WHITE, fontStyle: 'bold', fontSize: 8, cellPadding: 3 },
+    bodyStyles: { fillColor: LIGHTGREEN, textColor: DARK, fontSize: 9, fontStyle: 'bold', cellPadding: 4 },
+    columnStyles: { 0: { cellWidth: 50 }, 1: { cellWidth: 38 }, 2: { cellWidth: 46 }, 3: { cellWidth: contentW - 134 } }
+  });
+
+  y = doc.lastAutoTable.finalY + 5;
+
+  // TVA note
+  if (setupNum && monthlyNum) {
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...GRAY);
+    doc.text(
+      'TVA 21% — Mise en place : ' + (setupNum / 1.21).toFixed(2) + ' EUR HTVA + ' + (setupNum - setupNum / 1.21).toFixed(2) + ' EUR TVA  |  Mensuel : ' + (monthlyNum / 1.21).toFixed(2) + ' EUR HTVA + ' + (monthlyNum - monthlyNum / 1.21).toFixed(2) + ' EUR TVA',
+      marginL, y + 4
+    );
+  }
+  y += 12;
+
+  // PRESTATIONS INCLUSES
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GRAY);
+  doc.text('PRESTATIONS INCLUSES', marginL, y);
+  y += 5;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...DARK);
+  const delivLines = doc.splitTextToSize(deliverables, contentW);
+  doc.text(delivLines, marginL, y);
+  y += delivLines.length * 3.5 + 5;
+
+  // CONDITIONS ESSENTIELLES
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GRAY);
+  doc.text('CONDITIONS ESSENTIELLES', marginL, y);
+  y += 5;
+
+  const summary = [
+    ['Duree minimale', '6 mois a compter de la signature. Reconduction tacite, resiliation avec 1 mois de preavis ecrit.'],
+    ['Resiliation anticipee', 'Mensualites restantes + 150 EUR TVAC de frais administratifs.'],
+    ['Paiement', 'Mise en place exigible a la signature. Mensuel par prelevement SEPA automatique le 1er du mois.'],
+    ['Non-paiement', 'Suspension du service apres mise en demeure de 15 jours. Les sommes restent dues.'],
+    ['Propriete', 'Le code source reste la propriete de Seolia. Le nom de domaine reste la propriete du client.'],
+    ['Fourniture contenus', "Le client s'engage a fournir textes, photos et logo dans les 15 jours suivant la signature. Tout retard impacte les delais sans modifier les obligations de paiement."],
+    ['Droit applicable', 'Droit belge. Tribunaux de Liege. Conditions completes en page 2.'],
+  ];
+
+  doc.autoTable({
+    startY: y,
+    margin: { left: marginL, right: marginR },
+    body: summary,
+    bodyStyles: { fontSize: 7.5, textColor: DARK, cellPadding: 2 },
+    columnStyles: {
+      0: { fontStyle: 'bold', textColor: NAVY, cellWidth: 38, fillColor: LIGHTBG },
+      1: { cellWidth: contentW - 38, fillColor: WHITE }
+    },
+    alternateRowStyles: { fillColor: WHITE },
+    tableLineColor: [220, 226, 234],
+    tableLineWidth: 0.3
+  });
+
+  y = doc.lastAutoTable.finalY + 4;
+
+  // Mention CGV
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GRAY);
+  doc.text('Le client declare avoir lu et accepter les conditions generales detaillees en page 2 du present contrat.', marginL, y);
+  y += 8;
+
+  // SEPA block
+  doc.setFillColor(230, 245, 255);
+  doc.roundedRect(marginL, y, contentW, 12, 2, 2, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...NAVY);
+  doc.text('AUTORISATION DE PRELEVEMENT SEPA', marginL + 4, y + 5);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(...DARK);
+  doc.text('IBAN : ________________________________   BIC : ____________   — En signant ce contrat, le Client autorise Seolia a prelever le montant mensuel convenu par prelevement SEPA.', marginL + 4, y + 10, { maxWidth: contentW - 8 });
+  y += 16;
+
+  // SIGNATURES
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GRAY);
+  doc.text('SIGNATURES', marginL, y);
+  y += 5;
+
+  const sigBoxH = 42;
+  const sigHalfW = (contentW / 2) - 4;
+
+  // Prestataire sig box
+  doc.setDrawColor(...NAVY);
+  doc.setLineWidth(0.4);
+  doc.roundedRect(marginL, y, sigHalfW, sigBoxH, 2, 2);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(...NAVY);
+  doc.text('Prestataire', marginL + 4, y + 7);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...DARK);
+  doc.text('Florian Moers (Seolia)', marginL + 4, y + 14);
+  doc.setFontSize(8);
+  doc.setTextColor(...GRAY);
+  doc.text('Lu et approuve — Signature :', marginL + 4, y + 22);
+  if (florianSigDataUrl) {
+    doc.addImage(florianSigDataUrl, 'PNG', marginL + 4, y + 24, sigHalfW - 16, 14);
+  }
+
+  // Client sig box
+  const clientSigX = marginL + sigHalfW + 8;
+  doc.setDrawColor(...NAVY);
+  doc.setLineWidth(0.4);
+  doc.roundedRect(clientSigX, y, sigHalfW, sigBoxH, 2, 2);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(...NAVY);
+  doc.text('Client', clientSigX + 4, y + 7);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...DARK);
+  doc.text(clientName, clientSigX + 4, y + 14, { maxWidth: sigHalfW - 8 });
+  doc.setFontSize(8);
+  doc.setTextColor(...GRAY);
+  doc.text('Lu et approuve — Signature :', clientSigX + 4, y + 22);
+  if (clientSigDataUrl) {
+    doc.addImage(clientSigDataUrl, 'PNG', clientSigX + 4, y + 24, sigHalfW - 16, 14);
+  }
+
+  drawFooter();
+
+  // ─── PAGE 2 : CGV ──────────────────────────────────────────────────────────
+  doc.addPage();
+  drawHeader(2);
+  y = 34;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(13);
+  doc.setTextColor(...NAVY);
+  doc.text('CONDITIONS GENERALES DE VENTE ET DE PRESTATION', marginL, y);
+  y += 5;
+  doc.setFillColor(...GREEN);
+  doc.rect(marginL, y, contentW, 0.8, 'F');
+  y += 8;
+
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(8);
+  doc.setTextColor(...GRAY);
+  doc.text("Ces conditions font partie integrante du contrat signe en page 1 et s'appliquent a l'ensemble des prestations fournies par Seolia.", marginL, y, { maxWidth: contentW });
+  y += 10;
+
+  const articles = [
+    {
+      title: 'Article 1 — Objet du contrat',
+      text: 'Seolia (Florian Moers, BE 0727.941.547, ci-apres "le Prestataire") s\'engage a concevoir, deployer et maintenir un site web professionnel et/ou des services numeriques selon le forfait souscrit par le client. Les prestations incluses dans le forfait sont celles detaillees sur la fiche commerciale remise au client lors de la souscription, qui fait partie integrante du present contrat.'
+    },
+    {
+      title: 'Article 2 — Duree et engagement minimal',
+      text: 'Le present contrat est conclu pour une duree minimale de 6 (six) mois calendaires a compter de la date de signature. Apres cette periode d\'engagement, le contrat se poursuit tacitement de mois en mois et peut etre resilie par l\'une ou l\'autre des parties avec un preavis minimum d\'1 (un) mois, notifie par ecrit (courrier electronique ou courrier recommande).'
+    },
+    {
+      title: 'Article 3 — Resiliation anticipee',
+      text: 'Toute demande de resiliation formulee avant l\'echeance de la periode d\'engagement de 6 mois entraine la facturation immediate et integrale de l\'ensemble des mensualites restantes jusqu\'au terme de ladite periode, majorees de 150 EUR TVAC de frais administratifs de cloture. Ces montants sont exigibles sans delai a reception de la facture correspondante.'
+    },
+    {
+      title: 'Article 4 — Conditions de paiement',
+      text: 'Les frais de mise en place sont exigibles a la date de signature du contrat. L\'abonnement mensuel est preleve automatiquement par prelevement SEPA direct le 1er de chaque mois. Le client autorise Seolia a prelever les montants dus via le mandat SEPA signe lors de la souscription. Tout refus de prelevement sans motif valable constitue un defaut de paiement soumis a l\'article 5.'
+    },
+    {
+      title: 'Article 5 — Non-paiement et suspension',
+      text: 'En cas de non-paiement d\'une echeance, Seolia adresse une mise en demeure par courrier electronique. Sans regularisation dans un delai de 15 (quinze) jours calendaires suivant l\'envoi de cette mise en demeure, Seolia se reserve le droit de suspendre l\'integralite des services sans preavis supplementaire. La suspension du service ne met pas fin au contrat et ne supprime pas les obligations de paiement du client, qui restent integralement dues.'
+    },
+    {
+      title: 'Article 6 — Propriete intellectuelle',
+      text: 'L\'ensemble du code source, des maquettes graphiques, des fichiers de design, des scripts et de tout autre element technique cree ou configure par Seolia dans le cadre du contrat reste la propriete exclusive de Florian Moers (Seolia), pendant toute la duree du contrat et apres sa resiliation, quelle qu\'en soit la cause. Le client ne peut en aucun cas reclamer le transfert, la cession ou la copie du code source.'
+    },
+    {
+      title: 'Article 7 — Nom de domaine',
+      text: 'Le nom de domaine enregistre dans le cadre du contrat reste la propriete du client. Seolia en assure uniquement la gestion technique pendant la duree du contrat. En cas de resiliation, quelle qu\'en soit la cause, Seolia s\'engage a restituer l\'integralite des acces et le controle du nom de domaine au client dans un delai maximum de 30 (trente) jours suivant la date effective de resiliation.'
+    },
+    {
+      title: 'Article 8 — Garanties et responsabilites',
+      text: 'Seolia garantit la conformite du site web aux specifications convenues, une disponibilite cible de 99,5% par an hors maintenance planifiee et cas de force majeure, et la conformite des traitements de donnees au RGPD. Toute reclamation relative aux prestations doit etre formulee par ecrit dans les 30 jours suivant la constatation du probleme. La responsabilite de Seolia est, en toute hypothese, limitee au montant total des mensualites encaissees au cours des 3 derniers mois precedant le sinistre.'
+    },
+    {
+      title: 'Article 9 — Protection des donnees personnelles (RGPD)',
+      text: 'Seolia traite les donnees personnelles du client et, le cas echeant, de ses clients finaux, conformement au Reglement General sur la Protection des Donnees (UE) 2016/679 (RGPD) et a la loi belge du 30 juillet 2018. Les donnees collectees sont utilisees exclusivement aux fins de l\'execution du present contrat et de la relation commerciale. Le client dispose d\'un droit d\'acces, de rectification, d\'effacement et d\'opposition, exercable par courrier electronique a florianmoerspro@gmail.com. L\'autorite de controle competente est l\'Autorite de Protection des Donnees (APD) — www.autoriteprotectiondonnees.be.'
+    },
+    {
+      title: 'Article 10 — Droit applicable et juridiction',
+      text: 'Le present contrat est soumis exclusivement au droit belge. En cas de litige relatif a son interpretation ou a son execution, les parties s\'engagent a rechercher prioritairement une solution amiable avant toute action judiciaire. A defaut de resolution amiable dans un delai de 30 jours, le litige releve de la competence exclusive des tribunaux de l\'arrondissement judiciaire de Liege.'
+    },
+  ];
+
+  articles.forEach((art) => {
+    if (y > 255) {
+      doc.addPage();
+      drawHeader(3);
+      drawFooter();
+      y = 34;
+    }
+    doc.setFillColor(...NAVY);
+    doc.roundedRect(marginL, y, contentW, 7, 1, 1, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...WHITE);
+    doc.text(art.title, marginL + 4, y + 5);
+    y += 9;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...DARK);
+    const lines = doc.splitTextToSize(art.text, contentW);
+    doc.text(lines, marginL, y);
+    y += lines.length * 4.5 + 7;
+  });
+
+  drawFooter();
+
+  // Return base64 without the data URI prefix
+  const dataUri = doc.output('datauristring');
+  return dataUri.replace('data:application/pdf;base64,', '');
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// SUBMIT SIGNATURE
+// ──────────────────────────────────────────────────────────────────────────────
+
 async function submitSignature(token) {
   const btn = document.getElementById('btnSign');
   const name = document.getElementById('signerName').value.trim();
   const accepted = document.getElementById('acceptTerms').checked;
-  
+
   if (!name) { alert('Veuillez confirmer votre nom complet.'); return; }
   if (!accepted) { alert('Veuillez accepter les conditions du contrat.'); return; }
   if (window.sigPad.isEmpty()) { alert('Veuillez apposer votre signature dans le cadre prévu.'); return; }
-  
+
   btn.disabled = true;
-  btn.textContent = 'Envoi en cours...';
-  
+  btn.textContent = 'Génération du contrat signé...';
+
   const signatureImage = window.sigPad.toDataURL('image/png');
-  
+
+  // Generate signed PDF
+  let pdf_base64 = null;
+  try {
+    const florianSig = await generateFlorianSig();
+    pdf_base64 = generateSignedPDF(_contractData, signatureImage, florianSig);
+  } catch (e) {
+    console.warn('PDF generation failed:', e);
+    // Continue without PDF — Worker will use fallback URL
+  }
+
+  btn.textContent = 'Envoi en cours...';
+
   try {
     const res = await fetch(`${WORKER_URL}/sign-contract`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, signature_image: signatureImage, signer_name: name })
+      body: JSON.stringify({ token, signature_image: signatureImage, signer_name: name, pdf_base64 })
     });
-    
+
     const data = await res.json();
-    
+
     if (!res.ok) {
       if (data.error === 'already_signed') {
         document.getElementById('app').innerHTML = '<div class="status-success"><div class="success-icon">✅</div><p class="success-title">Contrat déjà signé</p><p class="success-text">Ce contrat a déjà été signé. Vous avez reçu une confirmation par email.</p></div>';
@@ -245,13 +639,13 @@ async function submitSignature(token) {
       }
       return;
     }
-    
+
     const now = new Date().toLocaleString('fr-BE');
     document.getElementById('app').innerHTML = `
       <div class="status-success">
         <div class="success-icon">✅</div>
         <p class="success-title">Contrat signé avec succès !</p>
-        <p class="success-text">Merci <strong>${name}</strong>. Votre contrat a été signé électroniquement. Une confirmation vous a été envoyée par email.</p>
+        <p class="success-text">Merci <strong>${name}</strong>. Votre contrat a été signé électroniquement et enregistré. Une confirmation vous a été envoyée par email.</p>
         <div class="certificate">
           <p><strong>Certificat de signature</strong></p>
           <p>Signataire : ${name}</p>
@@ -261,7 +655,7 @@ async function submitSignature(token) {
         <p style="margin-top:16px; color:#555; font-size:14px;">Notre équipe vous contactera prochainement pour démarrer votre projet. Des questions ? Appelez le <a href="tel:+32470922188" style="color:#00d68f;">+32 470 92 21 88</a></p>
       </div>
     `;
-    
+
   } catch (e) {
     btn.disabled = false;
     btn.textContent = 'Je signe et accepte le contrat →';

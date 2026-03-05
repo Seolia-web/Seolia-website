@@ -110,6 +110,13 @@
     .badge-client { background: #f0fdf4; color: #16a34a; }
     .badge-perdu { background: #fef2f2; color: #dc2626; }
 
+    /* ── SOUS-STATUTS ── */
+    .sous-badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; margin-left: 4px; vertical-align: middle; white-space: nowrap; }
+    .sous-badge-nr   { background: #fee2e2; color: #dc2626; }
+    .sous-badge-ok   { background: #dcfce7; color: #16a34a; }
+    .sous-badge-warn { background: #fef3c7; color: #d97706; }
+    .sous-badge-grey { background: #f1f5f9; color: #64748b; }
+
     /* ── TABLE ── */
     .table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid var(--border); }
     table { width: 100%; border-collapse: collapse; background: #fff; }

@@ -1,6 +1,58 @@
 
 'use strict';
 
+// ===== SOUS-STATUTS CONFIG =====
+const SOUS_STATUTS = {
+  prospect: [
+    { value: 'appel_1_nr', label: '1er appel – Pas répondu', cls: 'sous-badge-nr' },
+    { value: 'appel_1_ok', label: '1er appel – Répondu',     cls: 'sous-badge-ok' },
+    { value: 'appel_2_nr', label: '2ème appel – Pas répondu',cls: 'sous-badge-nr' },
+    { value: 'appel_2_ok', label: '2ème appel – Répondu',    cls: 'sous-badge-ok' },
+    { value: 'appel_3_nr', label: '3ème appel – Pas répondu',cls: 'sous-badge-nr' },
+    { value: 'appel_3_ok', label: '3ème appel – Répondu',    cls: 'sous-badge-ok' },
+    { value: 'sans_suite', label: 'Sans suite',               cls: 'sous-badge-grey' },
+  ],
+  rdv: [
+    { value: 'rdv_planifie', label: 'RDV planifié',   cls: 'sous-badge-warn' },
+    { value: 'rdv_effectue', label: 'RDV effectué',   cls: 'sous-badge-ok'   },
+    { value: 'rdv_no_show',  label: 'No-show',         cls: 'sous-badge-nr'   },
+    { value: 'rdv_reporte',  label: 'RDV reporté',    cls: 'sous-badge-warn' },
+  ],
+  client: [
+    { value: 'actif',       label: 'Actif',               cls: 'sous-badge-ok'   },
+    { value: 'en_pause',    label: 'En pause',            cls: 'sous-badge-warn' },
+    { value: 'resiliation', label: 'Résiliation en cours',cls: 'sous-badge-nr'   },
+  ],
+  perdu: [
+    { value: 'prix',          label: 'Prix trop élevé', cls: 'sous-badge-grey' },
+    { value: 'concurrent',    label: 'Concurrent',      cls: 'sous-badge-grey' },
+    { value: 'pas_interesse', label: 'Pas intéressé',   cls: 'sous-badge-grey' },
+    { value: 'injoignable',   label: 'Injoignable',     cls: 'sous-badge-nr'   },
+  ],
+};
+
+function getSousBadgeHtml(sous_statut, statut) {
+  if (!sous_statut) return '';
+  const opts = SOUS_STATUTS[statut] || [];
+  const opt = opts.find(o => o.value === sous_statut);
+  if (!opt) return '';
+  return '<span class="sous-badge ' + opt.cls + '">' + opt.label + '</span>';
+}
+
+function updateSousStatutOptions(statut, currentVal) {
+  const sel = document.getElementById('cf-sous-statut');
+  if (!sel) return;
+  const opts = SOUS_STATUTS[statut] || [];
+  if (opts.length === 0) {
+    sel.closest('.form-group').style.display = 'none';
+    sel.value = '';
+    return;
+  }
+  sel.closest('.form-group').style.display = '';
+  sel.innerHTML = '<option value="">-- Aucun sous-statut --</option>' +
+    opts.map(o => '<option value="' + o.value + '"' + (currentVal === o.value ? ' selected' : '') + '>' + o.label + '</option>').join('');
+}
+
 // ===== CONFIG =====
 const SUPABASE_URL = 'https://tykjkpnlvuxwrurmacpx.supabase.co';
 const ANON_KEY = ["eyJhbGciOiJIUzI1NiIs","InR5cCI6IkpXVCJ9.eyJ","pc3MiOiJzdXBhYmFzZSI","sInJlZiI6InR5a2prcG5","sdnV4d3J1cm1hY3B4Iiw","icm9sZSI6ImFub24iLCJ","pYXQiOjE3NzI0NDE2MDc","sImV4cCI6MjA4ODAxNzY","wN30.Nq1BU9DldMmDwid","LMlPusuXT9qsjOotNMen","wbpCFa0o"].join("");
@@ -460,6 +512,7 @@ function makeKanbanCard(contact) {
     (contact.ville ? '<span>📍 ' + esc(contact.ville) + '</span>' : '') +
     (contact.formule ? '<span>📦 ' + esc(contact.formule) + '</span>' : '') +
     '</div>' +
+    (contact.sous_statut ? '<div style="margin-top:6px">' + getSousBadgeHtml(contact.sous_statut, contact.statut||'prospect') + '</div>' : '') +
     (currentProfile?.role === 'admin'
       ? '<div class="kcard-assignee" onclick="event.stopPropagation()">' +
         '<select style="border:none;background:#f1f5f9;font-size:11px;font-weight:500;color:#64748b;padding:2px 4px;border-radius:20px;cursor:pointer;max-width:120px" ' +
@@ -608,7 +661,7 @@ function renderContacts() {
 '<td class="fw700">' + esc(c.nom||'-') + '</td>' +
     '<td>' + esc(c.entreprise||'-') + '</td>' +
     '<td>' + esc(c.telephone||'-') + '</td>' +
-    '<td><span class="badge badge-' + (c.statut||'prospect') + '">' + (c.statut||'-') + '</span></td>' +
+    '<td><span class="badge badge-' + (c.statut||'prospect') + '">' + (c.statut||'-') + '</span>' + getSousBadgeHtml(c.sous_statut, c.statut||'prospect') + '</td>' +
     '<td>' + esc(c.formule||'-') + '</td>' +
     '<td style="text-align:center">' + renderLastActionCell(c) + '</td>' +
     (currentProfile.role === 'admin'
@@ -626,7 +679,7 @@ function renderContacts() {
     '<div class="contact-card" onclick="openContactDetail(\'' + c.id + '\')">' +
     '<div class="contact-card-header">' +
     '<div><div class="contact-card-name">' + esc(c.nom||'-') + '</div><div class="contact-card-company">' + esc(c.entreprise||'-') + '</div></div>' +
-    '<span class="badge badge-' + (c.statut||'prospect') + '">' + (c.statut||'-') + '</span>' +
+    '<span class="badge badge-' + (c.statut||'prospect') + '">' + (c.statut||'-') + '</span>' + getSousBadgeHtml(c.sous_statut, c.statut||'prospect') +
     '</div>' +
     '<div class="contact-card-meta">' +
     (c.telephone ? '<span>📞 ' + esc(c.telephone) + '</span>' : '') +
@@ -1405,9 +1458,12 @@ function renderContactForm(contact) {
     </div>
     <div class="form-row">
       <div class="form-group"><label>Statut</label>
-        <select id="cf-statut">
+        <select id="cf-statut" onchange="updateSousStatutOptions(this.value,'')">
           ${['prospect','rdv','client','perdu'].map(s=>'<option value="'+s+'"'+(contact?.statut===s?' selected':'')+'>'+s+'</option>').join('')}
         </select>
+      </div>
+      <div class="form-group" id="fg-sous-statut"><label>Sous-statut</label>
+        <select id="cf-sous-statut"></select>
       </div>
       <div class="form-group"><label>Formule</label>
         <select id="cf-formule" onchange="autoFillFormule(this.value)">
@@ -1437,6 +1493,8 @@ function renderContactForm(contact) {
     <div class="form-group"><label>Assigné à</label>${assigneeOpts}</div>
     <div class="form-group"><label>Notes</label><textarea id="cf-notes">${esc(contact?.notes_generales||'')}</textarea></div>
   `;
+  // Initialiser le dropdown sous-statut selon le statut actuel
+  updateSousStatutOptions(contact?.statut || 'prospect', contact?.sous_statut || '');
 }
 
 async function saveContact(editId) {
@@ -1468,6 +1526,7 @@ async function saveContact(editId) {
       secteur: document.getElementById('cf-secteur')?.value.trim()||null,
       source: document.getElementById('cf-source')?.value||null,
       statut: document.getElementById('cf-statut')?.value||'prospect',
+      sous_statut: document.getElementById('cf-sous-statut')?.value||null,
       formule: document.getElementById('cf-formule')?.value.trim()||null,
       prix_setup: document.getElementById('cf-setup')?.value ? parseFloat(document.getElementById('cf-setup').value) : null,
       prix_mensuel: document.getElementById('cf-mensuel')?.value ? parseFloat(document.getElementById('cf-mensuel').value) : null,

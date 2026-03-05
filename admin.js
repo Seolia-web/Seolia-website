@@ -3097,7 +3097,7 @@ async function loadCommentaires(contactId) {
             + '<strong style="color:var(--green);margin-right:6px;">' + escHtml(c.prenom_commercial) + '</strong>'
             + '<span style="color:var(--text)">' + escHtml(c.texte) + '</span>'
             + '</div>'
-            + '<button onclick="deleteCommentaire(' + c.id + ')" title="Supprimer" style="flex-shrink:0;background:none;border:none;cursor:pointer;color:var(--text-light);font-size:14px;padding:2px 4px;border-radius:4px;line-height:1;" onmouseover="this.style.color=\'#e74c3c\'" onmouseout="this.style.color=\'var(--text-light)\'">&#x1F5D1;</button>'
+            + '<button onclick="deleteCommentaire(\'' + c.id + '\')" title="Supprimer" style="flex-shrink:0;background:none;border:none;cursor:pointer;color:var(--text-light);font-size:14px;padding:2px 4px;border-radius:4px;line-height:1;" onmouseover="this.style.color=\'#e74c3c\'" onmouseout="this.style.color=\'var(--text-light)\'">&#x1F5D1;</button>'
             + '</div>';
         }).join('');
   } catch(e) {

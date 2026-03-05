@@ -983,6 +983,27 @@ async function handleSignContract(request, env) {
     }
 
     const pkg = contract.contract_data || {};
+
+    // Save signed contract reference in documents table
+    const signedDate = new Date(signedAt).toLocaleDateString('fr-BE').replace(/\//g, '-');
+    const docNom = `Contrat_${(pkg.package || 'Seolia').replace(/[^a-zA-Z0-9]/g, '_')}_signe_${signedDate}.pdf`;
+    await fetch(`${SUPABASE_URL}/rest/v1/documents`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        contact_id: contract.contact_id,
+        nom: docNom,
+        file_path: `https://seolia.be/sign.html?token=${token}`,
+        type_fichier: 'application/pdf',
+        taille: 0,
+        uploaded_by: 'Signature électronique'
+      })
+    });
     const signedDateFormatted = new Date(signedAt).toLocaleString('fr-BE', { timeZone: 'Europe/Brussels' });
 
     // Send confirmation email to client

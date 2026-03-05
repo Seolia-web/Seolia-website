@@ -867,7 +867,7 @@ async function loadDetailDocs(contactId) {
       el.innerHTML = '<div class="empty-state" style="padding:16px"><div style="font-size:32px;margin-bottom:8px">📭</div><p style="color:var(--text-secondary)">Aucun document</p></div>';
     } else {
       el.innerHTML = docs.map(d => {
-        const publicUrl = SUPABASE_URL + '/storage/v1/object/public/documents/' + d.file_path;
+        const publicUrl = d.file_path.startsWith('https://') ? d.file_path : SUPABASE_URL + '/storage/v1/object/public/documents/' + d.file_path;
         const ext = (d.nom||'').split('.').pop().toUpperCase();
         const extColors = { PDF:'#ef4444', DOC:'#3b82f6', DOCX:'#3b82f6', JPG:'#f97316', JPEG:'#f97316', PNG:'#f97316', XLS:'#16a34a', XLSX:'#16a34a' };
         const color = extColors[ext] || '#64748b';

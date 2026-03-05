@@ -651,7 +651,11 @@ async function generateFlorianSig() {
 function generateSignedPDF(data, clientSigDataUrl, florianSigDataUrl) {
   const jspdfNS = window.jspdf || (window.jsPDF ? { jsPDF: window.jsPDF } : null);
   if (!jspdfNS || !jspdfNS.jsPDF) {
-    console.error('jsPDF not loaded. window.jspdf:', window.jspdf, 'window.jsPDF:', window.jsPDF);
+    const debugInfo = 'window.jspdf type: ' + typeof window.jspdf + 
+      '\nwindow.jspdf keys: ' + (window.jspdf ? Object.keys(window.jspdf).slice(0,10).join(', ') : 'N/A') +
+      '\nwindow.jsPDF: ' + typeof window.jsPDF;
+    console.error('jsPDF not loaded:', debugInfo);
+    alert('DEBUG jsPDF:\n' + debugInfo);
     return null;
   }
   const { jsPDF } = jspdfNS;

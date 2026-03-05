@@ -715,7 +715,7 @@ function renderContacts() {
     const statut = c.statut || 'prospect';
     const avatarClass = avatarColors[statut] || 'ca-prospect';
     const phoneHtml = c.telephone
-      ? '<a class="phone-link" href="tel:' + esc(c.telephone) + '" onclick="event.stopPropagation()">' + esc(c.telephone) + '</a>'
+      ? '<a class="phone-link" href="tel:' + esc(c.telephone) + '" onclick="copyPhone(\'' + esc(c.telephone).replace(/'/g, "\\'") + '\', event)">' + esc(c.telephone) + '</a>'
       : '<span style="color:#94a3b8">—</span>';
     const assigneeHtml = currentProfile.role === 'admin'
       ? '<td onclick="event.stopPropagation()"><select style="border:1px solid #ddd;border-radius:6px;padding:3px 6px;font-size:12px;cursor:pointer;max-width:130px" onchange="quickUpdateAssignee(\'' + c.id + '\',this.value)">' + commOpts.replace('value="' + esc(c.assignee||'') + '"', 'value="' + esc(c.assignee||'') + '" selected') + '</select></td>'
@@ -2701,6 +2701,16 @@ function showToast(msg, type='success') {
   el.textContent = msg;
   document.getElementById('toast-container').appendChild(el);
   setTimeout(() => el.remove(), 3500);
+}
+
+function copyPhone(phone, event) {
+  event.stopPropagation();
+  navigator.clipboard.writeText(phone).catch(function() {});
+  var toast = document.createElement('div');
+  toast.className = 'toast toast-phone-copy';
+  toast.textContent = 'Numéro copié !';
+  document.getElementById('toast-container').appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 2000);
 }
 
 // ===== HELPERS =====

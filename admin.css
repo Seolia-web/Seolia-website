@@ -249,6 +249,7 @@
     .toast.success { background: #fff; border-left: 4px solid var(--green); color: var(--text); }
     .toast.error { background: #fff; border-left: 4px solid var(--red); color: var(--text); }
     .toast.lead { background: #fff; border-left: 4px solid #f59e0b; color: var(--text); cursor: pointer; }
+    .toast.toast-phone-copy { background: #1e293b; color: #fff; border-left: none; font-weight: 600; }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
     /* ── NOTIFICATIONS ── */

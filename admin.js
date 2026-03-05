@@ -730,6 +730,7 @@ async function openContactDetail(id) {
   loadDetailModifications(id, contact);
   loadDetailQuestionnaire(contact);
   loadDetailPaiement(contact);
+  chargerSignatures(id);
 }
 
 function copyClientId() {
@@ -4233,3 +4234,138 @@ function generateContrat() {
   doc.save('Contrat-Seolia-' + safeName + '-' + today.getFullYear() + '.pdf');
 }
 
+
+function envoyerPourSignature() {
+  const contact = allContacts.find(c => c.id === currentContactId);
+  if (!contact) return;
+  
+  // Pre-fill email if available
+  const emailInput = document.getElementById('signatureEmail');
+  if (emailInput) emailInput.value = contact.email || '';
+  
+  // Show package info
+  const pkgInfo = document.getElementById('signaturePackageInfo');
+  if (pkgInfo) {
+    const formule = contact.formule || 'Non défini';
+    pkgInfo.textContent = formule;
+  }
+  
+  document.getElementById('modalSignature').style.display = 'flex';
+}
+
+function fermerModalSignature() {
+  document.getElementById('modalSignature').style.display = 'none';
+}
+
+async function confirmerEnvoiSignature() {
+  const email = document.getElementById('signatureEmail').value.trim();
+  if (!email) {
+    alert("Veuillez saisir l'email du client.");
+    return;
+  }
+  
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Envoi...';
+  
+  const contact = allContacts.find(c => c.id === currentContactId);
+  if (!contact) return;
+  
+  const formule = contact.formule || '';
+  let packageName = formule;
+  let setupPrice = '';
+  let monthlyPrice = '';
+  let deliverables = '';
+  
+  const pricingMap = {
+    'Essentiel IA': { setup: '499€ TVAC', monthly: '109€/mois TVAC', del: 'Site one-page, chatbot FAQ, automatisation Google reviews' },
+    'Business IA': { setup: '949€ TVAC', monthly: '249€/mois TVAC', del: 'Site multi-pages SEO, automatisation RDV, gestion demandes, notifications SMS' },
+    'Premium IA': { setup: '1 499€ TVAC', monthly: '449€/mois TVAC', del: 'Site premium, agent téléphonique IA 200min/mois, WhatsApp, dashboard, rapports hebdomadaires' },
+    'Web Essentiel': { setup: '149€ TVAC', monthly: '69€/mois TVAC', del: 'Site one-page professionnel, hébergement, maintenance' },
+    'Web Business': { setup: '299€ TVAC', monthly: '119€/mois TVAC', del: 'Site multi-pages, SEO on-page, hébergement, maintenance' },
+    'Web Premium': { setup: '499€ TVAC', monthly: '199€/mois TVAC', del: 'Site premium, animations, SEO avancé, hébergement, maintenance' }
+  };
+  
+  const pricing = pricingMap[formule];
+  if (pricing) {
+    setupPrice = pricing.setup;
+    monthlyPrice = pricing.monthly;
+    deliverables = pricing.del;
+  }
+  
+  const contractData = {
+    package: packageName,
+    setup_price: setupPrice,
+    monthly_price: monthlyPrice,
+    duration: '6 mois minimum',
+    deliverables: deliverables
+  };
+  
+  try {
+    const res = await fetch('https://seolia-ai-chat.seolia.workers.dev/send-contract', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contact_id: contact.id,
+        contact_name: (contact.nom || '') + (contact.prenom ? ' ' + contact.prenom : ''),
+        contact_email: email,
+        contract_data: contractData
+      })
+    });
+    
+    const data = await res.json();
+    
+    if (!res.ok) throw new Error(data.error || 'Erreur');
+    
+    fermerModalSignature();
+    showToast('Contrat envoyé à ' + email + ' — Lien de signature créé', 'success');
+    
+    // Log in comments
+    await ajouterCommentaire('Contrat envoyé pour signature électronique à ' + email + ' (' + packageName + ')');
+    
+  } catch (e) {
+    alert('Erreur lors de l\'envoi : ' + e.message);
+  }
+  
+  btn.disabled = false;
+  btn.textContent = '📧 Envoyer le contrat';
+}
+
+async function chargerSignatures(contactId) {
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/signatures?contact_id=eq.' + contactId + '&order=created_at.desc', {
+      headers: {
+        'apikey': ANON_KEY,
+        'Authorization': 'Bearer ' + currentToken
+      }
+    });
+    
+    const data = await res.json();
+    
+    const section = document.getElementById('signatureStatus');
+    const list = document.getElementById('signaturesList');
+    
+    if (!section || !list) return;
+    
+    if (!data || data.length === 0) {
+      section.style.display = 'none';
+      return;
+    }
+    
+    section.style.display = 'block';
+    
+    list.innerHTML = data.map(function(sig) {
+      const statusColor = sig.status === 'signed' ? '#00d68f' : '#f59e0b';
+      const statusText = sig.status === 'signed' ? '✅ Signé' : '⏳ En attente';
+      const date = new Date(sig.status === 'signed' ? sig.signed_at : sig.created_at).toLocaleDateString('fr-BE');
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f8f9fa;border-radius:6px;margin-bottom:8px;">' +
+        '<div><strong>' + (sig.contract_data && sig.contract_data.package ? sig.contract_data.package : 'Contrat') + '</strong><br>' +
+        '<span style="font-size:12px;color:#666;">' + date + '</span></div>' +
+        '<span style="color:' + statusColor + ';font-weight:600;">' + statusText + '</span>' +
+        '</div>';
+    }).join('');
+    
+  } catch (e) {
+    console.error('Erreur chargement signatures:', e);
+  }
+}

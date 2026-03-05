@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signature de contrat — Seolia</title>
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.2.0/dist/signature_pad.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f7fa; color: #333; min-height: 100vh; }
+    
+    .header { background: #1a1a2e; color: white; padding: 20px; text-align: center; }
+    .logo { font-size: 28px; font-weight: 900; }
+    .logo span { color: #00d68f; }
+    
+    .container { max-width: 700px; margin: 0 auto; padding: 30px 20px; }
+    
+    .card { background: white; border-radius: 12px; padding: 30px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+    
+    .status-loading { text-align: center; padding: 40px; color: #666; }
+    .status-error { background: #fff5f5; border: 1px solid #feb2b2; color: #c53030; border-radius: 8px; padding: 20px; text-align: center; }
+    .status-success { background: #f0fdf4; border: 2px solid #00d68f; border-radius: 12px; padding: 30px; text-align: center; }
+    
+    h2 { color: #1a1a2e; margin-bottom: 20px; font-size: 22px; }
+    h3 { color: #1a1a2e; margin-bottom: 12px; font-size: 16px; font-weight: 600; }
+    
+    .contract-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .info-item { background: #f8f9fa; border-radius: 8px; padding: 12px; }
+    .info-label { font-size: 12px; color: #666; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .info-value { font-weight: 600; color: #1a1a2e; font-size: 15px; }
+    
+    .legal-notice { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 8px; padding: 16px; margin-bottom: 20px; font-size: 13px; color: #92400e; line-height: 1.5; }
+    
+    .signature-section label { display: block; font-weight: 600; color: #1a1a2e; margin-bottom: 8px; }
+    
+    .signature-wrapper { position: relative; border: 2px dashed #ddd; border-radius: 8px; background: #fafafa; margin-bottom: 12px; }
+    .signature-wrapper canvas { display: block; width: 100%; height: 160px; cursor: crosshair; border-radius: 8px; }
+    
+    .sig-actions { display: flex; gap: 8px; margin-bottom: 20px; }
+    .btn-clear { background: none; border: 1px solid #ddd; color: #666; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    .btn-clear:hover { background: #f0f0f0; }
+    
+    .name-input { width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 15px; margin-bottom: 20px; transition: border-color 0.2s; }
+    .name-input:focus { outline: none; border-color: #00d68f; }
+    
+    .checkbox-row { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 24px; cursor: pointer; }
+    .checkbox-row input { width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; accent-color: #00d68f; cursor: pointer; }
+    .checkbox-row span { font-size: 14px; color: #555; line-height: 1.5; }
+    
+    .btn-sign { width: 100%; background: #00d68f; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .btn-sign:hover { background: #00c07a; }
+    .btn-sign:disabled { background: #ccc; cursor: not-allowed; }
+    
+    .success-icon { font-size: 48px; margin-bottom: 16px; }
+    .success-title { color: #1a1a2e; font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+    .success-text { color: #555; margin-bottom: 16px; line-height: 1.6; }
+    .certificate { background: white; border-radius: 8px; padding: 16px; margin-top: 16px; text-align: left; font-size: 13px; }
+    .certificate p { margin-bottom: 6px; }
+    
+    .footer { text-align: center; padding: 30px 20px; color: #999; font-size: 13px; }
+    
+    @media (max-width: 500px) {
+      .contract-info { grid-template-columns: 1fr; }
+      .card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Seo<span>lia</span></div>
+</div>
+
+<div class="container">
+  <div id="app">
+    <div class="status-loading">
+      <p>Chargement de votre contrat...</p>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Seolia — Florian Moers — TVA BE 0727.941.547<br>
+  Signature électronique valide selon le règlement EU eIDAS
+</div>
+
+<script>
+const WORKER_URL = 'https://seolia-ai-chat.seolia.workers.dev';
+
+function getToken() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('token');
+}
+
+function formatDate(isoDate) {
+  return new Date(isoDate).toLocaleDateString('fr-BE', { 
+    day: '2-digit', month: 'long', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+}
+
+async function loadContract() {
+  const token = getToken();
+  const app = document.getElementById('app');
+  
+  if (!token) {
+    app.innerHTML = '<div class="status-error"><strong>Lien invalide.</strong><br>Ce lien de signature est invalide ou incomplet.</div>';
+    return;
+  }
+  
+  try {
+    const res = await fetch(`${WORKER_URL}/get-contract?token=${token}`);
+    const data = await res.json();
+    
+    if (!res.ok) {
+      if (data.error === 'already_signed') {
+        app.innerHTML = `<div class="status-success"><div class="success-icon">✅</div><p class="success-title">Contrat déjà signé</p><p class="success-text">Ce contrat a été signé le ${formatDate(data.signed_at)}. Vous avez reçu une confirmation par email.</p></div>`;
+      } else if (data.error === 'expired') {
+        app.innerHTML = '<div class="status-error"><strong>Lien expiré.</strong><br>Ce lien de signature a expiré. Contactez-nous au +32 470 92 21 88 pour en obtenir un nouveau.</div>';
+      } else {
+        app.innerHTML = `<div class="status-error"><strong>Erreur.</strong><br>${data.error || 'Contrat introuvable.'}</div>`;
+      }
+      return;
+    }
+    
+    renderContract(data, token);
+    
+  } catch (e) {
+    app.innerHTML = '<div class="status-error"><strong>Erreur de connexion.</strong><br>Impossible de charger le contrat. Réessayez dans quelques instants.</div>';
+  }
+}
+
+function renderContract(data, token) {
+  const pkg = data.contract_data || {};
+  const app = document.getElementById('app');
+  
+  app.innerHTML = `
+    <div class="card">
+      <h2>Contrat à signer</h2>
+      <p style="color:#666; margin-bottom:20px;">Bonjour <strong>${data.contact_name}</strong>, veuillez lire attentivement et signer votre contrat ci-dessous.</p>
+      
+      <div class="contract-info">
+        <div class="info-item">
+          <div class="info-label">Formule</div>
+          <div class="info-value">${pkg.package || '—'}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Frais de setup</div>
+          <div class="info-value">${pkg.setup_price || '—'}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Mensualité</div>
+          <div class="info-value">${pkg.monthly_price || '—'}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Engagement</div>
+          <div class="info-value">6 mois minimum</div>
+        </div>
+      </div>
+      
+      ${pkg.deliverables ? `<div style="background:#f8f9fa; border-radius:8px; padding:16px; margin-bottom:20px;"><h3>Prestations incluses</h3><p style="font-size:14px; color:#555; line-height:1.6;">${pkg.deliverables}</p></div>` : ''}
+      
+      <div class="legal-notice">
+        <strong>Conditions importantes :</strong> Engagement minimum de 6 mois. Résiliation possible après 6 mois avec 1 mois de préavis. En cas de résiliation anticipée, les mensualités restantes jusqu'au terme des 6 mois sont dues, plus 150€ de frais administratifs. Le site reste propriété de Seolia jusqu'à résiliation. Paiement par prélèvement SEPA automatique.
+      </div>
+    </div>
+    
+    <div class="card">
+      <h2>Votre signature</h2>
+      
+      <div class="signature-section">
+        <label>Signez dans le cadre ci-dessous :</label>
+        <div class="signature-wrapper">
+          <canvas id="signaturePad"></canvas>
+        </div>
+        <div class="sig-actions">
+          <button class="btn-clear" onclick="clearSignature()">Effacer</button>
+        </div>
+        
+        <label for="signerName">Confirmez votre nom complet :</label>
+        <input type="text" id="signerName" class="name-input" placeholder="Prénom Nom" value="${data.contact_name || ''}">
+        
+        <label class="checkbox-row">
+          <input type="checkbox" id="acceptTerms">
+          <span>Je reconnais avoir lu et j'accepte les conditions du contrat Seolia, incluant l'engagement de 6 mois et le prélèvement SEPA automatique.</span>
+        </label>
+        
+        <button class="btn-sign" id="btnSign" onclick="submitSignature('${token}')">
+          Je signe et accepte le contrat →
+        </button>
+      </div>
+    </div>
+  `;
+  
+  // Initialize signature pad
+  const canvas = document.getElementById('signaturePad');
+  // Resize canvas to match display size
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * window.devicePixelRatio || 600;
+  canvas.height = 160 * window.devicePixelRatio || 160;
+  canvas.getContext('2d').scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+  
+  window.sigPad = new SignaturePad(canvas, {
+    backgroundColor: 'rgb(255, 255, 255)',
+    penColor: '#1a1a2e',
+    minWidth: 1.5,
+    maxWidth: 3
+  });
+}
+
+function clearSignature() {
+  if (window.sigPad) window.sigPad.clear();
+}
+
+async function submitSignature(token) {
+  const btn = document.getElementById('btnSign');
+  const name = document.getElementById('signerName').value.trim();
+  const accepted = document.getElementById('acceptTerms').checked;
+  
+  if (!name) { alert('Veuillez confirmer votre nom complet.'); return; }
+  if (!accepted) { alert('Veuillez accepter les conditions du contrat.'); return; }
+  if (window.sigPad.isEmpty()) { alert('Veuillez apposer votre signature dans le cadre prévu.'); return; }
+  
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours...';
+  
+  const signatureImage = window.sigPad.toDataURL('image/png');
+  
+  try {
+    const res = await fetch(`${WORKER_URL}/sign-contract`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, signature_image: signatureImage, signer_name: name })
+    });
+    
+    const data = await res.json();
+    
+    if (!res.ok) {
+      if (data.error === 'already_signed') {
+        document.getElementById('app').innerHTML = '<div class="status-success"><div class="success-icon">✅</div><p class="success-title">Contrat déjà signé</p><p class="success-text">Ce contrat a déjà été signé. Vous avez reçu une confirmation par email.</p></div>';
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Je signe et accepte le contrat →';
+        alert('Erreur : ' + (data.error || 'Réessayez.'));
+      }
+      return;
+    }
+    
+    const now = new Date().toLocaleString('fr-BE');
+    document.getElementById('app').innerHTML = `
+      <div class="status-success">
+        <div class="success-icon">✅</div>
+        <p class="success-title">Contrat signé avec succès !</p>
+        <p class="success-text">Merci <strong>${name}</strong>. Votre contrat a été signé électroniquement. Une confirmation vous a été envoyée par email.</p>
+        <div class="certificate">
+          <p><strong>Certificat de signature</strong></p>
+          <p>Signataire : ${name}</p>
+          <p>Date : ${now}</p>
+          <p>Référence : ${token.substring(0, 12).toUpperCase()}</p>
+        </div>
+        <p style="margin-top:16px; color:#555; font-size:14px;">Notre équipe vous contactera prochainement pour démarrer votre projet. Des questions ? Appelez le <a href="tel:+32470922188" style="color:#00d68f;">+32 470 92 21 88</a></p>
+      </div>
+    `;
+    
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = 'Je signe et accepte le contrat →';
+    alert('Erreur de connexion. Vérifiez votre connexion internet et réessayez.');
+  }
+}
+
+// Init
+loadContract();
+</script>
+</body>
+</html>

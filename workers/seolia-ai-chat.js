@@ -105,6 +105,21 @@ export default {
       return handleCreateCommercial(request, env);
     }
 
+    // ─── /send-contract ─────────────────────────────────────────────────────
+    if (url.pathname === '/send-contract' && request.method === 'POST') {
+      return handleSendContract(request, env);
+    }
+
+    // ─── /get-contract ──────────────────────────────────────────────────────
+    if (url.pathname === '/get-contract') {
+      return handleGetContract(request, env);
+    }
+
+    // ─── /sign-contract ─────────────────────────────────────────────────────
+    if (url.pathname === '/sign-contract' && request.method === 'POST') {
+      return handleSignContract(request, env);
+    }
+
     return new Response('Seolia API v6', { status: 200 });
   }
 };
@@ -754,6 +769,290 @@ function supabaseHeaders() {
     'Content-Type': 'application/json',
     'Prefer': 'return=representation',
   };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SEND CONTRACT ENDPOINT
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleSendContract(request, env) {
+  try {
+    const body = await request.json();
+    const { contact_id, contact_name, contact_email, contract_data } = body;
+
+    if (!contact_email || !contact_name) {
+      return jsonResponse({ error: 'Email et nom requis' }, 400);
+    }
+
+    // Generate unique token
+    const token = crypto.randomUUID().replace(/-/g, '');
+
+    // Save to Supabase
+    const sbRes = await fetch(`${SUPABASE_URL}/rest/v1/signatures`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        token,
+        contact_id,
+        contact_name,
+        contact_email,
+        contract_data,
+        status: 'pending'
+      })
+    });
+
+    if (!sbRes.ok) {
+      const err = await sbRes.text();
+      return jsonResponse({ error: 'Erreur Supabase: ' + err }, 500);
+    }
+
+    // Build signing link
+    const signLink = `https://seolia.be/sign.html?token=${token}`;
+
+    // Format package info for email
+    const pkg = contract_data || {};
+    const packageName = pkg.package || 'Package Seolia';
+    const setupPrice = pkg.setup_price || '';
+    const monthlyPrice = pkg.monthly_price || '';
+
+    // Send email via Resend
+    const emailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`
+      },
+      body: JSON.stringify({
+        from: 'Seolia <admin@seolia.be>',
+        to: [contact_email],
+        subject: `Votre contrat Seolia — ${packageName}`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head><meta charset="utf-8"></head>
+          <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <span style="font-size: 28px; font-weight: 900;">Seo<span style="color: #00d68f;">lia</span></span>
+            </div>
+            <h2 style="color: #1a1a2e;">Bonjour ${contact_name},</h2>
+            <p>Votre contrat <strong>${packageName}</strong> est prêt à être signé.</p>
+            <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <h3 style="margin-top: 0; color: #1a1a2e;">Récapitulatif</h3>
+              ${setupPrice ? `<p><strong>Frais de setup :</strong> ${setupPrice}</p>` : ''}
+              ${monthlyPrice ? `<p><strong>Mensualité :</strong> ${monthlyPrice}</p>` : ''}
+              <p><strong>Durée d'engagement :</strong> 6 mois minimum</p>
+            </div>
+            <p>En cliquant sur le bouton ci-dessous, vous accédez à une page sécurisée pour signer électroniquement votre contrat. Cette signature est légalement valide selon le règlement européen eIDAS.</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${signLink}" style="background: #00d68f; color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: bold; display: inline-block;">
+                Signer mon contrat →
+              </a>
+            </div>
+            <p style="color: #666; font-size: 14px;">Ce lien est valable 30 jours. Si vous avez des questions, contactez-nous au <a href="tel:+32470922188">+32 470 92 21 88</a> ou par email à <a href="mailto:admin@seolia.be">admin@seolia.be</a>.</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+            <p style="color: #999; font-size: 12px; text-align: center;">
+              Seolia — Florian Moers — TVA BE 0727.941.547<br>
+              <em>Parce que votre société mérite d'être trouvée.</em>
+            </p>
+          </body>
+          </html>
+        `
+      })
+    });
+
+    if (!emailRes.ok) {
+      const emailErr = await emailRes.text();
+      return jsonResponse({ error: 'Erreur envoi email: ' + emailErr }, 500);
+    }
+
+    return jsonResponse({ success: true, token, sign_link: signLink });
+  } catch (err) {
+    return jsonResponse({ error: err.message }, 500);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GET CONTRACT ENDPOINT
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleGetContract(request, env) {
+  try {
+    const url2 = new URL(request.url);
+    let token = url2.searchParams.get('token');
+
+    if (!token && request.method === 'POST') {
+      const body = await request.json().catch(() => ({}));
+      token = body.token;
+    }
+
+    if (!token) {
+      return jsonResponse({ error: 'Token requis' }, 400);
+    }
+
+    const sbRes = await fetch(`${SUPABASE_URL}/rest/v1/signatures?token=eq.${token}&select=*`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
+    });
+
+    const rows = await sbRes.json();
+
+    if (!rows || rows.length === 0) {
+      return jsonResponse({ error: 'Contrat introuvable ou expiré' }, 404);
+    }
+
+    const contract = rows[0];
+
+    if (contract.status === 'signed') {
+      return jsonResponse({ error: 'already_signed', signed_at: contract.signed_at }, 400);
+    }
+
+    // Check expiry
+    if (new Date(contract.expires_at) < new Date()) {
+      return jsonResponse({ error: 'expired' }, 400);
+    }
+
+    return jsonResponse({
+      contact_name: contract.contact_name,
+      contract_data: contract.contract_data,
+      created_at: contract.created_at
+    });
+  } catch (err) {
+    return jsonResponse({ error: err.message }, 500);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SIGN CONTRACT ENDPOINT
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleSignContract(request, env) {
+  try {
+    const body = await request.json();
+    const { token, signature_image, signer_name } = body;
+
+    if (!token || !signature_image) {
+      return jsonResponse({ error: 'Token et signature requis' }, 400);
+    }
+
+    // Get IP
+    const ip = request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown';
+    const userAgent = request.headers.get('User-Agent') || 'unknown';
+
+    // Get contract first to verify
+    const sbGet = await fetch(`${SUPABASE_URL}/rest/v1/signatures?token=eq.${token}&select=*`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    const rows = await sbGet.json();
+
+    if (!rows || rows.length === 0) {
+      return jsonResponse({ error: 'Contrat introuvable' }, 404);
+    }
+
+    const contract = rows[0];
+
+    if (contract.status === 'signed') {
+      return jsonResponse({ error: 'already_signed' }, 400);
+    }
+
+    const signedAt = new Date().toISOString();
+
+    // Update signature record
+    const sbUpdate = await fetch(`${SUPABASE_URL}/rest/v1/signatures?token=eq.${token}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      },
+      body: JSON.stringify({
+        status: 'signed',
+        signed_at: signedAt,
+        ip_address: ip,
+        user_agent: userAgent,
+        signature_image,
+        signer_name: signer_name || contract.contact_name
+      })
+    });
+
+    if (!sbUpdate.ok) {
+      return jsonResponse({ error: 'Erreur sauvegarde signature' }, 500);
+    }
+
+    const pkg = contract.contract_data || {};
+    const signedDateFormatted = new Date(signedAt).toLocaleString('fr-BE', { timeZone: 'Europe/Brussels' });
+
+    // Send confirmation email to client
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`
+      },
+      body: JSON.stringify({
+        from: 'Seolia <admin@seolia.be>',
+        to: [contract.contact_email],
+        subject: 'Confirmation de signature — Contrat Seolia',
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head><meta charset="utf-8"></head>
+          <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; color: #333;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <span style="font-size: 28px; font-weight: 900;">Seo<span style="color: #00d68f;">lia</span></span>
+            </div>
+            <div style="background: #f0fdf4; border: 2px solid #00d68f; border-radius: 8px; padding: 20px; margin-bottom: 20px; text-align: center;">
+              <p style="font-size: 24px; margin: 0;">✅</p>
+              <h2 style="color: #1a1a2e; margin: 10px 0;">Contrat signé avec succès</h2>
+            </div>
+            <p>Bonjour <strong>${contract.contact_name}</strong>,</p>
+            <p>Votre contrat <strong>${pkg.package || 'Seolia'}</strong> a bien été signé électroniquement.</p>
+            <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <h3 style="margin-top: 0;">Certificat de signature</h3>
+              <p><strong>Signataire :</strong> ${signer_name || contract.contact_name}</p>
+              <p><strong>Date :</strong> ${signedDateFormatted}</p>
+              <p><strong>Adresse IP :</strong> ${ip}</p>
+              <p><strong>Référence :</strong> ${token.substring(0, 12).toUpperCase()}</p>
+            </div>
+            <p>Nous allons prendre contact avec vous prochainement pour démarrer votre projet. En cas de question, nous sommes joignables au <a href="tel:+32470922188">+32 470 92 21 88</a>.</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+            <p style="color: #999; font-size: 12px; text-align: center;">
+              Seolia — Florian Moers — TVA BE 0727.941.547<br>
+              Ce document constitue une preuve légale de signature électronique selon le règlement eIDAS.
+            </p>
+          </body>
+          </html>
+        `
+      })
+    });
+
+    // Notify admin
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`
+      },
+      body: JSON.stringify({
+        from: 'Seolia <admin@seolia.be>',
+        to: ['admin@seolia.be'],
+        subject: `🎉 Contrat signé — ${contract.contact_name}`,
+        html: `
+          <p><strong>${contract.contact_name}</strong> vient de signer son contrat <strong>${pkg.package || ''}</strong>.</p>
+          <p>Date : ${signedDateFormatted}</p>
+          <p>IP : ${ip}</p>
+          <p>Token : ${token.substring(0, 12).toUpperCase()}</p>
+        `
+      })
+    });
+
+    return jsonResponse({ success: true, signed_at: signedAt });
+  } catch (err) {
+    return jsonResponse({ error: err.message }, 500);
+  }
 }
 
 function jsonResponse(data, status = 200) {

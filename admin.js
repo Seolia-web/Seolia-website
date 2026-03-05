@@ -4324,7 +4324,18 @@ async function confirmerEnvoiSignature() {
     showToast('Contrat envoyé à ' + email + ' — Lien de signature créé', 'success');
     
     // Log in comments
-    await ajouterCommentaire('Contrat envoyé pour signature électronique à ' + email + ' (' + packageName + ')');
+    const prenom = (currentProfile && currentProfile.prenom) || (currentUser && currentUser.email && currentUser.email.split('@')[0]) || 'Equipe';
+    await sbFetch('/rest/v1/commentaires', {
+      method: 'POST',
+      headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        contact_id: currentContactId,
+        commercial_id: (currentProfile && currentProfile.id) || null,
+        prenom_commercial: prenom,
+        texte: 'Contrat envoyé pour signature électronique à ' + email + ' (' + packageName + ')'
+      })
+    });
+    await loadCommentaires(currentContactId);
     
   } catch (e) {
     alert('Erreur lors de l\'envoi : ' + e.message);

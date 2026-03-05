@@ -1004,11 +1004,20 @@ function generateSignedPDF(data, clientSigDataUrl, florianSigDataUrl) {
 
   drawFooter();
 
-  // output('base64') doesn't exist in jsPDF 2.5.1 — use datauristring + strip prefix
-  const dataUri = doc.output('datauristring');
-  const b64start = dataUri.indexOf('base64,');
-  if (b64start === -1) return null;
-  return dataUri.substring(b64start + 7);
+  // Use arraybuffer — most reliable method, bypasses jsPDF's internal btoa
+  const arrayBuf = doc.output('arraybuffer');
+  if (!arrayBuf || arrayBuf.byteLength === 0) {
+    alert('Erreur jsPDF: arraybuffer vide. Vérifiez la console.');
+    return null;
+  }
+  // Convert arraybuffer → base64 in chunks (avoid stack overflow on large files)
+  const uint8 = new Uint8Array(arrayBuf);
+  let binary = '';
+  const chunkSize = 8192;
+  for (let i = 0; i < uint8.length; i += chunkSize) {
+    binary += String.fromCharCode(...uint8.subarray(i, Math.min(i + chunkSize, uint8.length)));
+  }
+  return btoa(binary);
 }
 
 // ──────────────────────────────────────────────────────────────────────────────

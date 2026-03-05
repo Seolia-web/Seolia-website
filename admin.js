@@ -1179,7 +1179,7 @@ function openNewContactModal() {
   document.getElementById('modal-contact-title').textContent = 'Nouveau contact';
   renderContactForm(null);
   openModal('modal-contact');
-  document.getElementById('btn-save-contact').onclick = saveContact;
+  document.getElementById('btn-save-contact').onclick = () => saveContact(null);
 }
 
 // ── SUPPRESSION CONTACT ──────────────────────────────────────

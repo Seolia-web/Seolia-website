@@ -818,6 +818,8 @@ async function handleSendContract(request, env) {
     const packageName = pkg.package || 'Package Seolia';
     const setupPrice = pkg.setup_price || '';
     const monthlyPrice = pkg.monthly_price || '';
+    const deliverables = pkg.deliverables || '';
+    const duration = pkg.duration || '6 mois minimum';
 
     // Send email via Resend
     const emailRes = await fetch('https://api.resend.com/emails', {
@@ -840,12 +842,34 @@ async function handleSendContract(request, env) {
             </div>
             <h2 style="color: #1a1a2e;">Bonjour ${contact_name},</h2>
             <p>Votre contrat <strong>${packageName}</strong> est prêt à être signé.</p>
-            <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0;">
-              <h3 style="margin-top: 0; color: #1a1a2e;">Récapitulatif</h3>
-              ${setupPrice ? `<p><strong>Frais de setup :</strong> ${setupPrice}</p>` : ''}
-              ${monthlyPrice ? `<p><strong>Mensualité :</strong> ${monthlyPrice}</p>` : ''}
-              <p><strong>Durée d'engagement :</strong> 6 mois minimum</p>
+            <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0; border-left: 4px solid #00d68f;">
+              <h3 style="margin-top: 0; color: #1a1a2e;">📋 Récapitulatif de votre offre</h3>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 0; color: #666; width: 45%; vertical-align: top;">Formule</td>
+                  <td style="padding: 8px 0; font-weight: bold; color: #1a1a2e;">${packageName}</td>
+                </tr>
+                ${setupPrice ? `<tr>
+                  <td style="padding: 8px 0; color: #666; vertical-align: top;">Frais de mise en service</td>
+                  <td style="padding: 8px 0; font-weight: bold; color: #1a1a2e;">${setupPrice}</td>
+                </tr>` : ''}
+                ${monthlyPrice ? `<tr>
+                  <td style="padding: 8px 0; color: #666; vertical-align: top;">Mensualité</td>
+                  <td style="padding: 8px 0; font-weight: bold; color: #00d68f; font-size: 18px;">${monthlyPrice}</td>
+                </tr>` : ''}
+                <tr>
+                  <td style="padding: 8px 0; color: #666; vertical-align: top;">Engagement</td>
+                  <td style="padding: 8px 0; font-weight: bold; color: #1a1a2e;">${duration}</td>
+                </tr>
+                ${deliverables ? `<tr>
+                  <td style="padding: 8px 0; color: #666; vertical-align: top;">Inclus dans l'offre</td>
+                  <td style="padding: 8px 0; color: #1a1a2e;">${deliverables}</td>
+                </tr>` : ''}
+              </table>
             </div>
+            <p style="background: #fff8e1; border: 1px solid #ffe082; border-radius: 6px; padding: 12px; font-size: 14px; color: #555;">
+              ⚠️ <strong>Important :</strong> Votre contrat complet est visible et téléchargeable sur la page de signature. Veuillez le lire attentivement avant de signer.
+            </p>
             <p>En cliquant sur le bouton ci-dessous, vous accédez à une page sécurisée pour signer électroniquement votre contrat. Cette signature est légalement valide selon le règlement européen eIDAS.</p>
             <div style="text-align: center; margin: 30px 0;">
               <a href="${signLink}" style="background: #00d68f; color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-size: 16px; font-weight: bold; display: inline-block;">

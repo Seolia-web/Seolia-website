@@ -868,18 +868,22 @@ async function loadDetailDocs(contactId) {
     } else {
       el.innerHTML = docs.map(d => {
         const publicUrl = d.file_path.startsWith('https://') ? d.file_path : SUPABASE_URL + '/storage/v1/object/public/documents/' + d.file_path;
-        const ext = (d.nom||'').split('.').pop().toUpperCase();
-        const extColors = { PDF:'#ef4444', DOC:'#3b82f6', DOCX:'#3b82f6', JPG:'#f97316', JPEG:'#f97316', PNG:'#f97316', XLS:'#16a34a', XLSX:'#16a34a' };
+        const isSignedContract = publicUrl.includes('sign.html');
+        const ext = isSignedContract ? 'SIGNÉ' : (d.nom||'').split('.').pop().toUpperCase();
+        const extColors = { PDF:'#ef4444', DOC:'#3b82f6', DOCX:'#3b82f6', JPG:'#f97316', JPEG:'#f97316', PNG:'#f97316', XLS:'#16a34a', XLSX:'#16a34a', 'SIGNÉ':'#00d68f' };
         const color = extColors[ext] || '#64748b';
         const docId = d.id;
         const docPath = d.file_path;
+        const actionBtn = isSignedContract
+          ? `<a href="${publicUrl}" target="_blank" class="btn btn-ghost btn-sm" title="Voir le contrat signé" style="color:#00d68f">📄 Voir</a>`
+          : `<a href="${publicUrl}" download="${esc(d.nom)}" class="btn btn-ghost btn-sm" title="Télécharger">&#x2B07;</a>`;
         return `<div class="note-item" style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
           <div style="background:${color};color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;min-width:36px;text-align:center">${esc(ext)}</div>
           <div style="flex:1;min-width:0">
             <a href="${publicUrl}" target="_blank" style="font-weight:500;color:var(--primary);text-decoration:none;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.nom)}</a>
             <span style="color:var(--text-secondary);font-size:12px">${formatDate(d.created_at)} &mdash; ${esc(d.uploaded_by||'')}${d.taille ? ' &mdash; ' + formatFileSize(d.taille) : ''}</span>
           </div>
-          <a href="${publicUrl}" download="${esc(d.nom)}" class="btn btn-ghost btn-sm" title="Télécharger">&#x2B07;</a>
+          ${actionBtn}
           <button class="btn btn-ghost btn-sm" style="color:#ef4444" data-doc-id="${docId}" data-doc-path="${docPath}" onclick="deleteDocument(this.dataset.docId, this.dataset.docPath)" title="Supprimer">🗑</button>
         </div>`;
       }).join('') + '<div style="height:8px"></div>';

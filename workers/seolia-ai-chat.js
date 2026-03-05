@@ -692,7 +692,9 @@ async function handleMollieWebhook(request, env) {
 async function handleCreateCommercial(request, env) {
   const CORS = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
   try {
-    const { nom, email, password, taux_commission } = await request.json();
+    const { nom, email: rawEmail, password, taux_commission } = await request.json();
+    // Normaliser l'email en minuscules pour éviter les mismatch Auth vs Profile
+    const email = (rawEmail || '').toLowerCase().trim();
     if (!nom || !email || !password) {
       return new Response(JSON.stringify({ error: 'Nom, email et mot de passe requis' }), { status: 400, headers: CORS });
     }

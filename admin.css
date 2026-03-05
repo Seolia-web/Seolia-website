@@ -498,3 +498,241 @@ tr.stagnant-row { background: rgba(231,76,60,.03) !important; }
   font-family: inherit;
 }
 .btn-contrat:hover { background: #1a2a48; }
+
+/* ══════════════════════════════════════════
+   CONTACT DETAIL v2 — HERO + TABS
+══════════════════════════════════════════ */
+
+/* Hero wrapper */
+.cd-hero {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+
+/* Top bar: back + actions */
+.cd-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.cd-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.cd-btn-sig {
+  background: #e8f5e9;
+  color: #1a6b3c;
+  border: 1px solid #a5d6a7;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s;
+}
+.cd-btn-sig:hover { background: #d4edda; }
+
+/* Middle: avatar + info */
+.cd-hero-body {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 24px;
+}
+.cd-avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0a1628 0%, #1a3f7c 100%);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: -1px;
+  box-shadow: 0 4px 12px rgba(10,22,40,.25);
+}
+.cd-hero-info { flex: 1; min-width: 0; }
+.cd-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.cd-name-row h1 {
+  font-size: 21px;
+  font-weight: 800;
+  color: var(--navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cd-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Client ID badge */
+.cd-cid-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0,214,143,.1);
+  border: 1px solid rgba(0,214,143,.25);
+  border-radius: 8px;
+  padding: 3px 10px;
+}
+.cd-cid-lbl {
+  font-size: 10px;
+  color: #8892a4;
+  font-weight: 700;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+}
+.cd-cid-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: #00d68f;
+  letter-spacing: 1.5px;
+}
+.cd-cid-copy {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #8892a4;
+  padding: 0;
+  font-size: 12px;
+  transition: color .15s;
+}
+.cd-cid-copy:hover { color: var(--navy); }
+
+/* Tabs bar */
+.cd-tabs-bar {
+  display: flex;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding: 0 16px;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: #fafbfd;
+}
+.cd-status-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  flex-shrink: 0;
+}
+.cd-tabs {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  overflow-x: auto;
+  padding: 8px 0;
+  scrollbar-width: none;
+}
+.cd-tabs::-webkit-scrollbar { display: none; }
+.cd-tab {
+  background: none;
+  border: none;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text-light);
+  transition: all .15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.cd-tab:hover { background: #eff2f7; color: var(--text); }
+.cd-tab.active {
+  background: rgba(0,214,143,.1);
+  color: #00966b;
+  font-weight: 700;
+}
+
+/* Tab panels */
+.cd-panel { display: block; }
+.cd-hidden { display: none !important; }
+
+/* Info grid inside profil tab — responsive */
+#detail-info-grid .cd-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 12px;
+  padding: 4px 0;
+}
+
+/* Profil tab sections */
+.cd-section {
+  margin-bottom: 20px;
+}
+.cd-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Pricing grid inside tarif tab */
+.cd-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+.cd-pricing-item {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.cd-pricing-item label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 4px;
+}
+.cd-pricing-item span {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--navy);
+}
+.cd-pricing-item.accent span { color: #00b87a; }
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .cd-hero-body { padding: 14px 16px; gap: 12px; }
+  .cd-hero-top { padding: 10px 14px; }
+  .cd-tabs-bar { padding: 0 10px; gap: 8px; }
+  .cd-name-row h1 { font-size: 17px; }
+  .cd-avatar { width: 46px; height: 46px; font-size: 16px; }
+  .cd-tab { padding: 6px 10px; font-size: 12px; }
+  .cd-actions { gap: 5px; }
+  .cd-actions .btn-contrat span { display: none; }
+}

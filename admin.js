@@ -717,11 +717,31 @@ async function openContactDetail(id) {
   currentContactId = id;
   const contact = allContacts.find(c => c.id === id);
   if (!contact) return;
-  document.getElementById('detail-name').textContent = (contact.nom||'') + (contact.entreprise ? ' — ' + contact.entreprise : '');
-  document.getElementById('detail-statut-badge').innerHTML = '<span class="badge badge-' + contact.statut + '">' + (contact.statut||'-') + '</span>';
+
+  // === HEADER: nom ===
+  const nameEl = document.getElementById('detail-name');
+  if (nameEl) nameEl.textContent = (contact.nom||'') + (contact.entreprise ? ' — ' + contact.entreprise : '');
+
+  // === AVATAR (initiales) ===
+  const avatarEl = document.getElementById('detail-avatar');
+  if (avatarEl) {
+    const src = (contact.nom || contact.entreprise || '?').trim();
+    const initials = src.split(' ').map(w => w[0]||'').join('').substring(0,2).toUpperCase() || '?';
+    avatarEl.textContent = initials;
+  }
+
+  // === STATUT BADGE + SOUS-STATUT ===
+  const statBadge = document.getElementById('detail-statut-badge');
+  if (statBadge) statBadge.innerHTML = '<span class="badge badge-' + (contact.statut||'prospect') + '">' + (contact.statut||'-') + '</span>';
+  const ssBadge = document.getElementById('detail-sous-statut-badge');
+  if (ssBadge) ssBadge.innerHTML = getSousBadgeHtml(contact.sous_statut, contact.statut||'prospect');
+
+  // === STATUS SELECT ===
   const statusSel = document.getElementById('detail-status-select');
   statusSel.value = contact.statut || 'prospect';
   statusSel.disabled = !(currentProfile.role === 'admin' || contact.assignee === currentProfile.nom);
+
+  // === BOUTON APPEL ===
   const btnCall = document.getElementById('btn-call');
   if (contact.telephone) {
     const tel = contact.telephone.replace(/[^0-9+]/g,'');
@@ -729,50 +749,73 @@ async function openContactDetail(id) {
     btnCall.style.display = '';
   } else { btnCall.style.display = 'none'; }
 
-  // Show edit/delete only if admin OR assigned commercial
+  // === WhatsApp ===
+  const btnWa = document.getElementById('btn-whatsapp');
+  if (btnWa) btnWa.style.display = contact.telephone ? '' : 'none';
+
+  // === PERMISSIONS ===
   const canEdit = currentProfile.role === 'admin' || contact.assignee === currentProfile.nom;
-  const btnDel = document.querySelector('.btn.btn-red.btn-sm');
+  const btnDel = document.querySelector('#view-contact-detail .btn.btn-red.btn-sm');
   const btnsSC = document.getElementById('btns-save-cancel');
   if (btnDel) btnDel.style.display = canEdit ? '' : 'none';
-  if (btnsSC) btnsSC.style.display = 'none'; // hidden until dirty
   if (btnsSC) btnsSC.style.display = 'none';
+
+  // === FORMULAIRE INFOS ===
   renderDetailInfoFormAuto(contact);
 
-  // Pricing
+  // === PRICING (onglet Tarif) ===
   const setup_tvac = parseFloat(contact.prix_setup)||0;
   const monthly_tvac = parseFloat(contact.prix_mensuel)||0;
-  document.getElementById('detail-pricing').innerHTML =
-    '<div class="detail-info-grid">' +
-    '<div class="detail-field"><label>Setup TVAC</label><span>' + fmtEur(setup_tvac) + '</span></div>' +
-    '<div class="detail-field"><label>Setup HTVA</label><span>' + fmtEur(setup_tvac/TVA_RATE) + '</span></div>' +
-    '<div class="detail-field"><label>Mensuel TVAC</label><span>' + fmtEur(monthly_tvac) + '</span></div>' +
-    '<div class="detail-field"><label>Mensuel HTVA</label><span>' + fmtEur(monthly_tvac/TVA_RATE) + '</span></div>' +
-    (currentProfile.role === 'commercial' ? '' :
-      '<div class="detail-field"><label>Commission setup</label><span>' + fmtEur((setup_tvac/TVA_RATE)*TAUX_COMMISSION) + '</span></div>' +
-      '<div class="detail-field"><label>Commission mensuelle</label><span>' + fmtEur((monthly_tvac/TVA_RATE)*TAUX_COMMISSION) + '</span></div>'
-    ) +
-    '</div>';
+  const pricingEl = document.getElementById('detail-pricing');
+  if (pricingEl) {
+    pricingEl.innerHTML =
+      '<div class="cd-pricing-grid">' +
+      '<div class="cd-pricing-item"><label>Setup TVAC</label><span>' + fmtEur(setup_tvac) + '</span></div>' +
+      '<div class="cd-pricing-item"><label>Setup HTVA</label><span>' + fmtEur(setup_tvac/TVA_RATE) + '</span></div>' +
+      '<div class="cd-pricing-item accent"><label>Mensuel TVAC</label><span>' + fmtEur(monthly_tvac) + '</span></div>' +
+      '<div class="cd-pricing-item"><label>Mensuel HTVA</label><span>' + fmtEur(monthly_tvac/TVA_RATE) + '</span></div>' +
+      (currentProfile.role === 'commercial' ? '' :
+        '<div class="cd-pricing-item"><label>Commission setup</label><span>' + fmtEur((setup_tvac/TVA_RATE)*TAUX_COMMISSION) + '</span></div>' +
+        '<div class="cd-pricing-item"><label>Commission mensuelle</label><span>' + fmtEur((monthly_tvac/TVA_RATE)*TAUX_COMMISSION) + '</span></div>'
+      ) +
+      '</div>';
+  }
 
-  // Client ID badge
+  // === CLIENT ID BADGE ===
   const idBadge = document.getElementById('detail-client-id-badge');
   const idSpan = document.getElementById('detail-client-id');
   if (contact.client_id) {
-    idBadge.style.display = 'flex';
+    idBadge.style.display = 'inline-flex';
     idSpan.textContent = contact.client_id;
   } else {
     idBadge.style.display = 'none';
   }
 
-  // Toggle actif/inactif (admin only, clients only)
+  // === TOGGLE ACTIF/INACTIF ===
   const toggleEl = document.getElementById('detail-actif-toggle');
   if (toggleEl) {
     if (contact.statut === 'client' && currentProfile && currentProfile.role === 'admin') {
       const isActif = contact.actif !== false;
-      toggleEl.innerHTML = '<button onclick="toggleClientActif(\'' + contact.id + '\',' + isActif + ')" style="padding:5px 12px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:' + (isActif ? '#e8f5e9;color:#2e7d32' : '#ffebee;color:#c62828') + '">' + (isActif ? '✅ Actif' : '❌ Inactif') + '</button>';
+      toggleEl.innerHTML = '<button onclick="toggleClientActif(\'' + contact.id + '\',' + isActif + ')" style="padding:4px 12px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:600;background:' + (isActif ? '#e8f5e9;color:#2e7d32' : '#ffebee;color:#c62828') + '">' + (isActif ? '✅ Actif' : '❌ Inactif') + '</button>';
     } else {
       toggleEl.innerHTML = '';
     }
   }
+
+  // === STAGNANT BADGE ===
+  const stagnantBadge = document.getElementById('detail-stagnant-badge');
+  if (stagnantBadge) {
+    const isStagnant = contact.last_activity_at && daysAgo(contact.last_activity_at) >= 14 && contact.statut !== 'client';
+    stagnantBadge.style.display = isStagnant ? '' : 'none';
+  }
+
+  // === RESET ONGLETS → Profil ===
+  document.querySelectorAll('.cd-panel').forEach(p => p.classList.add('cd-hidden'));
+  const infoPanel = document.getElementById('cdp-info');
+  if (infoPanel) infoPanel.classList.remove('cd-hidden');
+  document.querySelectorAll('.cd-tab').forEach(b => b.classList.remove('active'));
+  const firstTab = document.querySelector('.cd-tab');
+  if (firstTab) firstTab.classList.add('active');
 
   showView('contact-detail');
   loadDetailActivites(id);
@@ -791,6 +834,15 @@ function copyClientId() {
   if (id && id !== '-') {
     navigator.clipboard.writeText(id).then(() => showToast('ID ' + id + ' copié !', 'success'));
   }
+}
+
+// ── Changement d'onglet fiche contact ──
+function switchDetailTab(name, btn) {
+  document.querySelectorAll('.cd-panel').forEach(p => p.classList.add('cd-hidden'));
+  const panel = document.getElementById('cdp-' + name);
+  if (panel) panel.classList.remove('cd-hidden');
+  document.querySelectorAll('.cd-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
 }
 
 async function loadDetailModifications(contactId, contact) {
@@ -1313,45 +1365,85 @@ function renderDetailInfoForm(contact) {
         '</select>'
     : '<span style="color:var(--text-secondary);font-size:13px">' + esc(contact.assignee||'-') + '</span>';
 
+  // Sous-statut options for current statut
+  const ssOpts = (SOUS_STATUTS[contact.statut||'prospect']||[]);
+  const ssSelHtml = ssOpts.length > 0
+    ? '<select id="dif-sous-statut"><option value="">— Aucun —</option>' +
+        ssOpts.map(o=>'<option value="'+o.value+'"'+(contact.sous_statut===o.value?' selected':'')+'>'+o.label+'</option>').join('') +
+      '</select>'
+    : '<input id="dif-sous-statut" type="hidden" value=""><span style="color:var(--text-light);font-size:13px">—</span>';
+
   document.getElementById('detail-info-grid').innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:4px 0">
-      <div class="form-group" style="margin:0"><label>Nom</label><input id="dif-nom" type="text" value="${esc(contact.nom||'')}"></div>
-      <div class="form-group" style="margin:0"><label>Entreprise</label><input id="dif-entreprise" type="text" value="${esc(contact.entreprise||'')}"></div>
-      <div class="form-group" style="margin:0"><label>Email</label><input id="dif-email" type="email" value="${esc(contact.email||'')}"></div>
-      <div class="form-group" style="margin:0"><label>Téléphone</label><input id="dif-telephone" type="tel" value="${esc(contact.telephone||'')}"></div>
-      <div class="form-group" style="margin:0"><label>Ville</label><input id="dif-ville" type="text" value="${esc(contact.ville||'')}"></div>
-      <div class="form-group" style="margin:0"><label>Code postal</label><input id="dif-cp" type="text" value="${esc(contact.code_postal||'')}"></div>
-      <div class="form-group" style="margin:0;grid-column:1/-1"><label>Adresse</label><input id="dif-adresse" type="text" value="${esc(contact.adresse||'')}"></div>
-      <div class="form-group" style="margin:0"><label>IBAN</label><input id="dif-iban" type="text" placeholder="BE00 0000 0000 0000" value="${esc(contact.iban||'')}"></div>
-      <div class="form-group" style="margin:0"><label>BIC</label><input id="dif-bic" type="text" placeholder="GEBABEBB" value="${esc(contact.bic||'')}"></div>
-      <div class="form-group" style="margin:0"><label>Secteur</label><input id="dif-secteur" type="text" value="${esc(contact.secteur||'')}"></div>
-      <div class="form-group" style="margin:0"><label>Source</label>
-        <select id="dif-source">
-          ${['','LinkedIn','Google','Referral','Appel froid','Site web','Autre'].map(s=>'<option value="'+s+'"'+(contact.source===s?' selected':'')+'>'+s+'</option>').join('')}
-        </select>
+    <div class="cd-section">
+      <div class="cd-section-title">👤 Contact</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+        <div class="form-group" style="margin:0"><label>Nom</label><input id="dif-nom" type="text" value="${esc(contact.nom||'')}"></div>
+        <div class="form-group" style="margin:0"><label>Entreprise</label><input id="dif-entreprise" type="text" value="${esc(contact.entreprise||'')}"></div>
+        <div class="form-group" style="margin:0"><label>Email</label><input id="dif-email" type="email" value="${esc(contact.email||'')}"></div>
+        <div class="form-group" style="margin:0"><label>Téléphone</label><input id="dif-telephone" type="tel" value="${esc(contact.telephone||'')}"></div>
+        <div class="form-group" style="margin:0"><label>Secteur d'activité</label><input id="dif-secteur" type="text" value="${esc(contact.secteur||'')}"></div>
       </div>
-      <div class="form-group" style="margin:0"><label>Formule</label>
-        <select id="dif-formule" onchange="autoFillFormule(this.value)">
-          <option value="">-- Choisir --</option>
-          <optgroup label="Bundles Web + IA">
-            <option value="Bundle Essentiel IA" ${contact.formule==='Bundle Essentiel IA'?'selected':''}>Bundle Essentiel IA — 109€/mois</option>
-            <option value="Bundle Business IA" ${contact.formule==='Bundle Business IA'?'selected':''}>Bundle Business IA — 249€/mois ⭐</option>
-            <option value="Bundle Premium IA" ${contact.formule==='Bundle Premium IA'?'selected':''}>Bundle Premium IA — 449€/mois</option>
-          </optgroup>
-          <optgroup label="Web seul">
-            <option value="Web Essentiel" ${contact.formule==='Web Essentiel'?'selected':''}>Web Essentiel — 69€/mois</option>
-            <option value="Web Business" ${contact.formule==='Web Business'?'selected':''}>Web Business — 119€/mois</option>
-            <option value="Web Premium" ${contact.formule==='Web Premium'?'selected':''}>Web Premium — 199€/mois</option>
-          </optgroup>
-          <option value="Sur mesure" ${contact.formule==='Sur mesure'?'selected':''}>Sur mesure</option>
-        </select>
+    </div>
+
+    <div class="cd-section">
+      <div class="cd-section-title">📍 Adresse</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+        <div class="form-group" style="margin:0;grid-column:1/-1"><label>Adresse</label><input id="dif-adresse" type="text" value="${esc(contact.adresse||'')}"></div>
+        <div class="form-group" style="margin:0"><label>Ville</label><input id="dif-ville" type="text" value="${esc(contact.ville||'')}"></div>
+        <div class="form-group" style="margin:0"><label>Code postal</label><input id="dif-cp" type="text" value="${esc(contact.code_postal||'')}"></div>
       </div>
-      <div class="form-group" style="margin:0"><label>Prix setup TVAC (€)</label><input id="dif-setup" type="number" value="${contact.prix_setup||''}"></div>
-      <div class="form-group" style="margin:0"><label>Prix mensuel TVAC (€)</label><input id="dif-mensuel" type="number" value="${contact.prix_mensuel||''}"></div>
-      <div class="form-group" style="margin:0"><label>Date début</label><input id="dif-date_debut" type="date" value="${contact.date_debut||''}"></div>
-      <div class="form-group" style="margin:0"><label>Date RDV</label><input id="dif-date_rdv" type="datetime-local" value="${contact.date_rdv ? contact.date_rdv.substring(0,16) : ''}"></div>
-      <div class="form-group" style="margin:0"><label>Assigné à</label>${assigneeOpts}</div>
-      <div class="form-group" style="margin:0;grid-column:1/-1"><label>Notes générales</label><textarea id="dif-notes" rows="3">${esc(contact.notes_generales||'')}</textarea></div>
+    </div>
+
+    <div class="cd-section">
+      <div class="cd-section-title">📊 CRM</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+        <div class="form-group" style="margin:0"><label>Source</label>
+          <select id="dif-source">
+            ${['','LinkedIn','Google','Referral','Appel froid','Site web','Autre'].map(s=>'<option value="'+s+'"'+(contact.source===s?' selected':'')+'>'+s+'</option>').join('')}
+          </select>
+        </div>
+        <div class="form-group" style="margin:0"><label>Sous-statut</label>${ssSelHtml}</div>
+        <div class="form-group" style="margin:0"><label>Assigné à</label>${assigneeOpts}</div>
+        <div class="form-group" style="margin:0"><label>Date RDV</label><input id="dif-date_rdv" type="datetime-local" value="${contact.date_rdv ? contact.date_rdv.substring(0,16) : ''}"></div>
+        <div class="form-group" style="margin:0"><label>Date début contrat</label><input id="dif-date_debut" type="date" value="${contact.date_debut||''}"></div>
+      </div>
+    </div>
+
+    <div class="cd-section">
+      <div class="cd-section-title">💼 Formule & Tarif</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+        <div class="form-group" style="margin:0;grid-column:1/-1"><label>Formule</label>
+          <select id="dif-formule" onchange="autoFillFormule(this.value)">
+            <option value="">-- Choisir --</option>
+            <optgroup label="Bundles Web + IA">
+              <option value="Bundle Essentiel IA" ${contact.formule==='Bundle Essentiel IA'?'selected':''}>Bundle Essentiel IA — 109€/mois</option>
+              <option value="Bundle Business IA" ${contact.formule==='Bundle Business IA'?'selected':''}>Bundle Business IA — 249€/mois ⭐</option>
+              <option value="Bundle Premium IA" ${contact.formule==='Bundle Premium IA'?'selected':''}>Bundle Premium IA — 449€/mois</option>
+            </optgroup>
+            <optgroup label="Web seul">
+              <option value="Web Essentiel" ${contact.formule==='Web Essentiel'?'selected':''}>Web Essentiel — 69€/mois</option>
+              <option value="Web Business" ${contact.formule==='Web Business'?'selected':''}>Web Business — 119€/mois</option>
+              <option value="Web Premium" ${contact.formule==='Web Premium'?'selected':''}>Web Premium — 199€/mois</option>
+            </optgroup>
+            <option value="Sur mesure" ${contact.formule==='Sur mesure'?'selected':''}>Sur mesure</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0"><label>Prix setup TVAC (€)</label><input id="dif-setup" type="number" value="${contact.prix_setup||''}"></div>
+        <div class="form-group" style="margin:0"><label>Prix mensuel TVAC (€)</label><input id="dif-mensuel" type="number" value="${contact.prix_mensuel||''}"></div>
+      </div>
+    </div>
+
+    <div class="cd-section">
+      <div class="cd-section-title">🏦 Paiement SEPA</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+        <div class="form-group" style="margin:0"><label>IBAN</label><input id="dif-iban" type="text" placeholder="BE00 0000 0000 0000" value="${esc(contact.iban||'')}"></div>
+        <div class="form-group" style="margin:0"><label>BIC</label><input id="dif-bic" type="text" placeholder="GEBABEBB" value="${esc(contact.bic||'')}"></div>
+      </div>
+    </div>
+
+    <div class="cd-section" style="margin-bottom:0">
+      <div class="cd-section-title">📝 Notes internes</div>
+      <div class="form-group" style="margin:0"><label></label><textarea id="dif-notes" rows="4" style="width:100%;box-sizing:border-box">${esc(contact.notes_generales||'')}</textarea></div>
     </div>`;
 }
 
@@ -1370,6 +1462,7 @@ async function saveDetailInline() {
       adresse: document.getElementById('dif-adresse')?.value.trim()||null,
       secteur: document.getElementById('dif-secteur')?.value.trim()||null,
       source: document.getElementById('dif-source')?.value||null,
+      sous_statut: document.getElementById('dif-sous-statut')?.value||null,
       formule: document.getElementById('dif-formule')?.value||null,
       prix_setup: document.getElementById('dif-setup')?.value ? parseFloat(document.getElementById('dif-setup').value) : null,
       prix_mensuel: document.getElementById('dif-mensuel')?.value ? parseFloat(document.getElementById('dif-mensuel').value) : null,
@@ -1390,6 +1483,9 @@ async function saveDetailInline() {
     const updatedContact = allContacts.find(c => c.id === currentContactId);
     // Update header
     document.getElementById('detail-name').textContent = (updatedContact.nom||'') + (updatedContact.entreprise ? ' — ' + updatedContact.entreprise : '');
+    // Refresh sous-statut badge in hero
+    const ssBadgeAfter = document.getElementById('detail-sous-statut-badge');
+    if (ssBadgeAfter) ssBadgeAfter.innerHTML = getSousBadgeHtml(updatedContact.sous_statut, updatedContact.statut||'prospect');
     _detailDirty = false;
     document.getElementById('btns-save-cancel').style.display = 'none';
     renderDetailInfoFormAuto(updatedContact);

@@ -4304,6 +4304,15 @@ async function confirmerEnvoiSignature() {
     monthlyPrice = pricing.monthly;
     deliverables = pricing.del;
   }
+  // Override with manual prices from contact if set
+  if (contact.prix_setup !== null && contact.prix_setup !== undefined && contact.prix_setup !== '') {
+    const s = parseFloat(contact.prix_setup);
+    setupPrice = s === 0 ? 'OFFERT' : s.toFixed(0) + '€ TVAC';
+  }
+  if (contact.prix_mensuel !== null && contact.prix_mensuel !== undefined && contact.prix_mensuel !== '') {
+    const m = parseFloat(contact.prix_mensuel);
+    monthlyPrice = m.toFixed(0) + '€/mois TVAC';
+  }
   
   const contractData = {
     package: packageName,

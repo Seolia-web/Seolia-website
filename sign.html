@@ -585,9 +585,8 @@ function generateSignedPDF(data, clientSigDataUrl, florianSigDataUrl) {
 
   drawFooter();
 
-  // Return base64 without the data URI prefix
-  const dataUri = doc.output('datauristring');
-  return dataUri.replace('data:application/pdf;base64,', '');
+  // Return raw base64 (no data URI prefix)
+  return doc.output('base64');
 }
 
 // ──────────────────────────────────────────────────────────────────────────────

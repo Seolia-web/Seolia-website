@@ -186,61 +186,70 @@
         <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
           <div>
             <h1>Contacts</h1>
-            <p id="contacts-count">-</p>
+            <p id="contacts-count" style="color:var(--text-light);font-size:13px;margin-top:2px">-</p>
           </div>
-          <div style="display:flex;gap:2px;background:var(--bg);border-radius:8px;padding:3px">
-            <button id="toggle-list" onclick="setContactsView('list')" style="padding:6px 14px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.08)">≡ Liste</button>
-            <button id="toggle-kanban" onclick="setContactsView('kanban')" style="padding:6px 14px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--text-light)">⬛ Kanban</button>
+          <div class="view-toggle-group">
+            <button id="toggle-list" onclick="setContactsView('list')" class="view-toggle-btn active">≡ Liste</button>
+            <button id="toggle-kanban" onclick="setContactsView('kanban')" class="view-toggle-btn">⬛ Kanban</button>
           </div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <button class="btn btn-red btn-sm" id="btn-delete-selected" onclick="deleteSelectedContacts()" style="display:none">🗑️ Supprimer (<span id="selected-count">0</span>)</button>
-          <button class="btn btn-ghost btn-sm" onclick="openImportCSVModal()" title="Importer CSV">⬆️ Import</button>
-          <button class="btn btn-ghost btn-sm" onclick="exportCSV()" title="Exporter CSV">⬇️ Export</button>
-          <button class="btn btn-green" onclick="openNewContactModal()">&#x2B; Nouveau</button>
+          <button class="btn btn-ghost btn-sm" onclick="openImportCSVModal()">⬆️ Import</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇️ Export</button>
+          <button class="btn btn-green" onclick="openNewContactModal()">&#x2B; Nouveau contact</button>
         </div>
       </div>
+
+      <!-- STAT CARDS -->
+      <div class="contacts-stats-strip" id="contacts-stats-strip"></div>
+
       <div id="contacts-list-section">
-      <div id="saved-views-row" class="saved-views-row" style="display:none"></div>
-      <div class="filters-bar">
-        <input type="text" class="search-input" id="contacts-search" placeholder="&#x1F50D; Rechercher..." oninput="filterContacts()">
-        <select class="filter-select" id="contacts-filter-status" onchange="filterContacts()">
-          <option value="">Tous les statuts</option>
-          <option value="prospect">Prospect</option>
-          <option value="rdv">RDV</option>
-          <option value="client">Client</option>
-          <option value="perdu">Perdu</option>
-        </select>
-        <select class="filter-select" id="contacts-filter-sector" onchange="filterContacts()">
-          <option value="">Tous les secteurs</option>
-        </select>
-        <select class="filter-select" id="contacts-filter-assignee" onchange="filterContacts()">
-          <option value="">Tous les commerciaux</option>
-        </select>
-        <select class="filter-select" id="contacts-filter-formule" onchange="filterContacts()">
-          <option value="">Toutes les formules</option>
-        </select>
-        <select class="filter-select" id="contacts-filter-ville" onchange="filterContacts()">
-          <option value="">Toutes les villes</option>
-        </select>
-        <button class="btn-save-view" onclick="promptSaveView()">💾 Sauvegarder vue</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th style="width:36px"><input type="checkbox" id="select-all-contacts" onchange="toggleSelectAll(this.checked)" style="cursor:pointer;accent-color:var(--green)" title="Tout sélectionner"></th>
-              <th>Nom</th><th>Entreprise</th><th>Téléphone</th>
-              <th>Statut</th><th>Formule</th><th>Dernière action</th><th>Assigné</th><th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="contacts-tbody"></tbody>
-        </table>
-      </div>
-      <div class="contact-cards" id="contacts-cards"></div>
+        <div id="saved-views-row" class="saved-views-row" style="display:none"></div>
+        <div class="filters-bar">
+          <input type="text" class="search-input" id="contacts-search" placeholder="&#x1F50D; Rechercher nom, entreprise, téléphone..." oninput="filterContacts()">
+          <select class="filter-select" id="contacts-filter-status" onchange="filterContacts()">
+            <option value="">Tous les statuts</option>
+            <option value="prospect">Prospect</option>
+            <option value="rdv">RDV</option>
+            <option value="client">Client</option>
+            <option value="perdu">Perdu</option>
+          </select>
+          <select class="filter-select" id="contacts-filter-sector" onchange="filterContacts()">
+            <option value="">Tous les secteurs</option>
+          </select>
+          <select class="filter-select" id="contacts-filter-assignee" onchange="filterContacts()">
+            <option value="">Tous les commerciaux</option>
+          </select>
+          <select class="filter-select" id="contacts-filter-formule" onchange="filterContacts()">
+            <option value="">Toutes les formules</option>
+          </select>
+          <select class="filter-select" id="contacts-filter-ville" onchange="filterContacts()">
+            <option value="">Toutes les villes</option>
+          </select>
+          <button class="btn-save-view" onclick="promptSaveView()">💾 Sauvegarder vue</button>
+        </div>
+        <div class="table-wrap">
+          <table class="contacts-table">
+            <thead>
+              <tr>
+                <th style="width:36px"><input type="checkbox" id="select-all-contacts" onchange="toggleSelectAll(this.checked)" style="cursor:pointer;accent-color:var(--green)" title="Tout sélectionner"></th>
+                <th>Contact</th>
+                <th>Téléphone</th>
+                <th>Statut</th>
+                <th>Formule</th>
+                <th>Dernière action</th>
+                <th>Assigné</th>
+                <th style="width:80px"></th>
+              </tr>
+            </thead>
+            <tbody id="contacts-tbody"></tbody>
+          </table>
+        </div>
+        <div class="contact-cards" id="contacts-cards"></div>
       </div><!-- end contacts-list-section -->
 
-      <!-- KANBAN (inside contacts view) -->
+      <!-- KANBAN -->
       <div id="contacts-kanban-section" style="display:none">
         <div class="filters-bar" id="pipeline-filters-inline"></div>
         <div class="kanban-board" id="kanban-board-inline"></div>

@@ -425,14 +425,14 @@ function setContactsView(mode) {
   if (mode === 'list') {
     listSection.style.display = '';
     kanbanSection.style.display = 'none';
+    if (btnList) { btnList.classList.add('active'); }
+    if (btnKanban) { btnKanban.classList.remove('active'); }
     renderContacts();
-    if (btnList) { btnList.style.background='#fff'; btnList.style.color='var(--navy)'; btnList.style.boxShadow='0 1px 3px rgba(0,0,0,.08)'; }
-    if (btnKanban) { btnKanban.style.background='transparent'; btnKanban.style.color='var(--text-light)'; btnKanban.style.boxShadow='none'; }
   } else {
     listSection.style.display = 'none';
     kanbanSection.style.display = '';
-    if (btnKanban) { btnKanban.style.background='#fff'; btnKanban.style.color='var(--navy)'; btnKanban.style.boxShadow='0 1px 3px rgba(0,0,0,.08)'; }
-    if (btnList) { btnList.style.background='transparent'; btnList.style.color='var(--text-light)'; btnList.style.boxShadow='none'; }
+    if (btnKanban) { btnKanban.classList.add('active'); }
+    if (btnList) { btnList.classList.remove('active'); }
     renderKanban();
   }
 }
@@ -479,8 +479,13 @@ function renderKanban() {
     const colEl = document.createElement('div');
     colEl.className = 'kanban-col';
     colEl.dataset.status = col.id;
+    const colMrr = colContacts.reduce((s,c) => s + (parseFloat(c.prix_mensuel)||0), 0);
+    const mrrLabel = col.id === 'client' && colMrr > 0 ? '<div class="kanban-col-mrr">MRR: ' + colMrr.toFixed(0) + '€</div>' : '';
     colEl.innerHTML = '<div class="kanban-col-header">' +
-      '<div class="kanban-col-title"><span style="color:' + col.color + '">●</span> ' + col.label + '</div>' +
+      '<div>' +
+        '<div class="kanban-col-title"><span style="color:' + col.color + '">●</span> ' + col.label + '</div>' +
+        mrrLabel +
+      '</div>' +
       '<span class="kanban-count">' + colContacts.length + '</span>' +
       '</div>' +
       colContacts.map(c => makeKanbanCard(c)).join('');
@@ -501,18 +506,33 @@ function renderKanban() {
 }
 
 function makeKanbanCard(contact) {
+  const statut = contact.statut || 'prospect';
+  const avatarColors = { prospect: '#3b82f6', rdv: '#f97316', client: '#16a34a', perdu: '#94a3b8' };
+  const initials = ((contact.nom||'').split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)) || ((contact.entreprise||'').slice(0,2).toUpperCase()) || '?';
+  const avatarColor = avatarColors[statut] || '#3b82f6';
+  const mrr = parseFloat(contact.prix_mensuel) || 0;
+  const mrrHtml = mrr > 0 && statut === 'client' ? '<span style="background:#f0fdf4;color:#16a34a;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;">💰 ' + mrr.toFixed(0) + '€/m</span>' : '';
+
   return '<div class="kanban-card" draggable="true" ' +
     'ondragstart="draggedContactId=\'' + contact.id + '\';this.classList.add(\'dragging\')" ' +
     'ondragend="draggedContactId=null;this.classList.remove(\'dragging\')" ' +
     'onclick="openContactDetail(\'' + contact.id + '\')">' +
-    '<div class="kcard-name">' + esc(contact.nom||'') + '</div>' +
-    '<div class="kcard-company">' + esc(contact.entreprise||'') + '</div>' +
+    '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">' +
+      '<div style="width:32px;height:32px;border-radius:50%;background:' + avatarColor + ';color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">' + initials + '</div>' +
+      '<div style="min-width:0">' +
+        '<div class="kcard-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(contact.nom||contact.entreprise||'—') + '</div>' +
+        (contact.entreprise && contact.nom ? '<div class="kcard-company" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(contact.entreprise) + '</div>' : '') +
+      '</div>' +
+    '</div>' +
     '<div class="kcard-info">' +
     (contact.telephone ? '<span>📞 ' + esc(contact.telephone) + '</span>' : '') +
     (contact.ville ? '<span>📍 ' + esc(contact.ville) + '</span>' : '') +
-    (contact.formule ? '<span>📦 ' + esc(contact.formule) + '</span>' : '') +
     '</div>' +
-    (contact.sous_statut ? '<div style="margin-top:6px">' + getSousBadgeHtml(contact.sous_statut, contact.statut||'prospect') + '</div>' : '') +
+    '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:6px">' +
+    (contact.formule ? '<span style="background:#f1f5f9;color:#475569;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600">' + esc(contact.formule) + '</span>' : '') +
+    mrrHtml +
+    (contact.sous_statut ? getSousBadgeHtml(contact.sous_statut, statut) : '') +
+    '</div>' +
     (currentProfile?.role === 'admin'
       ? '<div class="kcard-assignee" onclick="event.stopPropagation()">' +
         '<select style="border:none;background:#f1f5f9;font-size:11px;font-weight:500;color:#64748b;padding:2px 4px;border-radius:20px;cursor:pointer;max-width:120px" ' +
@@ -601,6 +621,38 @@ async function recordSetupCommission(contact) {
   }
 }
 
+
+// ===== CONTACT STATS STRIP =====
+function renderContactStats() {
+  const strip = document.getElementById('contacts-stats-strip');
+  if (!strip) return;
+  const total = allContacts.length;
+  const prospects = allContacts.filter(c => c.statut === 'prospect').length;
+  const rdv = allContacts.filter(c => c.statut === 'rdv').length;
+  const clients = allContacts.filter(c => c.statut === 'client' && c.actif !== false);
+  const clientCount = clients.length;
+  const perdus = allContacts.filter(c => c.statut === 'perdu').length;
+  const mrr = clients.reduce((sum, c) => sum + (parseFloat(c.prix_mensuel) || 0), 0);
+  const mrrStr = mrr > 0 ? mrr.toFixed(0) + '€/m' : '—';
+
+  // Use helper to avoid quote conflicts in onclick
+  function makeStatCard(cls, icon, val, lbl, sub, filterVal) {
+    return '<div class="cstat-card ' + cls + '" onclick="setStatusFilter(\'' + filterVal + '\')">' +
+      '<div class="cstat-icon">' + icon + '</div>' +
+      '<div class="cstat-body">' +
+        '<div class="cstat-val">' + val + '</div>' +
+        '<div class="cstat-lbl">' + lbl + '</div>' +
+        '<div class="cstat-sub">' + sub + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+  strip.innerHTML =
+    makeStatCard('cs-prospect', '🎯', prospects, 'Prospects', 'Pipeline actif', 'prospect') +
+    makeStatCard('cs-rdv', '📅', rdv, 'RDV en cours', 'À conclure', 'rdv') +
+    makeStatCard('cs-client', '💰', clientCount, 'Clients actifs', 'MRR: ' + mrrStr, 'client') +
+    makeStatCard('cs-perdu', '❌', perdus, 'Perdus', 'Total: ' + total + ' contacts', 'perdu');
+}
+
 // ===== CONTACTS LIST =====
 function populateAssigneeFilter() {
   const sel = document.getElementById('contacts-filter-assignee');
@@ -653,40 +705,75 @@ function renderContacts() {
       villes.map(v => '<option value="' + esc(v) + '"' + (v===curV?' selected':'') + '>' + esc(v) + '</option>').join('');
   }
 
+  renderContactStats();
+
   // Table
   const tbody = document.getElementById('contacts-tbody');
-  tbody.innerHTML = filteredContacts.map(c =>
-    '<tr onclick="openContactDetail(\'' + c.id + '\')">' +
-        '<td onclick="event.stopPropagation()" style="text-align:center"><input type="checkbox" class="contact-select-cb" value="' + c.id + '" onchange="updateBulkDeleteBtn()" style="cursor:pointer;accent-color:var(--green)"></td>' +
-'<td class="fw700">' + esc(c.nom||'-') + '</td>' +
-    '<td>' + esc(c.entreprise||'-') + '</td>' +
-    '<td>' + esc(c.telephone||'-') + '</td>' +
-    '<td><span class="badge badge-' + (c.statut||'prospect') + '">' + (c.statut||'-') + '</span>' + getSousBadgeHtml(c.sous_statut, c.statut||'prospect') + '</td>' +
-    '<td>' + esc(c.formule||'-') + '</td>' +
-    '<td style="text-align:center">' + renderLastActionCell(c) + '</td>' +
-    (currentProfile.role === 'admin'
+  const avatarColors = { prospect: 'ca-prospect', rdv: 'ca-rdv', client: 'ca-client', perdu: 'ca-perdu' };
+  tbody.innerHTML = filteredContacts.map(c => {
+    const initials = ((c.nom||'').split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)) || ((c.entreprise||'').slice(0,2).toUpperCase()) || '?';
+    const statut = c.statut || 'prospect';
+    const avatarClass = avatarColors[statut] || 'ca-prospect';
+    const phoneHtml = c.telephone
+      ? '<a class="phone-link" href="tel:' + esc(c.telephone) + '" onclick="event.stopPropagation()">' + esc(c.telephone) + '</a>'
+      : '<span style="color:#94a3b8">—</span>';
+    const assigneeHtml = currentProfile.role === 'admin'
       ? '<td onclick="event.stopPropagation()"><select style="border:1px solid #ddd;border-radius:6px;padding:3px 6px;font-size:12px;cursor:pointer;max-width:130px" onchange="quickUpdateAssignee(\'' + c.id + '\',this.value)">' + commOpts.replace('value="' + esc(c.assignee||'') + '"', 'value="' + esc(c.assignee||'') + '" selected') + '</select></td>'
-      : '<td>' + esc(c.assignee||'-') + '</td>') +
-    '<td onclick="event.stopPropagation()">' +
-    '<button class="action-btn" title="Voir" onclick="openContactDetail(\'' + c.id + '\')">👁️</button>' +
-    (currentProfile.role === 'admin' || c.assignee === currentProfile.nom ? '<button class="action-btn" title="Modifier" onclick="openEditContactModalById(\'' + c.id + '\')">✏️</button>' : '') +
-    '</td></tr>'
-  ).join('');
+      : '<td style="font-size:13px;color:var(--text-light)">' + esc(c.assignee||'—') + '</td>';
+    return '<tr onclick="openContactDetail(\'' + c.id + '\')">' +
+      '<td onclick="event.stopPropagation()" style="text-align:center"><input type="checkbox" class="contact-select-cb" value="' + c.id + '" onchange="updateBulkDeleteBtn()" style="cursor:pointer;accent-color:var(--green)"></td>' +
+      '<td>' +
+        '<div class="contact-cell">' +
+          '<div class="contact-avatar-sm ' + avatarClass + '">' + initials + '</div>' +
+          '<div class="contact-cell-info">' +
+            '<div class="contact-cell-name">' + esc(c.nom || c.entreprise || '—') + '</div>' +
+            (c.entreprise && c.nom ? '<div class="contact-cell-company">' + esc(c.entreprise) + '</div>' : '') +
+          '</div>' +
+        '</div>' +
+      '</td>' +
+      '<td>' + phoneHtml + '</td>' +
+      '<td><span class="badge badge-' + statut + '">' + statut + '</span>' + getSousBadgeHtml(c.sous_statut, statut) + '</td>' +
+      '<td>' + (c.formule ? '<span class="formule-pill">' + esc(c.formule) + '</span>' : '<span style="color:#94a3b8">—</span>') + '</td>' +
+      '<td style="text-align:center">' + renderLastActionCell(c) + '</td>' +
+      assigneeHtml +
+      '<td onclick="event.stopPropagation()">' +
+        '<div class="row-actions">' +
+          (c.telephone ? '<button class="ract-btn" title="Appeler" onclick="location.href=\'tel:' + esc(c.telephone) + '\'"  >📞</button>' : '') +
+          (c.email ? '<button class="ract-btn" title="Email" onclick="location.href=\'mailto:' + esc(c.email) + '\'"  >✉️</button>' : '') +
+          '<button class="ract-btn" title="Voir fiche" onclick="openContactDetail(\'' + c.id + '\')">👁️</button>' +
+          (currentProfile.role === 'admin' || c.assignee === currentProfile.nom ? '<button class="ract-btn" title="Modifier" onclick="openEditContactModalById(\'' + c.id + '\')">✏️</button>' : '') +
+        '</div>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
 
   // Cards (mobile)
   const cardsEl = document.getElementById('contacts-cards');
-  cardsEl.innerHTML = filteredContacts.map(c =>
-    '<div class="contact-card" onclick="openContactDetail(\'' + c.id + '\')">' +
-    '<div class="contact-card-header">' +
-    '<div><div class="contact-card-name">' + esc(c.nom||'-') + '</div><div class="contact-card-company">' + esc(c.entreprise||'-') + '</div></div>' +
-    '<span class="badge badge-' + (c.statut||'prospect') + '">' + (c.statut||'-') + '</span>' + getSousBadgeHtml(c.sous_statut, c.statut||'prospect') +
-    '</div>' +
-    '<div class="contact-card-meta">' +
-    (c.telephone ? '<span>📞 ' + esc(c.telephone) + '</span>' : '') +
-    (c.ville ? '<span>📍 ' + esc(c.ville) + '</span>' : '') +
-    (c.formule ? '<span>📦 ' + esc(c.formule) + '</span>' : '') +
-    '</div></div>'
-  ).join('');
+  cardsEl.innerHTML = filteredContacts.map(c => {
+    const initials = ((c.nom||'').split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)) || ((c.entreprise||'').slice(0,2).toUpperCase()) || '?';
+    const statut = c.statut || 'prospect';
+    const avatarClass = avatarColors[statut] || 'ca-prospect';
+    return '<div class="contact-card" onclick="openContactDetail(\'' + c.id + '\')">' +
+      '<div class="contact-card-header">' +
+        '<div style="display:flex;align-items:center;gap:10px">' +
+          '<div class="contact-avatar-sm ' + avatarClass + '">' + initials + '</div>' +
+          '<div>' +
+            '<div class="contact-card-name">' + esc(c.nom||'—') + '</div>' +
+            '<div class="contact-card-company">' + esc(c.entreprise||'') + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="text-align:right">' +
+          '<span class="badge badge-' + statut + '">' + statut + '</span>' +
+          (c.sous_statut ? '<br>' + getSousBadgeHtml(c.sous_statut, statut) : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="contact-card-meta">' +
+        (c.telephone ? '<span>📞 ' + esc(c.telephone) + '</span>' : '') +
+        (c.ville ? '<span>📍 ' + esc(c.ville) + '</span>' : '') +
+        (c.formule ? '<span>📦 ' + esc(c.formule) + '</span>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
 }
 
 function getFilteredContacts() {
@@ -711,6 +798,11 @@ function getFilteredContacts() {
 }
 
 function filterContacts() { renderContacts(); }
+
+function setStatusFilter(val) {
+  const sel = document.getElementById('contacts-filter-status');
+  if (sel) { sel.value = val; filterContacts(); }
+}
 
 // ===== CONTACT DETAIL =====
 async function openContactDetail(id) {

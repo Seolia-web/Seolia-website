@@ -134,6 +134,57 @@
     .filter-select { padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 9px; font-size: 13px; font-family: inherit; outline: none; background: #fff; cursor: pointer; }
     .filter-select:focus { border-color: var(--green); }
 
+    /* ── VIEW TOGGLE ── */
+    .view-toggle-group { display:flex;gap:2px;background:var(--bg);border-radius:8px;padding:3px; }
+    .view-toggle-btn { padding:6px 16px;border-radius:6px;border:none;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--text-light);transition:all .15s; }
+    .view-toggle-btn.active { background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.1); }
+
+    /* ── CONTACTS STAT STRIP ── */
+    .contacts-stats-strip { display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px; }
+    .cstat-card { background:#fff;border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 4px rgba(0,0,0,.07);border-left:4px solid transparent;cursor:pointer;transition:box-shadow .15s; }
+    .cstat-card:hover { box-shadow:0 3px 12px rgba(0,0,0,.12); }
+    .cstat-card.cs-prospect { border-left-color:#3b82f6; }
+    .cstat-card.cs-rdv { border-left-color:#f97316; }
+    .cstat-card.cs-client { border-left-color:#16a34a; }
+    .cstat-card.cs-perdu { border-left-color:#dc2626; }
+    .cstat-icon { width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0; }
+    .cs-prospect .cstat-icon { background:#eff6ff; }
+    .cs-rdv .cstat-icon { background:#fff7ed; }
+    .cs-client .cstat-icon { background:#f0fdf4; }
+    .cs-perdu .cstat-icon { background:#fef2f2; }
+    .cstat-body { min-width:0; }
+    .cstat-val { font-size:24px;font-weight:700;color:var(--navy);line-height:1; }
+    .cstat-lbl { font-size:11px;font-weight:600;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;margin-top:3px; }
+    .cstat-sub { font-size:11px;color:var(--text-light);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+
+    /* ── CONTACTS TABLE ── */
+    .contacts-table tbody tr { transition:background .1s; }
+    .contacts-table tbody tr:hover { background:#f8fafc; }
+    .contact-cell { display:flex;align-items:center;gap:10px; }
+    .contact-avatar-sm { width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0; }
+    .ca-prospect { background:#3b82f6; }
+    .ca-rdv { background:#f97316; }
+    .ca-client { background:#16a34a; }
+    .ca-perdu { background:#94a3b8; }
+    .contact-cell-info { min-width:0; }
+    .contact-cell-name { font-weight:700;color:var(--navy);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px; }
+    .contact-cell-company { font-size:12px;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px; }
+    .phone-link { color:var(--navy);text-decoration:none;font-size:13px;font-weight:500; }
+    .phone-link:hover { color:var(--green); }
+    .formule-pill { display:inline-block;background:#f1f5f9;color:#475569;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle; }
+    .row-actions { display:flex;gap:4px;opacity:0;transition:opacity .15s; }
+    .contacts-table tbody tr:hover .row-actions { opacity:1; }
+    .ract-btn { width:28px;height:28px;border-radius:6px;border:none;background:#f1f5f9;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:background .1s; }
+    .ract-btn:hover { background:#e2e8f0; }
+    .ract-btn:hover.green { background:#dcfce7;color:#16a34a; }
+    .ract-btn:hover.blue { background:#dbeafe;color:#1d4ed8; }
+
+    /* ── KANBAN REDESIGN ── */
+    .kanban-col-mrr { font-size:11px;font-weight:600;color:var(--text-light);margin-top:2px; }
+
+    @media(max-width:900px){ .contacts-stats-strip { grid-template-columns:repeat(2,1fr); } }
+    @media(max-width:480px){ .contacts-stats-strip { grid-template-columns:1fr 1fr; } }
+
     /* ── KANBAN ── */
     .kanban-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; align-items: start; }
     .kanban-col { background: var(--bg); border-radius: 14px; padding: 14px; border: 1px solid var(--border); min-height: 200px; }

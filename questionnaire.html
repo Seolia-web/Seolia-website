@@ -856,8 +856,8 @@
         flow === 'onboarding' ? 'Entrez votre ID client' : 'Entrez votre ID client';
       document.getElementById('id-screen-desc').textContent =
         flow === 'onboarding'
-          ? 'Votre ID à 6 chiffres vous a été communiqué par l'équipe Seolia lors de votre inscription.'
-          : 'Votre ID à 6 chiffres vous a été communiqué par l'équipe Seolia lors de votre inscription.';
+          ? 'Votre ID à 6 chiffres vous a été communiqué par l\'équipe Seolia lors de votre inscription.'
+          : 'Votre ID à 6 chiffres vous a été communiqué par l\'équipe Seolia lors de votre inscription.';
       // Reset ID screen
       document.getElementById('id-input').value = '';
       document.getElementById('id-input').className = 'id-input';
@@ -904,7 +904,7 @@
         } else {
           document.getElementById('id-input').className = 'id-input error';
           showIdMsg('error',
-            'Cet ID est inconnu. Contactez l'équipe Seolia pour retrouver votre identifiant :<br>' +
+            'Cet ID est inconnu. Contactez l\'équipe Seolia pour retrouver votre identifiant :<br>' +
             '<strong>+32 470 92 21 88</strong> ou <strong>contact@seolia.be</strong>');
         }
       } catch(e) {
@@ -1006,8 +1006,7 @@
           throw new Error(result.error || 'Erreur serveur');
         }
       } catch(e) {
-        alert('Une erreur est survenue : ' + e.message + '
-Veuillez réessayer ou contacter Seolia.');
+        alert('Une erreur est survenue : ' + e.message + '\nVeuillez réessayer ou contacter Seolia.');
         btn.disabled = false;
         btn.innerHTML = 'Envoyer mon questionnaire ✓';
       }
@@ -1046,8 +1045,7 @@ Veuillez réessayer ou contacter Seolia.');
           throw new Error(result.error || 'Erreur serveur');
         }
       } catch(e) {
-        alert('Une erreur est survenue : ' + e.message + '
-Veuillez réessayer ou contacter Seolia.');
+        alert('Une erreur est survenue : ' + e.message + '\nVeuillez réessayer ou contacter Seolia.');
         btn.disabled = false;
         btn.innerHTML = 'Envoyer ma demande ✓';
       }

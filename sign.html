@@ -6,8 +6,8 @@
   <title>Signature de contrat — Seolia</title>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.2.0/dist/signature_pad.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="/libs/jspdf.umd.min.js"></script>
+  <script src="/libs/autotable.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f7fa; color: #333; min-height: 100vh; }
@@ -238,8 +238,12 @@ async function generateFlorianSig() {
 }
 
 function generateSignedPDF(data, clientSigDataUrl, florianSigDataUrl) {
-  if (!window.jspdf) return null;
-  const { jsPDF } = window.jspdf;
+  const jspdfNS = window.jspdf || (window.jsPDF ? { jsPDF: window.jsPDF } : null);
+  if (!jspdfNS || !jspdfNS.jsPDF) {
+    console.error('jsPDF not loaded. window.jspdf:', window.jspdf, 'window.jsPDF:', window.jsPDF);
+    return null;
+  }
+  const { jsPDF } = jspdfNS;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
   const pkg = data.contract_data || {};

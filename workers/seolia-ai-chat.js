@@ -555,7 +555,6 @@ async function handleMollieSetupPayment(request, env) {
         amount: { currency: 'EUR', value: chargeAmount },
         customerId: mollie_customer_id,
         sequenceType: 'first',
-        method: 'directdebit',
         profileId: 'pfl_uVBgvWGmYY',
         description,
         redirectUrl: 'https://seolia.be/merci',

@@ -3092,7 +3092,7 @@ function renderPaiementSection(contact) {
     content += `
       <p style="font-size:13px;color:#64748b;margin:0 0 12px;">Créez d'abord le profil Mollie du client pour pouvoir générer un lien de paiement SEPA.</p>
       <div class="paiement-actions">
-        <button class="btn-mollie btn-mollie-primary" onclick="mollieCreateCustomer(${contact.id}, '${nomEsc}', '${emailEsc}')">
+        <button class="btn-mollie btn-mollie-primary" onclick="mollieCreateCustomer(this, '${contact.id}', '${nomEsc}', '${emailEsc}')">
           + Créer profil Mollie
         </button>
       </div>`;
@@ -3111,7 +3111,7 @@ function renderPaiementSection(contact) {
         </div>
       </div>
       <div class="paiement-actions">
-        <button class="btn-mollie btn-mollie-green" onclick="mollieSetupPayment(${contact.id}, '${mollieCustomerId}', '${formuleEsc}')">
+        <button class="btn-mollie btn-mollie-green" onclick="mollieSetupPayment(this, '${contact.id}', '${mollieCustomerId}', '${formuleEsc}')">
           Générer lien paiement SEPA →
         </button>
       </div>`;
@@ -3120,7 +3120,7 @@ function renderPaiementSection(contact) {
       <p style="font-size:13px;color:#64748b;margin:0 0 12px;">Lien envoyé au client — en attente de la signature du mandat SEPA.</p>
       <div id="mol-link-display"></div>
       <div class="paiement-actions">
-        <button class="btn-mollie btn-mollie-copy" onclick="mollieSetupPayment(${contact.id}, '${mollieCustomerId}', '${formuleEsc}')">
+        <button class="btn-mollie btn-mollie-copy" onclick="mollieSetupPayment(this, '${contact.id}', '${mollieCustomerId}', '${formuleEsc}')">
           🔁 Renvoyer un lien
         </button>
       </div>`;
@@ -3136,7 +3136,7 @@ function renderPaiementSection(contact) {
         </div>
       </div>
       <div class="paiement-actions">
-        <button class="btn-mollie btn-mollie-green" onclick="mollieCreateSubscription(${contact.id}, '${mollieCustomerId}', '${mollieMandateId}', '${formuleEsc}')">
+        <button class="btn-mollie btn-mollie-green" onclick="mollieCreateSubscription(this, '${contact.id}', '${mollieCustomerId}', '${mollieMandateId}', '${formuleEsc}')">
           ▶ Activer abonnement mensuel
         </button>
       </div>`;
@@ -3156,8 +3156,7 @@ function renderPaiementSection(contact) {
   return content;
 }
 
-async function mollieCreateCustomer(contactId, nom, email) {
-  const btn = event.target;
+async function mollieCreateCustomer(btn, contactId, nom, email) {
   btn.disabled = true;
   btn.textContent = 'Création...';
   try {
@@ -3182,10 +3181,9 @@ async function mollieCreateCustomer(contactId, nom, email) {
   }
 }
 
-async function mollieSetupPayment(contactId, mollieCustomerId, formule) {
+async function mollieSetupPayment(btn, contactId, mollieCustomerId, formule) {
   const setupInput = document.getElementById('mol-setup-amt');
   const setupAmount = setupInput ? parseFloat(setupInput.value).toFixed(2) : null;
-  const btn = event.target;
   btn.disabled = true;
   btn.textContent = 'Génération...';
   try {
@@ -3229,10 +3227,9 @@ async function mollieSetupPayment(contactId, mollieCustomerId, formule) {
   }
 }
 
-async function mollieCreateSubscription(contactId, mollieCustomerId, mollieMandateId, formule) {
+async function mollieCreateSubscription(btn, contactId, mollieCustomerId, mollieMandateId, formule) {
   const amtInput = document.getElementById('mol-sub-amt');
   const mensuelAmount = amtInput ? parseFloat(amtInput.value).toFixed(2) : null;
-  const btn = event.target;
   btn.disabled = true;
   btn.textContent = 'Activation...';
   try {

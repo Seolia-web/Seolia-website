@@ -609,12 +609,19 @@ async function submitSignature(token) {
 
   // Generate signed PDF
   let pdf_base64 = null;
+  let pdfError = null;
   try {
+    btn.textContent = 'Génération du PDF...';
     const florianSig = await generateFlorianSig();
     pdf_base64 = generateSignedPDF(_contractData, signatureImage, florianSig);
+    if (!pdf_base64 || pdf_base64.length < 100) {
+      throw new Error('PDF vide généré (length: ' + (pdf_base64 ? pdf_base64.length : 0) + ')');
+    }
   } catch (e) {
-    console.warn('PDF generation failed:', e);
-    // Continue without PDF — Worker will use fallback URL
+    pdfError = e.message || String(e);
+    console.error('PDF generation failed:', e);
+    // Show error but continue — Worker will store fallback URL
+    alert('⚠️ Erreur génération PDF: ' + pdfError + '\n\nLe contrat sera quand même signé mais sans PDF. Contactez admin@seolia.be.');
   }
 
   btn.textContent = 'Envoi en cours...';
@@ -627,6 +634,12 @@ async function submitSignature(token) {
     });
 
     const data = await res.json();
+
+    // Debug: log upload status
+    console.log('Worker response:', JSON.stringify(data));
+    if (data.pdf_upload && !data.pdf_upload.ok) {
+      alert('⚠️ Upload PDF échoué: ' + data.pdf_upload.error);
+    }
 
     if (!res.ok) {
       if (data.error === 'already_signed') {

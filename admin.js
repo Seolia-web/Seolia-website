@@ -876,12 +876,15 @@ async function loadDetailDocs(contactId) {
         const docId = d.id;
         const docPath = d.file_path;
         const actionBtn = isSignedContractFallback
-          ? `<a href="${publicUrl}" target="_blank" class="btn btn-ghost btn-sm" title="Voir le contrat signé" style="color:#00d68f">📄 Voir</a>`
-          : `<a href="${publicUrl}" download="${esc(d.nom)}" class="btn btn-ghost btn-sm" title="Télécharger">&#x2B07;</a>`;
+          ? `<span class="btn btn-ghost btn-sm" title="PDF non disponible - re-envoyez le contrat pour générer un PDF" style="color:#94a3b8;cursor:default" onclick="alert('Ce contrat a été signé avec l\\'ancienne version du système.\\nPDF non disponible.\\n\\nPour obtenir un PDF signé, re-envoyez un nouveau contrat au client.')">⚠️ Ancien</span>`
+          : `<a href="${publicUrl}" download="${esc(d.nom)}" class="btn btn-ghost btn-sm" title="Télécharger le PDF signé">&#x2B07; PDF</a>`;
         return `<div class="note-item" style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
           <div style="background:${color};color:#fff;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;min-width:36px;text-align:center">${esc(ext)}</div>
           <div style="flex:1;min-width:0">
-            <a href="${publicUrl}" target="_blank" style="font-weight:500;color:var(--primary);text-decoration:none;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.nom)}</a>
+            ${isSignedContractFallback
+              ? `<span style="font-weight:500;color:var(--text-secondary);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.nom)}</span>`
+              : `<a href="${publicUrl}" target="_blank" style="font-weight:500;color:var(--primary);text-decoration:none;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.nom)}</a>`
+            }
             <span style="color:var(--text-secondary);font-size:12px">${formatDate(d.created_at)} &mdash; ${esc(d.uploaded_by||'')}${d.taille ? ' &mdash; ' + formatFileSize(d.taille) : ''}</span>
           </div>
           ${actionBtn}

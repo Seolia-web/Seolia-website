@@ -956,7 +956,7 @@ async function handleGetContract(request, env) {
 async function handleSignContract(request, env) {
   try {
     const body = await request.json();
-    const { token, signature_image, signer_name } = body;
+    const { token, signature_image, signer_name, pdf_base64 } = body;
 
     if (!token || !signature_image) {
       return jsonResponse({ error: 'Token et signature requis' }, 400);
@@ -1008,9 +1008,48 @@ async function handleSignContract(request, env) {
 
     const pkg = contract.contract_data || {};
 
-    // Save signed contract reference in documents table
+    // Save signed contract — upload real PDF to Storage if provided, fallback to sign.html link
     const signedDate = new Date(signedAt).toLocaleDateString('fr-BE').replace(/\//g, '-');
     const docNom = `Contrat_${(pkg.package || 'Seolia').replace(/[^a-zA-Z0-9]/g, '_')}_signe_${signedDate}.pdf`;
+
+    let docFilePath = `https://seolia.be/sign.html?token=${token}`;
+    let docTaille = 0;
+    let uploadError = null;
+
+    if (pdf_base64) {
+      try {
+        // Decode base64 to binary
+        const binary = atob(pdf_base64);
+        const pdfBytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          pdfBytes[i] = binary.charCodeAt(i);
+        }
+        const storagePath = `${contract.contact_id}/${docNom}`;
+        const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/documents/${storagePath}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/pdf',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'x-upsert': 'true'
+          },
+          body: pdfBytes
+        });
+        if (uploadRes.ok) {
+          docFilePath = storagePath; // admin.js builds full URL from this
+          docTaille = pdfBytes.length;
+        } else {
+          const errText = await uploadRes.text();
+          uploadError = `HTTP ${uploadRes.status}: ${errText}`;
+        }
+      } catch (e) {
+        uploadError = e.message || 'unknown error';
+      }
+    }
+
+    // Include upload status in response for debugging
+    const uploadStatus = uploadError ? { ok: false, error: uploadError } : (pdf_base64 ? { ok: true } : { ok: false, error: 'no pdf_base64 received' });
+
     await fetch(`${SUPABASE_URL}/rest/v1/documents`, {
       method: 'POST',
       headers: {
@@ -1022,9 +1061,9 @@ async function handleSignContract(request, env) {
       body: JSON.stringify({
         contact_id: contract.contact_id,
         nom: docNom,
-        file_path: `https://seolia.be/sign.html?token=${token}`,
+        file_path: docFilePath,
         type_fichier: 'application/pdf',
-        taille: 0,
+        taille: docTaille,
         uploaded_by: 'Signature électronique'
       })
     });
@@ -1094,7 +1133,7 @@ async function handleSignContract(request, env) {
       })
     });
 
-    return jsonResponse({ success: true, signed_at: signedAt });
+    return jsonResponse({ success: true, signed_at: signedAt, pdf_upload: uploadStatus });
   } catch (err) {
     return jsonResponse({ error: err.message }, 500);
   }

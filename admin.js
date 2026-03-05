@@ -773,11 +773,6 @@ async function loadDetailModifications(contactId, contact) {
         </div>
         <p style="font-size:14px;color:#e2e8f0;margin-bottom:${m.note_interne?'8px':'0'}">${esc(m.description)}</p>
         ${m.note_interne ? `<div style="background:rgba(0,214,143,0.07);border-left:3px solid #00d68f;padding:8px 10px;border-radius:0 6px 6px 0;font-size:12px;color:#a0aec0">📝 ${esc(m.note_interne)}</div>` : ''}
-        ${(m.fichiers && m.fichiers.length > 0) ? `<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${m.fichiers.map(f => {
-          const isImg = f.type && f.type.startsWith('image/');
-          if (isImg) return `<a href="${f.url}" target="_blank"><img src="${f.url}" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid rgba(0,214,143,0.3)" onerror="this.style.display='none'"></a>`;
-          return `<a href="${f.url}" target="_blank" style="font-size:11px;color:#00d68f;text-decoration:none;background:rgba(0,214,143,0.08);border-radius:12px;padding:3px 10px">📎 ${esc(f.name)}</a>`;
-        }).join('')}</div>` : ''}
         <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
           <input id="note-modif-${m.id}" type="text" placeholder="Ajouter une note interne..." style="flex:1;background:#141929;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:6px 10px;color:#fff;font-size:12px">
           <button onclick="addModifNote('${m.id}')" class="btn btn-ghost btn-sm" style="white-space:nowrap">+ Note</button>
@@ -841,33 +836,17 @@ function loadDetailQuestionnaire(contact) {
   }
 
   const dateStr = data.submitted_at ? new Date(data.submitted_at).toLocaleDateString('fr-BE', { day:'2-digit', month:'long', year:'numeric' }) : '';
-  const fichiers = Array.isArray(data.fichiers) ? data.fichiers : [];
   const rows = Object.entries(data)
-    .filter(([k]) => !['client_id','submitted_at','tier','formule','fichiers'].includes(k))
+    .filter(([k]) => !['client_id','submitted_at','tier','formule'].includes(k))
     .map(([k, v]) => {
       if (typeof v === 'object') v = JSON.stringify(v);
       const label = k.replace(/_/g,' ').replace(/\b\w/g, c => c.toUpperCase());
       return `<div class="detail-field"><label>${label}</label><span style="white-space:pre-wrap">${esc(String(v||'-'))}</span></div>`;
     }).join('');
 
-  const fichiersHtml = fichiers.length > 0 ? `
-    <div style="margin-top:16px">
-      <p style="font-size:12px;font-weight:600;color:#8892a4;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Fichiers envoyés</p>
-      <div style="display:flex;flex-wrap:wrap;gap:8px">
-        ${fichiers.map(f => {
-          const isImage = f.type && f.type.startsWith('image/');
-          if (isImage) {
-            return `<a href="${f.url}" target="_blank" title="${esc(f.name)}" style="display:inline-block"><img src="${f.url}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:2px solid rgba(0,214,143,0.3)" onerror="this.style.display='none'"></a>`;
-          }
-          return `<a href="${f.url}" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,214,143,0.1);border:1px solid rgba(0,214,143,0.2);border-radius:20px;padding:4px 12px;font-size:12px;color:#00d68f;text-decoration:none">📎 ${esc(f.name)}</a>`;
-        }).join('')}
-      </div>
-    </div>` : '';
-
   el.innerHTML = `
     <div style="margin-bottom:10px;font-size:12px;color:#8892a4">Reçu le ${dateStr} — Formule : <strong style="color:#00d68f">${data.formule||data.tier||'-'}</strong></div>
-    <div class="detail-info-grid">${rows}</div>
-    ${fichiersHtml}`;
+    <div class="detail-info-grid">${rows}</div>`;
 }
 
 function formatFileSize(bytes) {
@@ -1281,6 +1260,8 @@ function renderDetailInfoForm(contact) {
       <div class="form-group" style="margin:0"><label>Ville</label><input id="dif-ville" type="text" value="${esc(contact.ville||'')}"></div>
       <div class="form-group" style="margin:0"><label>Code postal</label><input id="dif-cp" type="text" value="${esc(contact.code_postal||'')}"></div>
       <div class="form-group" style="margin:0;grid-column:1/-1"><label>Adresse</label><input id="dif-adresse" type="text" value="${esc(contact.adresse||'')}"></div>
+      <div class="form-group" style="margin:0"><label>IBAN</label><input id="dif-iban" type="text" placeholder="BE00 0000 0000 0000" value="${esc(contact.iban||'')}"></div>
+      <div class="form-group" style="margin:0"><label>BIC</label><input id="dif-bic" type="text" placeholder="GEBABEBB" value="${esc(contact.bic||'')}"></div>
       <div class="form-group" style="margin:0"><label>Secteur</label><input id="dif-secteur" type="text" value="${esc(contact.secteur||'')}"></div>
       <div class="form-group" style="margin:0"><label>Source</label>
         <select id="dif-source">
@@ -1334,6 +1315,8 @@ async function saveDetailInline() {
       date_rdv: document.getElementById('dif-date_rdv')?.value||null,
       assignee: document.getElementById('dif-assignee')?.value||null,
       notes_generales: document.getElementById('dif-notes')?.value.trim()||null,
+      iban: document.getElementById('dif-iban')?.value.trim().toUpperCase()||null,
+      bic: document.getElementById('dif-bic')?.value.trim().toUpperCase()||null,
       updated_at: new Date().toISOString(),
     };
     await sbFetch('/rest/v1/contacts?id=eq.' + currentContactId, {
@@ -2280,8 +2263,8 @@ async function loadCommerciaux() {
   const el = document.getElementById('commerciaux-list');
   el.innerHTML = '<div class="loading-center"><span class="spinner spinner-dark"></span></div>';
   try {
+    const profiles = await sbFetch('/rest/v1/profiles?role=eq.commercial&order=nom.asc&select=*') || [];
     allProfiles = await sbFetch('/rest/v1/profiles?select=*&order=nom.asc') || [];
-    const profiles = allProfiles.filter(p => p.role === 'commercial');
     const clients = allContacts.filter(c => c.statut === 'client');
     el.innerHTML = '<div class="table-wrap"><table>' +
       '<thead><tr><th>Nom</th><th>Email</th><th>Taux commission</th><th>Clients actifs</th><th>MRR généré</th><th>Objectif mensuel</th><th>Statut</th><th>Actions</th></tr></thead>' +
@@ -2369,7 +2352,6 @@ async function editCommissionRate(id, currentRate) {
 function openAddCommercialModal() {
   document.getElementById('comm-nom').value = '';
   document.getElementById('comm-email').value = '';
-  document.getElementById('comm-password').value = '';
   document.getElementById('comm-taux').value = '35';
   openModal('modal-commercial');
 }
@@ -2377,25 +2359,17 @@ function openAddCommercialModal() {
 async function saveCommercial() {
   const nom = document.getElementById('comm-nom').value.trim();
   const email = document.getElementById('comm-email').value.trim();
-  const password = document.getElementById('comm-password').value;
   const taux = parseFloat(document.getElementById('comm-taux').value) / 100;
   if (!nom || !email) { showToast('Nom et email requis', 'error'); return; }
-  if (!password || password.length < 6) { showToast('Mot de passe requis (min 6 caractères)', 'error'); return; }
-  const btn = document.querySelector('#modal-commercial .btn-green');
-  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>'; }
   try {
-    const res = await fetch('https://seolia-ai-chat.seolia.workers.dev/create-commercial', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nom, email, password, taux_commission: taux })
+    await sbFetch('/rest/v1/profiles', {
+      method: 'POST', headers: { 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ nom, email, role: 'commercial', taux_commission: taux, actif: true })
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Erreur serveur');
-    showToast('Commercial ' + nom + ' créé — il peut se connecter avec son email/mot de passe', 'success');
+    showToast('Commercial ajouté', 'success');
     closeModal('modal-commercial');
     loadCommerciaux();
   } catch(e) { showToast('Erreur: ' + e.message, 'error'); }
-  finally { if (btn) { btn.disabled = false; btn.innerHTML = 'Créer le compte'; } }
 }
 
 // ===== COMPOSE EMAIL =====
@@ -3883,6 +3857,20 @@ function generateContrat() {
   const clientCompany = contact.entreprise || '';
   const clientEmail = contact.email || '';
   const clientPhone = contact.telephone || '';
+  const clientIban = contact.iban || '';
+  const clientBic = contact.bic || '';
+  
+  // Livrables par forfait
+  const deliverablesByForfait = {
+    'bundle essentiel ia': 'Site vitrine 1 page, chatbot IA et FAQ automatisee, automatisation avis Google',
+    'bundle business ia': 'Site multi-pages SEO, formulaire demandes d\'intervention, tableau de bord artisan, SMS automatique, automatisation RDV',
+    'bundle premium ia': 'Site premium multi-pages, agent telephonique IA (200 min/mois), WhatsApp, tableau de bord, rapports hebdomadaires',
+    'web essentiel': 'Site vitrine 1 page, hebergement inclus, maintenance technique',
+    'web business': 'Site multi-pages SEO, hebergement inclus, maintenance technique',
+    'web premium': 'Site premium multi-pages, hebergement inclus, maintenance technique',
+  };
+  const forfaitKey = forfait.toLowerCase();
+  const deliverables = Object.entries(deliverablesByForfait).find(([k]) => forfaitKey.includes(k))?.[1] || 'Selon devis remis lors de la souscription';
 
   // Helper: draw page header
   function drawHeader(pageNum) {
@@ -3925,7 +3913,7 @@ function generateContrat() {
   doc.text('PARTIES CONTRACTANTES', marginL, y + 4);
   y += 8;
 
-  const boxH = 30;
+  const boxH = clientIban ? 36 : 30;
   const halfW = (contentW / 2) - 3;
 
   // Prestataire box
@@ -3966,6 +3954,12 @@ function generateContrat() {
   doc.setTextColor(...DARK);
   if (clientEmail) doc.text(clientEmail, clientBoxX + 4, y + 20);
   if (clientPhone) doc.text(clientPhone, clientBoxX + 4, y + 26);
+  if (clientIban) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...GRAY);
+    doc.text('IBAN : ' + clientIban + (clientBic ? '  BIC : ' + clientBic : ''), clientBoxX + 4, y + 32);
+  }
 
   y += boxH + 12;
 
@@ -4018,6 +4012,18 @@ function generateContrat() {
 
   y += 12;
 
+  // Section: PRESTATIONS INCLUSES
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...GRAY);
+  doc.text('PRESTATIONS INCLUSES', marginL, y);
+  y += 5;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...DARK);
+  doc.text(deliverables, marginL, y, { maxWidth: contentW });
+  y += 10;
+
   // Section: RÉSUMÉ CONDITIONS
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(7.5);
@@ -4031,6 +4037,7 @@ function generateContrat() {
     ['Paiement', 'Mise en place exigible a la signature. Mensuel par prelevement SEPA automatique le 1er du mois.'],
     ['Non-paiement', 'Suspension du service apres mise en demeure de 15 jours. Les sommes restent dues.'],
     ['Propriete', 'Le code source reste la propriete de Seolia. Le nom de domaine reste la propriete du client.'],
+    ['Fourniture contenus', 'Le client s\'engage a fournir textes, photos et logo dans les 15 jours suivant la signature. Tout retard impacte les delais de livraison sans modifier les obligations de paiement du client.'],
     ['Droit applicable', 'Droit belge. Tribunaux de Liege. Conditions completes en page 2.'],
   ];
 
@@ -4056,6 +4063,24 @@ function generateContrat() {
   doc.setTextColor(...GRAY);
   doc.text('Le client declare avoir lu et accepter les conditions generales detaillees en page 2 du present contrat.', marginL, y);
   y += 10;
+
+  // AUTORISATION SEPA
+  doc.setFillColor(230, 245, 255);
+  doc.roundedRect(marginL, y, contentW, clientIban ? 14 : 12, 2, 2, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...NAVY);
+  doc.text('AUTORISATION DE PRELEVEMENT SEPA', marginL + 4, y + 5);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(...DARK);
+  if (clientIban) {
+    doc.text('IBAN : ' + clientIban + (clientBic ? '   BIC : ' + clientBic : '') + '   —   En signant ce contrat, le Client autorise Seolia a prelever le montant mensuel convenu par prelevement SEPA.', marginL + 4, y + 11, { maxWidth: contentW - 8 });
+    y += 18;
+  } else {
+    doc.text('IBAN : ________________________________   BIC : ____________   —   En signant, le Client autorise Seolia a prelever le mensuel par SEPA.', marginL + 4, y + 9, { maxWidth: contentW - 8 });
+    y += 16;
+  }
 
   // SIGNATURES
   doc.setFont('helvetica', 'bold');

@@ -4046,7 +4046,7 @@ function generateContrat() {
     startY: y,
     margin: { left: marginL, right: marginR },
     body: summary,
-    bodyStyles: { fontSize: 8.5, textColor: DARK, cellPadding: 4 },
+    bodyStyles: { fontSize: 8.5, textColor: DARK, cellPadding: 3 },
     columnStyles: {
       0: { fontStyle: 'bold', textColor: NAVY, cellWidth: 40, fillColor: LIGHTBG },
       1: { cellWidth: contentW - 40, fillColor: WHITE },
@@ -4056,14 +4056,17 @@ function generateContrat() {
     tableLineWidth: 0.3,
   });
 
-  y = doc.lastAutoTable.finalY + 8;
+  y = doc.lastAutoTable.finalY + 5;
+
+  // Safety clamp: SEPA(18) + cgv(8) + sig_label(5) + sig_boxes(42) + bottom_margin(5) = 78mm needed
+  if (y > 203) y = 203;
 
   // Mention CGV
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(7.5);
   doc.setTextColor(...GRAY);
   doc.text('Le client declare avoir lu et accepter les conditions generales detaillees en page 2 du present contrat.', marginL, y);
-  y += 10;
+  y += 8;
 
   // AUTORISATION SEPA
   doc.setFillColor(230, 245, 255);

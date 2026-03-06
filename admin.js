@@ -249,6 +249,7 @@ const NAV_ADMIN = [
   { id: 'revenus', icon: '💰', label: 'Revenus' },
   { id: 'commerciaux', icon: '👤', label: 'Commerciaux' },
   { id: 'onboarding', icon: '📋', label: 'Onboarding' },
+  { id: 'sophie', icon: '🤖', label: 'Sophie' },
 ];
 const NAV_COMMERCIAL = [
   { id: 'dashboard', icon: '🏠', label: 'Dashboard' },
@@ -306,6 +307,7 @@ function showView(viewId) {
   else if (viewId === 'revenus') loadRevenus();
   else if (viewId === 'commerciaux') loadCommerciaux();
   else if (viewId === 'onboarding') loadOnboarding();
+  else if (viewId === 'sophie') loadSophieAppels();
 }
 
 function updateNavActive(viewId) {
@@ -4640,4 +4642,107 @@ async function chargerSignatures(contactId) {
   } catch (e) {
     console.error('Erreur chargement signatures:', e);
   }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ONGLET SOPHIE — APPELS ENTRANTS
+// ═══════════════════════════════════════════════════════════════════════════
+let sophieAppelsData = [];
+let sophieCurrentFilter = 'all';
+
+async function loadSophieAppels() {
+  try {
+    const { data, error } = await supabase
+      .from('sophie_appels')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    sophieAppelsData = data || [];
+    renderSophieAppels();
+  } catch(e) {
+    console.error('Erreur chargement Sophie appels:', e);
+  }
+}
+
+function filterSophieAppels(filter) {
+  sophieCurrentFilter = filter;
+  document.querySelectorAll('[id^="sophie-filter-"]').forEach(b => b.className = 'btn btn-sm btn-ghost');
+  const activeBtn = filter === 'all' ? 'sophie-filter-all' : filter === 'à_traiter' ? 'sophie-filter-todo' : 'sophie-filter-done';
+  document.getElementById(activeBtn).className = 'btn btn-sm btn-primary';
+  renderSophieAppels();
+}
+
+function renderSophieAppels() {
+  const filtered = sophieCurrentFilter === 'all'
+    ? sophieAppelsData
+    : sophieAppelsData.filter(a => a.statut === sophieCurrentFilter);
+
+  const prospects = filtered.filter(a => a.categorie === 'nouveau_prospect');
+  const clients = filtered.filter(a => a.categorie === 'client_existant');
+
+  document.getElementById('badge-prospects').textContent = prospects.length;
+  document.getElementById('badge-clients').textContent = clients.length;
+
+  document.getElementById('sophie-prospects-list').innerHTML = prospects.length
+    ? prospects.map(a => renderSophieCard(a)).join('')
+    : '<div style="color:var(--text-muted);font-size:14px;padding:12px 0;">Aucun prospect pour ce filtre.</div>';
+
+  document.getElementById('sophie-clients-list').innerHTML = clients.length
+    ? clients.map(a => renderSophieCard(a)).join('')
+    : '<div style="color:var(--text-muted);font-size:14px;padding:12px 0;">Aucun client pour ce filtre.</div>';
+}
+
+function renderSophieCard(a) {
+  const date = new Date(a.created_at).toLocaleString('fr-BE', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  const statutColor = a.statut === 'à_traiter' ? '#ef4444' : a.statut === 'traité' ? '#10b981' : '#94a3b8';
+  const statutLabel = a.statut === 'à_traiter' ? '🔴 À traiter' : a.statut === 'traité' ? '✅ Traité' : '⬜ Ignoré';
+  const isProspect = a.categorie === 'nouveau_prospect';
+
+  return `
+  <div id="sophie-card-${a.id}" style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;border-left:4px solid ${statutColor};">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+      <div>
+        <div style="font-weight:700;font-size:15px;color:var(--navy);">${a.nom_appelant || 'Nom inconnu'}${a.entreprise ? ' — ' + a.entreprise : ''}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${date}${a.ville ? ' · ' + a.ville : ''}${a.secteur ? ' · ' + a.secteur : ''}</div>
+      </div>
+      <span style="font-size:12px;font-weight:600;color:${statutColor};">${statutLabel}</span>
+    </div>
+    ${a.telephone ? `<div style="margin-top:8px;font-size:13px;">📞 <a href="tel:${a.telephone}" style="color:var(--primary);font-weight:600;">${a.telephone}</a></div>` : ''}
+    <div style="margin-top:10px;font-size:13px;color:var(--text-primary);background:var(--bg-hover);border-radius:8px;padding:10px;line-height:1.5;">${a.resume}</div>
+    ${a.besoin ? `<div style="margin-top:6px;font-size:12px;color:var(--text-muted);">💡 Besoin : ${a.besoin}</div>` : ''}
+    ${a.disponibilites ? `<div style="margin-top:4px;font-size:12px;color:var(--text-muted);">📅 Disponibilités : ${a.disponibilites}</div>` : ''}
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      ${isProspect && a.statut !== 'traité' ? `<button class="btn btn-sm btn-primary" onclick="sophieCreerContact('${a.id}')">➕ Créer fiche contact</button>` : ''}
+      ${a.statut === 'à_traiter' ? `<button class="btn btn-sm btn-ghost" onclick="sophieMarquerStatut('${a.id}','traité')">✅ Marquer traité</button>` : ''}
+      ${a.statut !== 'à_traiter' ? `<button class="btn btn-sm btn-ghost" onclick="sophieMarquerStatut('${a.id}','à_traiter')">↩️ Remettre à traiter</button>` : ''}
+      <button class="btn btn-sm btn-ghost" style="color:#ef4444;" onclick="sophieMarquerStatut('${a.id}','ignoré')">🗑️ Ignorer</button>
+    </div>
+  </div>`;
+}
+
+async function sophieMarquerStatut(id, statut) {
+  const { error } = await supabase.from('sophie_appels').update({ statut }).eq('id', id);
+  if (!error) await loadSophieAppels();
+}
+
+async function sophieCreerContact(appelId) {
+  const appel = sophieAppelsData.find(a => a.id === appelId);
+  if (!appel) return;
+
+  // Pré-remplir le formulaire de nouveau contact puis ouvrir le modal
+  if (typeof openAddContactModal === 'function') {
+    openAddContactModal({
+      nom: appel.nom_appelant || '',
+      entreprise: appel.entreprise || '',
+      telephone: appel.telephone || '',
+      ville: appel.ville || '',
+      secteur: appel.secteur || '',
+    });
+  } else {
+    showView('contacts');
+    alert('Créez un nouveau contact avec ces infos :\n\nNom : ' + (appel.nom_appelant || '') + '\nTél : ' + (appel.telephone || '') + '\nEntreprise : ' + (appel.entreprise || '') + '\nVille : ' + (appel.ville || ''));
+  }
+
+  // Marquer l'appel comme traité
+  await sophieMarquerStatut(appelId, 'traité');
 }

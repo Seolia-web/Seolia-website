@@ -563,6 +563,45 @@
       <div id="onboarding-list"><div class="loading-center"><span class="spinner spinner-dark"></span></div></div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- VUE SOPHIE                                                       -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div class="view" id="view-sophie">
+      <div class="view-header">
+        <h1>🤖 Sophie — Appels entrants</h1>
+        <button class="btn btn-ghost btn-sm" onclick="loadSophieAppels()">↻ Rafraîchir</button>
+      </div>
+
+      <!-- Filtres -->
+      <div class="filter-bar" style="margin-bottom:16px;">
+        <button id="sophie-filter-all" class="btn btn-sm btn-primary" onclick="filterSophieAppels('all')">Tous</button>
+        <button id="sophie-filter-todo" class="btn btn-sm btn-ghost" onclick="filterSophieAppels('à_traiter')">🔴 À traiter</button>
+        <button id="sophie-filter-done" class="btn btn-sm btn-ghost" onclick="filterSophieAppels('traité')">✅ Traités</button>
+      </div>
+
+      <!-- Section Nouveaux Prospects -->
+      <div style="margin-bottom:32px;">
+        <h2 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          🆕 Nouveaux prospects
+          <span id="badge-prospects" style="background:#3b82f6;color:#fff;font-size:11px;padding:2px 8px;border-radius:99px;">0</span>
+        </h2>
+        <div id="sophie-prospects-list" style="display:flex;flex-direction:column;gap:10px;">
+          <div style="color:var(--text-muted);font-size:14px;padding:20px 0;">Chargement…</div>
+        </div>
+      </div>
+
+      <!-- Section Clients Existants -->
+      <div>
+        <h2 style="font-size:16px;font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+          👤 Clients existants
+          <span id="badge-clients" style="background:#10b981;color:#fff;font-size:11px;padding:2px 8px;border-radius:99px;">0</span>
+        </h2>
+        <div id="sophie-clients-list" style="display:flex;flex-direction:column;gap:10px;">
+          <div style="color:var(--text-muted);font-size:14px;padding:20px 0;">Chargement…</div>
+        </div>
+      </div>
+    </div>
+
   </main><!-- /main -->
 
   <!-- SEARCH DROPDOWN (outside header to avoid stacking context issues) -->

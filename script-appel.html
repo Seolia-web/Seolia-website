@@ -6,440 +6,433 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Script Appel — Seolia</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #0f172a;
-    color: #f1f5f9;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 16px;
-  }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0f172a;
+  color: #f1f5f9;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px 40px;
+}
 
-  .logo {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: #64748b;
-    text-transform: uppercase;
-    margin-bottom: 40px;
-  }
+/* TOP BAR */
+.topbar {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
 
-  .card {
-    background: #1e293b;
-    border-radius: 20px;
-    padding: 40px 36px;
-    max-width: 540px;
-    width: 100%;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.4);
-    animation: fadeIn 0.3s ease;
-  }
+.brand {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #334155;
+  text-transform: uppercase;
+}
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+.progress-bar {
+  display: flex;
+  gap: 5px;
+}
 
-  .step-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #3b82f6;
-    margin-bottom: 16px;
-  }
+.dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #1e293b;
+  border: 1px solid #334155;
+  transition: all 0.3s;
+}
+.dot.done { background: #22c55e; border-color: #22c55e; }
+.dot.active { background: #3b82f6; border-color: #3b82f6; }
 
-  .step-label.green { color: #22c55e; }
-  .step-label.orange { color: #f97316; }
-  .step-label.gray { color: #64748b; }
+/* MAIN CARD */
+.card {
+  width: 100%;
+  max-width: 480px;
+  animation: fadeUp 0.25s ease;
+}
 
-  .question {
-    font-size: 22px;
-    font-weight: 700;
-    line-height: 1.4;
-    color: #f1f5f9;
-    margin-bottom: 12px;
-  }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-  .context {
-    font-size: 14px;
-    color: #94a3b8;
-    margin-bottom: 32px;
-    line-height: 1.6;
-  }
+/* TAG */
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+.tag-blue { background: #1e3a5f; color: #60a5fa; }
+.tag-orange { background: #431407; color: #fb923c; }
+.tag-green { background: #052e16; color: #4ade80; }
+.tag-gray { background: #1e293b; color: #64748b; }
 
-  .context em {
-    color: #cbd5e1;
-    font-style: italic;
-  }
+/* SCRIPT PHRASE */
+.phrase {
+  background: #1e293b;
+  border-left: 3px solid #3b82f6;
+  border-radius: 0 12px 12px 0;
+  padding: 20px 20px;
+  margin-bottom: 28px;
+}
+.phrase.orange { border-color: #f97316; }
+.phrase.green { border-color: #22c55e; }
+.phrase.gray { border-color: #475569; }
 
-  .script-line {
-    background: #0f172a;
-    border-left: 3px solid #3b82f6;
-    border-radius: 8px;
-    padding: 14px 18px;
-    font-size: 15px;
-    color: #e2e8f0;
-    line-height: 1.6;
-    margin-bottom: 28px;
-    font-style: italic;
-  }
+.phrase-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #475569;
+  margin-bottom: 10px;
+}
 
-  .script-line.green { border-color: #22c55e; }
-  .script-line.orange { border-color: #f97316; }
+.phrase-text {
+  font-size: 17px;
+  line-height: 1.6;
+  color: #e2e8f0;
+  font-style: italic;
+}
 
-  .answers {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+/* TIP */
+.tip-toggle {
+  background: none;
+  border: 1px solid #1e293b;
+  color: #475569;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+.tip-toggle:hover { border-color: #334155; color: #64748b; }
 
-  .btn {
-    display: block;
-    width: 100%;
-    padding: 16px 20px;
-    border-radius: 12px;
-    border: none;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: left;
-    transition: all 0.15s ease;
-    line-height: 1.4;
-  }
+.tip-box {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 24px;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.6;
+  display: none;
+}
+.tip-box.visible { display: block; }
 
-  .btn:hover { transform: translateX(4px); }
+/* ANSWERS */
+.answers { display: flex; flex-direction: column; gap: 10px; }
 
-  .btn-green {
-    background: #16a34a22;
-    color: #4ade80;
-    border: 1px solid #16a34a55;
-  }
-  .btn-green:hover { background: #16a34a44; }
+.btn {
+  display: block;
+  width: 100%;
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  line-height: 1.4;
+}
+.btn:active { transform: scale(0.98); }
 
-  .btn-orange {
-    background: #ea580c22;
-    color: #fb923c;
-    border: 1px solid #ea580c55;
-  }
-  .btn-orange:hover { background: #ea580c44; }
+.btn-green {
+  background: #052e1622;
+  color: #4ade80;
+  border-color: #16a34a44;
+}
+.btn-green:hover { background: #052e1644; }
 
-  .btn-gray {
-    background: #33415522;
-    color: #94a3b8;
-    border: 1px solid #33415555;
-  }
-  .btn-gray:hover { background: #33415544; }
+.btn-orange {
+  background: #43140722;
+  color: #fb923c;
+  border-color: #ea580c44;
+}
+.btn-orange:hover { background: #43140744; }
 
-  .btn-blue {
-    background: #1d4ed822;
-    color: #60a5fa;
-    border: 1px solid #1d4ed855;
-  }
-  .btn-blue:hover { background: #1d4ed844; }
+.btn-gray {
+  background: #1e293b22;
+  color: #64748b;
+  border-color: #33415544;
+}
+.btn-gray:hover { background: #1e293b55; }
 
-  .progress {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 32px;
-  }
+.btn-blue {
+  background: #1e3a5f22;
+  color: #60a5fa;
+  border-color: #1d4ed844;
+}
+.btn-blue:hover { background: #1e3a5f44; }
 
-  .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #334155;
-    transition: background 0.3s;
-  }
-  .dot.active { background: #3b82f6; }
-  .dot.done { background: #22c55e; }
+/* BACK */
+.back-btn {
+  background: none;
+  border: none;
+  color: #334155;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 20px;
+  padding: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.15s;
+}
+.back-btn:hover { color: #475569; }
 
-  .back-btn {
-    margin-top: 24px;
-    background: none;
-    border: none;
-    color: #475569;
-    font-size: 13px;
-    cursor: pointer;
-    padding: 8px 0;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: color 0.15s;
-  }
-  .back-btn:hover { color: #94a3b8; }
-
-  .final-card {
-    text-align: center;
-  }
-
-  .final-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-  }
-
-  .final-title {
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 12px;
-  }
-
-  .final-title.green { color: #4ade80; }
-  .final-title.gray { color: #64748b; }
-
-  .final-text {
-    font-size: 15px;
-    color: #94a3b8;
-    line-height: 1.7;
-    margin-bottom: 32px;
-  }
-
-  .restart-btn {
-    background: #1e40af;
-    color: white;
-    border: none;
-    padding: 14px 28px;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .restart-btn:hover { background: #1d4ed8; }
+/* FINAL */
+.final {
+  text-align: center;
+  padding: 20px 0;
+}
+.final-icon { font-size: 52px; margin-bottom: 16px; }
+.final-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+.final-title.green { color: #4ade80; }
+.final-title.gray { color: #475569; }
+.final-body {
+  font-size: 15px;
+  color: #64748b;
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+.final-body strong { color: #94a3b8; }
+.restart-btn {
+  background: #1e293b;
+  color: #94a3b8;
+  border: 1px solid #334155;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.restart-btn:hover { background: #334155; color: #f1f5f9; }
 </style>
 </head>
 <body>
 
-<div class="logo">Seolia — Script Appel</div>
-
-<div class="card" id="card">
-  <!-- Content injected by JS -->
+<div class="topbar">
+  <div class="brand">Seolia</div>
+  <div class="progress-bar" id="progress"></div>
 </div>
+
+<div class="card" id="card"></div>
 
 <script>
 const steps = {
+
   intro: {
-    label: "INTRODUCTION",
-    labelClass: "",
-    question: "Prêt à appeler ?",
-    context: "Ton décontracté, pas commercial. Tu n'es pas en train de vendre — tu appelles pour voir si il a un problème que tu peux régler.",
-    script: "«\u00a0Bonjour, c'est bien [Nom société]\u00a0?\u00a0»\n«\u00a0C'est vous qui gérez les clients\u00a0?\u00a0»\n«\u00a0Parfait — Florian de Seolia. On travaille avec des [plombiers / électriciens / ...] dans la région, j'aurais juste une petite question si vous avez 2 minutes.\u00a0»",
+    tag: "DÉBUT", tagClass: "tag-blue",
+    phrase: "«\u00a0Bonjour, c'est bien [Nom de la société]\u00a0?\u00a0»\n\n«\u00a0C'est vous qui gérez la clientèle\u00a0?\u00a0»\n\n«\u00a0Florian de Seolia — on travaille avec des [plombiers / électriciens / ...] dans la région. J'aurais juste une petite question si vous avez 2 minutes.\u00a0»",
+    tip: "Ton décontracté, pas commercial. Tu appelles pour voir si ce gars a un problème — pas pour vendre. Si tu penses \"RDV\", ça se sent.",
     answers: [
-      { text: "✅ Oui, je l'ai", next: "transition", style: "green" },
-      { text: "❌ Mauvaise personne / pas dispo", next: "end_wrong", style: "gray" }
+      { text: "✅ Il est disponible", next: "transition", style: "green" },
+      { text: "❌ Mauvaise personne", next: "end_wrong", style: "gray" },
+      { text: "📵 Pas disponible / occupe", next: "end_later", style: "gray" }
     ],
     progress: [1,0,0,0,0]
   },
 
   transition: {
-    label: "TRANSITION",
-    labelClass: "",
-    question: "Il accepte de t'écouter 2 minutes ?",
-    script: "«\u00a0Avec plaisir\u00a0/ Bien sûr\u00a0/ Allez-y\u00a0»\n\n→ «\u00a0C'est quoi votre activité exactement\u00a0?\u00a0»",
-    context: "Laisse-le parler 15-20 secondes. Tu veux qu'il sente que tu t'intéresses à lui avant de poser la vraie question. Écoute, rebondis si besoin (\"Ah oui, et vous couvrez quelle zone ?\"), puis enchaîne naturellement.",
+    tag: "TRANSITION", tagClass: "tag-blue",
+    phrase: "«\u00a0C'est quoi votre activité exactement\u00a0?\u00a0»",
+    tip: "Laisse-le parler 20-30 secondes. Écoute vraiment. Rebondis si tu peux (\"Ah vous faites aussi le dépannage d'urgence ?\"). Seulement après, tu poses la vraie question.",
     answers: [
-      { text: "Il a expliqué son activité → continuer", next: "q1", style: "green" },
-      { text: "Pas intéressé / trop occupé", next: "end_wrong", style: "gray" }
+      { text: "→ Il a parlé, enchaîner", next: "q1", style: "blue" }
     ],
     progress: [1,1,0,0,0]
   },
 
   q1: {
-    label: "QUESTION 1 — SOURCE CLIENTS",
-    labelClass: "",
-    question: "D'où viennent ses clients ?",
-    script: "«\u00a0Et vos nouveaux clients en ce moment — ils vous trouvent comment\u00a0?\u00a0»",
-    context: "Le \"Et\" au début fait la liaison naturelle avec ce qu'il vient de dire. Vraie curiosité. Écoute pour de vrai. Ne prépare pas ta prochaine phrase pendant qu'il parle — ça s'entend.",
+    tag: "QUESTION 1", tagClass: "tag-blue",
+    phrase: "«\u00a0Et vos nouveaux clients en ce moment — ils vous trouvent comment\u00a0?\u00a0»",
+    tip: "Le \"Et\" fait la liaison naturelle. Écoute sans préparer ta prochaine phrase — ça s'entend quand tu n'écoutes pas vraiment.",
     answers: [
       { text: "Bouche-à-oreille / réseau uniquement", next: "q2", style: "orange" },
-      { text: "Google + bouche-à-oreille", next: "q2b", style: "green" },
-      { text: "Google principalement", next: "q2b", style: "green" }
+      { text: "Google aussi / principalement Google", next: "q2b", style: "green" },
+      { text: "Plusieurs canaux mélangés", next: "q2", style: "orange" }
     ],
     progress: [2,1,0,0,0]
   },
 
   q2: {
-    label: "TEST GOOGLE",
-    labelClass: "",
-    question: "Est-il visible sur Google ?",
-    script: "«\u00a0Et sur Google — si quelqu'un cherche un [plombier] à [ville] ce soir, il tombe sur vous\u00a0?\u00a0»",
-    context: "Pose la question. Ferme ta gueule. Le silence qui suit EST la vente — il se rend compte lui-même qu'il sait pas.",
+    tag: "TEST GOOGLE", tagClass: "tag-orange",
+    phrase: "«\u00a0Et sur Google — si quelqu'un cherche un [plombier] à [ville] ce soir, il tombe sur vous\u00a0?\u00a0»",
+    tip: "Pose la question. Tais-toi. Le silence qui suit, c'est lui qui réalise lui-même qu'il sait pas. Ne remplis pas ce silence.",
     answers: [
-      { text: "Non / pas vraiment / je sais pas", next: "closing_direct", style: "orange" },
-      { text: "Oui, j'ai un site / j'apparais", next: "q3_convertit", style: "green" }
+      { text: "Non / pas vraiment / je sais pas", next: "closing", style: "orange" },
+      { text: "Oui, j'ai un site / j'apparais", next: "q3", style: "green" }
     ],
     progress: [2,2,1,0,0]
   },
 
   q2b: {
-    label: "VOLUME APPELS",
-    labelClass: "",
-    question: "Est-ce que Google lui génère des appels réguliers ?",
-    script: "«\u00a0Et ça vous génère des appels réguliers depuis Google — ou c'est variable\u00a0?\u00a0»",
-    context: "Pas de jugement dans la voix. Tu veux juste comprendre la situation.",
+    tag: "VOLUME", tagClass: "tag-blue",
+    phrase: "«\u00a0Et ça vous génère des appels réguliers depuis Google — ou c'est variable\u00a0?\u00a0»",
+    tip: "Pas de jugement dans la voix. Tu veux juste comprendre.",
     answers: [
       { text: "Régulier, ça tourne bien", next: "q4", style: "green" },
-      { text: "Variable / ça pourrait être mieux", next: "closing_direct", style: "orange" }
+      { text: "Variable / ça pourrait être mieux", next: "closing", style: "orange" }
     ],
     progress: [2,2,1,0,0]
   },
 
-  q3_convertit: {
-    label: "CONVERSION CONCRÈTE",
-    labelClass: "",
-    question: "Combien d'appels par mois depuis le site ?",
-    script: "«\u00a0Vous avez une idée du nombre d'appels que ça vous génère par mois depuis le site\u00a0?\u00a0»",
-    context: "S'il ne sait pas → ne dis rien. Ce silence là, c'est lui qui réalise qu'il ne mesure même pas ses résultats. C'est le meilleur moment du call.",
+  q3: {
+    tag: "CONVERSION", tagClass: "tag-blue",
+    phrase: "«\u00a0Vous avez une idée du nombre d'appels que ça vous génère par mois depuis le site\u00a0?\u00a0»",
+    tip: "S'il ne sait pas — ne dis rien. Ce silence-là, c'est le meilleur moment du call. Il réalise qu'il ne mesure même pas ses résultats.",
     answers: [
-      { text: "Peu / pas vraiment / je sais pas", next: "closing_direct", style: "orange" },
+      { text: "Peu / pas vraiment / il sait pas", next: "closing", style: "orange" },
       { text: "Oui, ça génère bien des appels", next: "q4", style: "green" }
     ],
     progress: [2,2,2,1,0]
   },
 
   q4: {
-    label: "CAPACITÉ",
-    labelClass: "",
-    question: "Il peut accepter plus de clients ?",
-    script: "«\u00a0Et si vous en aviez plus — vous avez la capacité pour les gérer\u00a0?\u00a0»",
-    context: "Question simple. Oui = tu avances vers la visite. Non = tu raccroches proprement sans insister.",
+    tag: "CAPACITÉ", tagClass: "tag-blue",
+    phrase: "«\u00a0Et si vous en aviez plus — vous avez la capacité pour les prendre\u00a0?\u00a0»",
+    tip: "Simple. Oui = tu avances. Non = tu raccroches proprement, c'est une piste à recontacter dans 3 mois.",
     answers: [
-      { text: "Oui, j'en veux plus", next: "closing_direct", style: "green" },
+      { text: "Oui, j'en veux plus", next: "closing", style: "green" },
       { text: "Non, je suis à fond", next: "end_full", style: "gray" }
     ],
     progress: [2,2,2,2,1]
   },
 
-  closing_direct: {
-    label: "LA VISITE",
-    labelClass: "green",
-    question: "Annonce la visite — ne la demande pas",
-    script: "«\u00a0Je suis par chez vous [jour]. Je passe vous montrer en 20 minutes chrono exactement où vous en êtes sur Google par rapport aux autres [plombiers] de votre zone. Pas de pitch — juste des chiffres concrets. Mardi ou mercredi\u00a0?\u00a0»",
-    context: "Choix entre deux jours — jamais oui/non. Ton naturel, comme si tu passais de toute façon dans le coin.",
+  closing: {
+    tag: "LA VISITE", tagClass: "tag-green",
+    phrase: "«\u00a0Je suis par chez vous [jour]. Je passe vous montrer en 20 minutes chrono exactement où vous en êtes sur Google par rapport aux autres [plombiers] de la zone. Pas de blabla — juste les chiffres. Mardi ou mercredi, c'est quoi le mieux pour vous\u00a0?\u00a0»",
+    tip: "Tu annonces la visite — tu ne la demandes pas. Choix entre deux jours, jamais oui/non. Ton comme si tu passais de toute façon dans le coin.",
     answers: [
-      { text: "Oui / quel jour ?", next: "end_rdv", style: "green" },
-      { text: "J'ai pas le temps", next: "obj_temps", style: "orange" },
-      { text: "Envoyez par email", next: "obj_email", style: "orange" },
-      { text: "J'ai déjà quelqu'un", next: "obj_deja", style: "orange" }
+      { text: "✅ Oui / quel jour ?", next: "end_rdv", style: "green" },
+      { text: "⏱ J'ai pas le temps", next: "obj_temps", style: "orange" },
+      { text: "📧 Envoyez par email", next: "obj_email", style: "orange" },
+      { text: "👤 J'ai déjà quelqu'un", next: "obj_deja", style: "orange" }
     ],
     progress: [2,2,2,2,2]
   },
 
   obj_temps: {
-    label: "OBJECTION — TEMPS",
-    labelClass: "orange",
-    question: "\"J'ai pas le temps\"",
-    script: "«\u00a020 minutes — je me déplace chez vous, vous bougez pas. [Jour] matin ou après-midi\u00a0?\u00a0»",
-    context: "Court. Pas de justification. La facilité suffit. S'il dit encore non → rappelle dans 2 semaines, sans rancune.",
+    tag: "OBJECTION — TEMPS", tagClass: "tag-orange",
+    phrase: "«\u00a020 minutes — je me déplace chez vous, vous bougez pas. [Jour] matin ou après-midi\u00a0?\u00a0»",
+    tip: "Court. Pas de justification. La facilité suffit. Si encore non → note et rappelle dans 2 semaines.",
     answers: [
-      { text: "Ok, d'accord", next: "end_rdv", style: "green" },
-      { text: "Vraiment pas", next: "end_later", style: "gray" }
+      { text: "✅ Ok d'accord", next: "end_rdv", style: "green" },
+      { text: "Non vraiment pas", next: "end_later", style: "gray" }
     ],
     progress: [2,2,2,2,2]
   },
 
   obj_email: {
-    label: "OBJECTION — EMAIL",
-    labelClass: "orange",
-    question: "\"Envoyez par email\"",
-    script: "«\u00a0C'est visuel — ça marche pas par email. Faut voir en direct sur Google. 20 minutes chez vous, [jour] ça vous irait\u00a0?\u00a0»",
-    context: "Ferme mais calme. Pas de ton suppliant. Si il insiste → envoie un email minimaliste et laisse venir.",
+    tag: "OBJECTION — EMAIL", tagClass: "tag-orange",
+    phrase: "«\u00a0C'est visuel — ça marche pas par email. Faut voir en direct sur Google. 20 minutes chez vous — [jour] ça vous irait\u00a0?\u00a0»",
+    tip: "Ferme mais calme. Pas de ton suppliant. Si il insiste vraiment → envoie 3 lignes max et laisse venir.",
     answers: [
-      { text: "Ok, d'accord", next: "end_rdv", style: "green" },
+      { text: "✅ Ok d'accord", next: "end_rdv", style: "green" },
       { text: "Non, vraiment par email", next: "end_email", style: "gray" }
     ],
     progress: [2,2,2,2,2]
   },
 
   obj_deja: {
-    label: "OBJECTION — DÉJÀ QUELQU'UN",
-    labelClass: "orange",
-    question: "\"J'ai déjà quelqu'un\"",
-    script: "«\u00a0Ah ok — et ça vous génère des appels depuis Google\u00a0?\u00a0»",
-    context: "Rebond direct sur le résultat, pas sur leur prestataire. Tu ne critiques personne. S'il dit oui ça marche bien → félicite et raccroche. S'il hésite → tu as ton ouverture.",
+    tag: "OBJECTION — DÉJÀ QUELQU'UN", tagClass: "tag-orange",
+    phrase: "«\u00a0Ah ok — et ça vous génère des appels depuis Google\u00a0?\u00a0»",
+    tip: "Rebond sur le résultat, pas sur leur prestataire. Tu ne critiques personne. S'il dit oui ça tourne → félicite et raccroche. S'il hésite → tu as ton ouverture.",
     answers: [
-      { text: "Oui ça génère des appels / je suis satisfait", next: "end_satisfied", style: "gray" },
-      { text: "Bof / pas vraiment / je sais pas", next: "closing_v2", style: "orange" }
+      { text: "Oui ça marche / satisfait", next: "end_satisfied", style: "gray" },
+      { text: "Bof / pas vraiment / sait pas", next: "closing_v2", style: "orange" }
     ],
     progress: [2,2,2,2,2]
   },
 
   closing_v2: {
-    label: "RELANCE — DÉJÀ QUELQU'UN",
-    labelClass: "orange",
-    question: "Propose quand même la visite",
-    script: "«\u00a0C'est pour ça que ça vaut le coup de comparer. 20 minutes chez vous — je vous montre ce qui se passe concrètement. [Jour] ça vous irait\u00a0?\u00a0»",
-    context: "Pas de dénigrement du prestataire actuel. Tu proposes juste un point de comparaison neutre.",
+    tag: "RELANCE", tagClass: "tag-orange",
+    phrase: "«\u00a0C'est exactement pour ça que ça vaut le coup de comparer. 20 minutes chez vous — je vous montre ce qui se passe concrètement. [Jour] ça vous irait\u00a0?\u00a0»",
+    tip: "Pas de dénigrement. Tu proposes juste un point de comparaison neutre.",
     answers: [
-      { text: "Ok, pourquoi pas", next: "end_rdv", style: "green" },
-      { text: "Non, je reste avec eux", next: "end_satisfied", style: "gray" }
+      { text: "✅ Ok pourquoi pas", next: "end_rdv", style: "green" },
+      { text: "Non je reste avec eux", next: "end_satisfied", style: "gray" }
     ],
     progress: [2,2,2,2,2]
   },
 
+  /* === FINS === */
+
   end_rdv: {
-    type: "final",
-    icon: "🎯",
-    finalClass: "green",
+    type: "final", icon: "🎯", finalClass: "green",
     title: "RDV DÉCROCHÉ",
-    text: "«\u00a0Parfait — [jour] à [heure] ça vous va\u00a0? Je note ça. C'est à quelle adresse\u00a0?\u00a0»\n\nConfirme par SMS dans la foulée. Note dans ton suivi.",
+    body: "<strong>«\u00a0Parfait — [jour] à [heure] ça vous va\u00a0? Je note. C'est à quelle adresse\u00a0?»</strong>\n\nConfirme par SMS dans la foulée.\nNote dans le CRM.",
     progress: [2,2,2,2,2]
   },
 
   end_full: {
-    type: "final",
-    icon: "👋",
-    finalClass: "gray",
-    title: "À FOND — RACCROCHER",
-    text: "«\u00a0Ok, pas de problème — si ça change ou si vous cherchez à passer du boulot à quelqu'un de qualifié, n'hésitez pas. Bonne journée\u00a0!\u00a0»\n\nNote pour rappeler dans 3 mois.",
+    type: "final", icon: "👋", finalClass: "gray",
+    title: "COMPLET — RACCROCHER",
+    body: "<strong>«\u00a0Pas de problème. Si un jour ça se libère, n'hésitez pas.\u00a0»</strong>\n\nNote pour rappeler dans 3 mois.",
     progress: [2,2,2,2,2]
   },
 
   end_wrong: {
-    type: "final",
-    icon: "📵",
-    finalClass: "gray",
+    type: "final", icon: "📵", finalClass: "gray",
     title: "MAUVAISE PERSONNE",
-    text: "«\u00a0Ah, c'est qui la bonne personne pour ça\u00a0? Je peux le joindre comment\u00a0?\u00a0»\n\nNote le nom et rappelle directement.",
+    body: "<strong>«\u00a0C'est qui la bonne personne pour ça\u00a0? Je peux le joindre comment\u00a0?»</strong>\n\nNote le nom et rappelle directement.",
     progress: [1,0,0,0,0]
   },
 
   end_later: {
-    type: "final",
-    icon: "🔄",
-    finalClass: "gray",
+    type: "final", icon: "🔄", finalClass: "gray",
     title: "RAPPELER PLUS TARD",
-    text: "«\u00a0Pas de souci — je vous rappelle dans quelques jours. Bonne journée\u00a0!\u00a0»\n\nNote dans ton suivi. Rappelle dans 10-15 jours.",
-    progress: [2,2,2,2,2]
+    body: "<strong>«\u00a0Pas de souci — je vous rappelle. Bonne journée\u00a0!»</strong>\n\nRappelle dans 10-15 jours.",
+    progress: [1,0,0,0,0]
   },
 
   end_email: {
-    type: "final",
-    icon: "📧",
-    finalClass: "gray",
-    title: "ENVOYER PAR EMAIL",
-    text: "Email ultra court — 3 lignes max :\n• Qui tu es\n• Ce que tu pouvais lui montrer\n• Lien site\n\nPas de pitch. Laisse venir.",
+    type: "final", icon: "📧", finalClass: "gray",
+    title: "EMAIL — 3 LIGNES MAX",
+    body: "• Qui tu es\n• Ce que tu pouvais lui montrer\n• Lien seolia.be\n\nPas de pitch. Laisse venir.",
     progress: [2,2,2,2,2]
   },
 
   end_satisfied: {
-    type: "final",
-    icon: "✌️",
-    finalClass: "gray",
+    type: "final", icon: "✌️", finalClass: "gray",
     title: "SATISFAIT — RACCROCHER",
-    text: "«\u00a0Très bien, tant mieux. Si un jour ça évolue ou vous voulez comparer, pensez à nous. Bonne journée\u00a0!\u00a0»\n\nRaccrocher sans insister. La relation reste positive.",
+    body: "<strong>«\u00a0Très bien, tant mieux. Si un jour ça évolue, pensez à nous.\u00a0»</strong>\n\nRelation positive. Rappelle dans 6 mois.",
     progress: [2,2,2,2,2]
   }
+
 };
 
 let history = [];
 let current = 'intro';
+let tipVisible = false;
 
-function getProgressDots(prog) {
+function dots(prog) {
   return prog.map(v => {
     if (v === 2) return '<div class="dot done"></div>';
     if (v === 1) return '<div class="dot active"></div>';
@@ -447,50 +440,52 @@ function getProgressDots(prog) {
   }).join('');
 }
 
-function render(stepId) {
-  const step = steps[stepId];
+function render(id) {
+  const s = steps[id];
+  tipVisible = false;
+  document.getElementById('progress').innerHTML = dots(s.progress);
   const card = document.getElementById('card');
   card.innerHTML = '';
 
-  if (step.type === 'final') {
+  if (s.type === 'final') {
     card.innerHTML = `
-      <div class="progress">${getProgressDots(step.progress)}</div>
-      <div class="final-card">
-        <div class="final-icon">${step.icon}</div>
-        <div class="final-title ${step.finalClass}">${step.title}</div>
-        <div class="final-text">${step.text.replace(/\n/g, '<br>')}</div>
+      <div class="final">
+        <div class="final-icon">${s.icon}</div>
+        <div class="final-title ${s.finalClass}">${s.title}</div>
+        <div class="final-body">${s.body.replace(/\n/g,'<br>')}</div>
         <button class="restart-btn" onclick="restart()">↩ Recommencer</button>
       </div>
     `;
     return;
   }
 
-  const scriptLines = step.script.split('\n').map(l =>
-    `<div class="script-line ${step.labelClass || ''}">${l}</div>`
-  ).join('');
-
-  const answersHtml = step.answers.map(a =>
+  const phraseClass = s.tagClass.includes('orange') ? 'orange' : s.tagClass.includes('green') ? 'green' : s.tagClass.includes('gray') ? 'gray' : '';
+  const btns = s.answers.map(a =>
     `<button class="btn btn-${a.style}" onclick="goTo('${a.next}')">${a.text}</button>`
   ).join('');
-
-  const backBtn = history.length > 0
-    ? `<button class="back-btn" onclick="goBack()">← Retour</button>`
-    : '';
+  const backBtn = history.length > 0 ? `<button class="back-btn" onclick="goBack()">← Retour</button>` : '';
+  const tipBtn = s.tip ? `<button class="tip-toggle" onclick="toggleTip()">💡 Conseil</button><div class="tip-box" id="tip">${s.tip}</div>` : '';
 
   card.innerHTML = `
-    <div class="progress">${getProgressDots(step.progress)}</div>
-    <div class="step-label ${step.labelClass || ''}">${step.label}</div>
-    <div class="question">${step.question}</div>
-    ${step.context ? `<div class="context">${step.context}</div>` : ''}
-    ${scriptLines}
-    <div class="answers">${answersHtml}</div>
+    <div class="tag ${s.tagClass}">${s.tag}</div>
+    <div class="phrase ${phraseClass}">
+      <div class="phrase-label">DIS\u00a0:</div>
+      <div class="phrase-text">${s.phrase.replace(/\n/g,'<br>')}</div>
+    </div>
+    ${tipBtn}
+    <div class="answers">${btns}</div>
     ${backBtn}
   `;
 }
 
-function goTo(stepId) {
+function toggleTip() {
+  tipVisible = !tipVisible;
+  document.getElementById('tip').classList.toggle('visible', tipVisible);
+}
+
+function goTo(id) {
   history.push(current);
-  current = stepId;
+  current = id;
   render(current);
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }

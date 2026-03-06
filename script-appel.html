@@ -2,508 +2,766 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Script Appel — Seolia</title>
+<meta name="robots" content="noindex,nofollow">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --border: #2a2d3a;
+    --text: #e8eaf0;
+    --muted: #7b7f94;
+    --green: #22c55e;
+    --orange: #f59e0b;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --purple: #8b5cf6;
+    --accent: #6366f1;
+  }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #0f172a;
-  color: #f1f5f9;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px 16px 40px;
-}
+  /* ── PRE-CALL FORM ── */
+  #precall {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px;
+  }
+  .precall-logo { font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 32px; }
+  .precall-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; text-align: center; }
+  .precall-sub { font-size: 14px; color: var(--muted); margin-bottom: 32px; text-align: center; }
+  .form-group { width: 100%; max-width: 400px; margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+  .form-group input, .form-group select {
+    width: 100%; background: var(--card); border: 1px solid var(--border);
+    color: var(--text); border-radius: 10px; padding: 13px 16px;
+    font-size: 15px; outline: none; -webkit-appearance: none;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+  .form-group select option { background: var(--card); }
+  .btn-start {
+    width: 100%; max-width: 400px; margin-top: 8px;
+    background: var(--accent); color: #fff; border: none;
+    border-radius: 12px; padding: 16px; font-size: 16px; font-weight: 700;
+    cursor: pointer; letter-spacing: 0.5px;
+  }
+  .btn-start:active { opacity: 0.85; }
 
-/* TOP BAR */
-.topbar {
-  width: 100%;
-  max-width: 480px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
+  /* ── SCRIPT VIEW ── */
+  #script-view { display: none; flex-direction: column; min-height: 100vh; }
 
-.brand {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 3px;
-  color: #334155;
-  text-transform: uppercase;
-}
+  /* Contact mini-bar */
+  .contact-bar {
+    background: var(--card); border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .contact-bar-name { font-weight: 700; font-size: 14px; }
+  .contact-bar-detail { font-size: 12px; color: var(--muted); }
+  .contact-bar-sep { color: var(--border); }
+  .bar-edit { font-size: 11px; color: var(--accent); cursor: pointer; margin-left: auto; }
 
-.progress-bar {
-  display: flex;
-  gap: 5px;
-}
+  /* Main step area */
+  .step-area {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 24px 20px 20px;
+    max-width: 480px; width: 100%; margin: 0 auto;
+  }
 
-.dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: #1e293b;
-  border: 1px solid #334155;
-  transition: all 0.3s;
-}
-.dot.done { background: #22c55e; border-color: #22c55e; }
-.dot.active { background: #3b82f6; border-color: #3b82f6; }
+  .step-tag {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
+    color: var(--muted); margin-bottom: 14px;
+  }
+  .step-say {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px;
+    font-size: 17px; line-height: 1.55; font-style: italic;
+    color: var(--text); margin-bottom: 20px; flex-shrink: 0;
+  }
+  .step-say strong { font-style: normal; color: #fff; }
 
-/* MAIN CARD */
-.card {
-  width: 100%;
-  max-width: 480px;
-  animation: fadeUp 0.25s ease;
-}
+  /* Collect field (appears mid-conversation) */
+  .collect-field {
+    margin-bottom: 18px;
+    background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .collect-field label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); display: block; margin-bottom: 6px; }
+  .collect-field input { background: transparent; border: none; color: var(--text); font-size: 15px; width: 100%; outline: none; }
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+  /* Tip */
+  .tip-toggle { font-size: 12px; color: var(--muted); cursor: pointer; margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+  .tip-content { display: none; font-size: 13px; color: var(--muted); background: rgba(255,255,255,0.04); border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; line-height: 1.5; }
+  .tip-content.open { display: block; }
 
-/* TAG */
-.tag {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  padding: 4px 10px;
-  border-radius: 20px;
-  margin-bottom: 20px;
-}
-.tag-blue { background: #1e3a5f; color: #60a5fa; }
-.tag-orange { background: #431407; color: #fb923c; }
-.tag-green { background: #052e16; color: #4ade80; }
-.tag-gray { background: #1e293b; color: #64748b; }
+  /* Choices */
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn {
+    width: 100%; border: none; border-radius: 12px; padding: 15px 18px;
+    font-size: 15px; font-weight: 600; cursor: pointer; text-align: left;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .choice-btn:active { opacity: 0.8; transform: scale(0.98); }
+  .choice-btn.green  { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+  .choice-btn.orange { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+  .choice-btn.red    { background: rgba(239,68,68,0.12);  color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+  .choice-btn.blue   { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
 
-/* SCRIPT PHRASE */
-.phrase {
-  background: #1e293b;
-  border-left: 3px solid #3b82f6;
-  border-radius: 0 12px 12px 0;
-  padding: 20px 20px;
-  margin-bottom: 28px;
-}
-.phrase.orange { border-color: #f97316; }
-.phrase.green { border-color: #22c55e; }
-.phrase.gray { border-color: #475569; }
+  /* Back button */
+  .btn-back { background: none; border: none; color: var(--muted); font-size: 13px; cursor: pointer; padding: 8px 0; display: flex; align-items: center; gap: 4px; margin-top: 20px; }
 
-.phrase-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: #475569;
-  margin-bottom: 10px;
-}
+  /* ── OUTCOME SCREEN ── */
+  #outcome-screen {
+    display: none; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 100vh; padding: 24px 20px;
+  }
+  .outcome-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; text-align: center; }
+  .outcome-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; text-align: center; }
+  .outcome-tabs { display: flex; gap: 8px; margin-bottom: 28px; width: 100%; max-width: 400px; }
+  .outcome-tab {
+    flex: 1; padding: 12px 10px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--card); color: var(--muted); font-size: 13px; font-weight: 600;
+    cursor: pointer; text-align: center;
+  }
+  .outcome-tab.active.rdv    { background: rgba(34,197,94,0.15);  color: #4ade80; border-color: rgba(34,197,94,0.4); }
+  .outcome-tab.active.rappel { background: rgba(59,130,246,0.15); color: #60a5fa; border-color: rgba(59,130,246,0.4); }
+  .outcome-tab.active.non    { background: rgba(239,68,68,0.12);  color: #f87171; border-color: rgba(239,68,68,0.3); }
 
-.phrase-text {
-  font-size: 17px;
-  line-height: 1.6;
-  color: #e2e8f0;
-  font-style: italic;
-}
+  .outcome-form { width: 100%; max-width: 400px; }
+  .outcome-form .form-group { margin-bottom: 14px; }
+  .outcome-form textarea {
+    width: 100%; background: var(--card); border: 1px solid var(--border);
+    color: var(--text); border-radius: 10px; padding: 13px 16px;
+    font-size: 14px; outline: none; resize: none; min-height: 80px;
+    font-family: inherit;
+  }
+  .outcome-form textarea:focus { border-color: var(--accent); }
 
-/* TIP */
-.tip-toggle {
-  background: none;
-  border: 1px solid #1e293b;
-  color: #475569;
-  font-size: 12px;
-  padding: 6px 12px;
-  border-radius: 20px;
-  cursor: pointer;
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.15s;
-}
-.tip-toggle:hover { border-color: #334155; color: #64748b; }
+  .datetime-row { display: flex; gap: 10px; }
+  .datetime-row .form-group { flex: 1; }
 
-.tip-box {
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  border-radius: 10px;
-  padding: 14px 16px;
-  margin-bottom: 24px;
-  font-size: 13px;
-  color: #64748b;
-  line-height: 1.6;
-  display: none;
-}
-.tip-box.visible { display: block; }
+  .btn-create {
+    width: 100%; border: none; border-radius: 12px; padding: 16px;
+    font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 8px;
+  }
+  .btn-create.rdv    { background: var(--green); color: #fff; }
+  .btn-create.rappel { background: var(--blue); color: #fff; }
+  .btn-create.non    { background: var(--border); color: var(--muted); }
+  .btn-create:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* ANSWERS */
-.answers { display: flex; flex-direction: column; gap: 10px; }
+  /* ── SUCCESS ── */
+  #success-screen {
+    display: none; flex-direction: column; align-items: center;
+    justify-content: center; min-height: 100vh; padding: 24px 20px; text-align: center;
+  }
+  .success-icon { font-size: 56px; margin-bottom: 20px; }
+  .success-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .success-sub { font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; }
+  .btn-new-call {
+    background: var(--card); border: 1px solid var(--border); color: var(--text);
+    border-radius: 12px; padding: 14px 28px; font-size: 15px; cursor: pointer;
+  }
+  .btn-crm {
+    background: var(--accent); color: #fff;
+    border: none; border-radius: 12px; padding: 14px 28px; font-size: 15px; cursor: pointer;
+    margin-bottom: 12px; width: 100%; max-width: 300px;
+  }
 
-.btn {
-  display: block;
-  width: 100%;
-  padding: 16px 18px;
-  border-radius: 12px;
-  border: 1px solid;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s ease;
-  line-height: 1.4;
-}
-.btn:active { transform: scale(0.98); }
-
-.btn-green {
-  background: #052e1622;
-  color: #4ade80;
-  border-color: #16a34a44;
-}
-.btn-green:hover { background: #052e1644; }
-
-.btn-orange {
-  background: #43140722;
-  color: #fb923c;
-  border-color: #ea580c44;
-}
-.btn-orange:hover { background: #43140744; }
-
-.btn-gray {
-  background: #1e293b22;
-  color: #64748b;
-  border-color: #33415544;
-}
-.btn-gray:hover { background: #1e293b55; }
-
-.btn-blue {
-  background: #1e3a5f22;
-  color: #60a5fa;
-  border-color: #1d4ed844;
-}
-.btn-blue:hover { background: #1e3a5f44; }
-
-/* BACK */
-.back-btn {
-  background: none;
-  border: none;
-  color: #334155;
-  font-size: 13px;
-  cursor: pointer;
-  margin-top: 20px;
-  padding: 8px 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: color 0.15s;
-}
-.back-btn:hover { color: #475569; }
-
-/* FINAL */
-.final {
-  text-align: center;
-  padding: 20px 0;
-}
-.final-icon { font-size: 52px; margin-bottom: 16px; }
-.final-title {
-  font-size: 22px;
-  font-weight: 800;
-  margin-bottom: 12px;
-  letter-spacing: 1px;
-}
-.final-title.green { color: #4ade80; }
-.final-title.gray { color: #475569; }
-.final-body {
-  font-size: 15px;
-  color: #64748b;
-  line-height: 1.7;
-  margin-bottom: 32px;
-}
-.final-body strong { color: #94a3b8; }
-.restart-btn {
-  background: #1e293b;
-  color: #94a3b8;
-  border: 1px solid #334155;
-  padding: 14px 28px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.restart-btn:hover { background: #334155; color: #f1f5f9; }
+  /* Progress dots */
+  .progress-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); }
+  .dot.active { background: var(--accent); }
+  .dot.done   { background: var(--green); }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="brand">Seolia</div>
-  <div class="progress-bar" id="progress"></div>
+<!-- ═══════════════════════════════ PRE-CALL FORM ═══════════════════════════════ -->
+<div id="precall">
+  <div class="precall-logo">Seolia</div>
+  <div class="precall-title">Avant d'appeler</div>
+  <div class="precall-sub">Remplis les infos que tu as déjà</div>
+
+  <div class="form-group">
+    <label>Entreprise *</label>
+    <input type="text" id="f-entreprise" placeholder="Ex: Plomberie Dupont" autocomplete="off">
+  </div>
+  <div class="form-group">
+    <label>Téléphone *</label>
+    <input type="tel" id="f-telephone" placeholder="+32 4XX XX XX XX">
+  </div>
+  <div class="form-group">
+    <label>Secteur</label>
+    <select id="f-secteur">
+      <option value="">— Sélectionner —</option>
+      <option value="Plombier">🔧 Plombier</option>
+      <option value="Électricien">⚡ Électricien</option>
+      <option value="Serrurier">🔑 Serrurier</option>
+      <option value="Débouchage">🚿 Débouchage</option>
+      <option value="Toiture">🏠 Toiture / Couverture</option>
+      <option value="Garage / Carrossier">🚗 Garage / Carrossier</option>
+      <option value="Peintre">🎨 Peintre</option>
+      <option value="Menuisier">🪟 Menuisier</option>
+      <option value="Boucher">🥩 Boucher</option>
+      <option value="Coiffeur">✂️ Coiffeur</option>
+      <option value="Autre">Autre</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>Ville</label>
+    <input type="text" id="f-ville" placeholder="Ex: Liège">
+  </div>
+
+  <button class="btn-start" onclick="startCall()">📞 Commencer l'appel</button>
 </div>
 
-<div class="card" id="card"></div>
+<!-- ═══════════════════════════════ SCRIPT VIEW ═══════════════════════════════ -->
+<div id="script-view">
+  <!-- Contact bar -->
+  <div class="contact-bar">
+    <div>
+      <div class="contact-bar-name" id="bar-name">—</div>
+      <div class="contact-bar-detail" id="bar-detail">—</div>
+    </div>
+    <span class="bar-edit" onclick="goBack()">✏️ Modifier</span>
+  </div>
+
+  <!-- Step area -->
+  <div class="step-area">
+    <div class="progress-dots" id="progress-dots">
+      <div class="dot active" id="dot-0"></div>
+      <div class="dot" id="dot-1"></div>
+      <div class="dot" id="dot-2"></div>
+      <div class="dot" id="dot-3"></div>
+      <div class="dot" id="dot-4"></div>
+    </div>
+
+    <div class="step-tag" id="step-tag">INTRO</div>
+    <div class="step-say" id="step-say">...</div>
+
+    <!-- Optional collect field -->
+    <div class="collect-field" id="collect-wrap" style="display:none">
+      <label id="collect-label">Prénom</label>
+      <input type="text" id="collect-input" placeholder="Note ici...">
+    </div>
+
+    <!-- Tip toggle -->
+    <div class="tip-toggle" id="tip-toggle" onclick="toggleTip()">
+      <span>💡</span><span id="tip-label">Conseil</span>
+    </div>
+    <div class="tip-content" id="tip-content"></div>
+
+    <div class="choices" id="choices"></div>
+
+    <button class="btn-back" id="btn-back" onclick="goBack()">← Retour</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ OUTCOME SCREEN ═══════════════════════════════ -->
+<div id="outcome-screen">
+  <div class="outcome-title">Résultat de l'appel</div>
+  <div class="outcome-sub" id="outcome-sub">Comment ça s'est terminé ?</div>
+
+  <div class="outcome-tabs">
+    <div class="outcome-tab rdv" id="tab-rdv" onclick="selectOutcome('rdv')">✅ RDV</div>
+    <div class="outcome-tab rappel" id="tab-rappel" onclick="selectOutcome('rappel')">📞 Rappel</div>
+    <div class="outcome-tab non" id="tab-non" onclick="selectOutcome('non')">❌ Pas int.</div>
+  </div>
+
+  <div class="outcome-form" id="outcome-form">
+    <!-- RDV -->
+    <div id="form-rdv" style="display:none">
+      <div class="datetime-row">
+        <div class="form-group">
+          <label>Date du RDV</label>
+          <input type="date" id="rdv-date">
+        </div>
+        <div class="form-group">
+          <label>Heure</label>
+          <input type="time" id="rdv-time" value="10:00">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Prénom du contact (si noté)</label>
+        <input type="text" id="rdv-prenom" placeholder="Ex: Jean">
+      </div>
+      <div class="form-group">
+        <label>Note (optionnel)</label>
+        <textarea id="rdv-note" placeholder="Infos utiles pour le RDV..."></textarea>
+      </div>
+      <button class="btn-create rdv" onclick="createContact('rdv')">✅ Créer la fiche CRM</button>
+    </div>
+
+    <!-- RAPPEL -->
+    <div id="form-rappel" style="display:none">
+      <div class="datetime-row">
+        <div class="form-group">
+          <label>Date de rappel</label>
+          <input type="date" id="rappel-date">
+        </div>
+        <div class="form-group">
+          <label>Heure</label>
+          <input type="time" id="rappel-time" value="10:00">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Prénom du contact (si noté)</label>
+        <input type="text" id="rappel-prenom" placeholder="Ex: Jean">
+      </div>
+      <div class="form-group">
+        <label>Note</label>
+        <textarea id="rappel-note" placeholder="Pourquoi rappeler ? Qu'a-t-il dit ?"></textarea>
+      </div>
+      <button class="btn-create rappel" onclick="createContact('rappel')">📞 Créer la fiche CRM</button>
+    </div>
+
+    <!-- PAS INTERESSE -->
+    <div id="form-non" style="display:none">
+      <div class="form-group">
+        <label>Raison (optionnel)</label>
+        <select id="non-raison">
+          <option value="Pas intéressé">Pas intéressé</option>
+          <option value="Déjà quelqu'un">Déjà quelqu'un</option>
+          <option value="Pas le bon moment">Pas le bon moment</option>
+          <option value="Contrat en cours (Trustup/Bobex)">Contrat en cours</option>
+          <option value="Mauvais contact / pas décideur">Pas le décideur</option>
+          <option value="Ne répond pas">Ne répond pas</option>
+        </select>
+      </div>
+      <button class="btn-create non" onclick="createContact('non')">Terminer sans fiche</button>
+    </div>
+  </div>
+
+  <button class="btn-back" style="margin-top:20px" onclick="showStep(history[history.length-1])">← Retour</button>
+</div>
+
+<!-- ═══════════════════════════════ SUCCESS ═══════════════════════════════ -->
+<div id="success-screen">
+  <div class="success-icon" id="success-icon">✅</div>
+  <div class="success-title" id="success-title">Fiche créée !</div>
+  <div class="success-sub" id="success-sub">Le contact a été ajouté au CRM avec le suivi.</div>
+  <button class="btn-crm" onclick="window.open('https://seolia.be/admin.html','_blank')">Ouvrir le CRM</button>
+  <button class="btn-new-call" onclick="resetAll()">📞 Nouvel appel</button>
+</div>
 
 <script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const contact = { entreprise: '', telephone: '', secteur: '', ville: '', prenom: '' };
+let currentStep = 'intro';
+let history = [];
+let outcomeType = null;
+
+const WORKER_URL = 'https://seolia-ai-chat.florian-seolia.workers.dev';
+
+// Step dots mapping
+const STEP_ORDER = ['intro','transition','q1','q2','closing'];
+
 const steps = {
 
   intro: {
-    tag: "DÉBUT", tagClass: "tag-blue",
-    phrase: "«\u00a0Bonjour, c'est bien [Nom de la société]\u00a0?\u00a0»\n\n«\u00a0C'est vous qui gérez la clientèle\u00a0?\u00a0»\n\n«\u00a0Florian de Seolia — on travaille avec des [plombiers / électriciens / ...] dans la région. J'aurais juste une petite question si vous avez 2 minutes.\u00a0»",
-    tip: "Ton décontracté, pas commercial. Tu appelles pour voir si ce gars a un problème — pas pour vendre. Si tu penses \"RDV\", ça se sent.",
-    answers: [
-      { text: "✅ Il est disponible", next: "transition", style: "green" },
-      { text: "❌ Mauvaise personne", next: "end_wrong", style: "gray" },
-      { text: "📵 Pas disponible / occupe", next: "end_later", style: "gray" }
-    ],
-    progress: [1,0,0,0,0]
+    tag: '📞 INTRODUCTION',
+    dot: 0,
+    say: () => `Bonjour — c'est bien <strong>${contact.entreprise || '[Entreprise]'}</strong> ? ... Vous gérez la partie clients ?`,
+    tip: "Ton seul but ici : confirmer que t'as le bon numéro et le bon interlocuteur. Rien d'autre.",
+    choices: [
+      { text: '✅ Oui, c\'est moi', next: 'transition', style: 'green' },
+      { text: '👤 Non, je le passe', next: 'intro', style: 'orange', note: 'Attends le décideur' },
+      { text: '📵 Pas disponible', next: 'fin_dispo', style: 'red' },
+    ]
   },
 
   transition: {
-    tag: "TRANSITION", tagClass: "tag-blue",
-    phrase: "«\u00a0C'est quoi votre activité exactement\u00a0?\u00a0»",
-    tip: "Laisse-le parler 20-30 secondes. Écoute vraiment. Rebondis si tu peux (\"Ah vous faites aussi le dépannage d'urgence ?\"). Seulement après, tu poses la vraie question.",
-    answers: [
-      { text: "→ Il a parlé, enchaîner", next: "q1", style: "blue" }
-    ],
-    progress: [1,1,0,0,0]
+    tag: '💬 TRANSITION',
+    dot: 1,
+    say: () => `Je travaille avec des ${contact.secteur || '[secteur]'} dans la région — avant d'expliquer pourquoi j'appelle, c'est quoi votre activité principale ?`,
+    tip: "Écoute pour de vrai. Rebondis sur ce qu'il dit avant de poser Q1. Le 'Et' qui suit doit sonner naturel.",
+    collect: { label: '✏️ Prénom du contact', field: 'prenom', placeholder: 'Note le prénom...' },
+    choices: [
+      { text: 'Il a répondu → continuer', next: 'q1', style: 'green' },
+    ]
   },
 
   q1: {
-    tag: "QUESTION 1", tagClass: "tag-blue",
-    phrase: "«\u00a0Et vos nouveaux clients en ce moment — ils vous trouvent comment\u00a0?\u00a0»",
-    tip: "Le \"Et\" fait la liaison naturelle. Écoute sans préparer ta prochaine phrase — ça s'entend quand tu n'écoutes pas vraiment.",
-    answers: [
-      { text: "Bouche-à-oreille / réseau", next: "q2", style: "orange" },
-      { text: "Bobex / Trustup / plateformes", next: "q2", style: "orange" },
-      { text: "Google / site internet", next: "q2b", style: "green" },
-      { text: "Plusieurs canaux / mixte", next: "q2", style: "orange" }
-    ],
-    progress: [2,1,0,0,0]
+    tag: '❓ Q1 — SOURCE CLIENTS',
+    dot: 2,
+    say: () => `Et vos nouveaux clients, ils vous trouvent comment en ce moment ?`,
+    tip: "Silence après la question. Laisse-le répondre. Ne propose pas de réponse. S'il hésite, attends encore.",
+    choices: [
+      { text: '🗣️ Bouche-à-oreille / réseau', next: 'q2_bao', style: 'orange' },
+      { text: '📋 Bobex / Trustup / plateforme', next: 'q2_bobex', style: 'orange' },
+      { text: '🌐 Google / site web', next: 'q2_site', style: 'green' },
+      { text: '📊 Plusieurs canaux', next: 'q2_bao', style: 'orange' },
+    ]
   },
 
-  q2: {
-    tag: "TEST GOOGLE", tagClass: "tag-orange",
-    phrase: "«\u00a0Et sur Google — si quelqu'un cherche un [plombier] à [ville] ce soir, il tombe sur vous\u00a0?\u00a0»",
-    tip: "Pose la question. Tais-toi. Le silence qui suit, c'est lui qui réalise lui-même qu'il sait pas. Ne remplis pas ce silence.",
-    answers: [
-      { text: "Non / pas vraiment / je sais pas", next: "closing", style: "orange" },
-      { text: "Oui, j'ai un site / j'apparais", next: "q3", style: "green" }
-    ],
-    progress: [2,2,1,0,0]
+  q2_bao: {
+    tag: '🎯 Q2 — TEST GOOGLE',
+    dot: 3,
+    say: () => `Si quelqu'un cherche un ${contact.secteur?.toLowerCase() || '[métier]'} à ${contact.ville || '[ville]'} sur Google ce soir... il tombe sur vous ?`,
+    tip: "Pause. Laisse le silence travailler. La plupart ne savent pas répondre — c'est déjà la vente.",
+    choices: [
+      { text: '✅ Oui, j\'ai un site / je suis visible', next: 'q3_conversion', style: 'green' },
+      { text: '❓ Je sais pas trop', next: 'closing_invisible', style: 'orange' },
+      { text: '❌ Non / pas de site', next: 'closing_invisible', style: 'red' },
+    ]
   },
 
-  q2b: {
-    tag: "VOLUME", tagClass: "tag-blue",
-    phrase: "«\u00a0Et ça vous génère des appels réguliers depuis Google — ou c'est variable\u00a0?\u00a0»",
-    tip: "Pas de jugement dans la voix. Tu veux juste comprendre.",
-    answers: [
-      { text: "Régulier, ça tourne bien", next: "q4", style: "green" },
-      { text: "Variable / ça pourrait être mieux", next: "closing", style: "orange" }
-    ],
-    progress: [2,2,1,0,0]
+  q2_bobex: {
+    tag: '🎯 Q2 — BOBEX / PLATEFORME',
+    dot: 3,
+    say: () => `Et en dehors de Bobex — si quelqu'un cherche directement sur Google, il vous trouve ?`,
+    tip: "Leur faire réaliser qu'ils dépendent d'une plateforme payante qu'ils ne contrôlent pas.",
+    choices: [
+      { text: '✅ Oui, j\'ai aussi un site', next: 'q3_conversion', style: 'green' },
+      { text: '❌ Non, juste Bobex', next: 'closing_bobex', style: 'orange' },
+    ]
   },
 
-  q3: {
-    tag: "CONVERSION", tagClass: "tag-blue",
-    phrase: "«\u00a0Vous avez une idée du nombre d'appels que ça vous génère par mois depuis le site\u00a0?\u00a0»",
-    tip: "S'il ne sait pas — ne dis rien. Ce silence-là, c'est le meilleur moment du call. Il réalise qu'il ne mesure même pas ses résultats.",
-    answers: [
-      { text: "Peu / pas vraiment / il sait pas", next: "closing", style: "orange" },
-      { text: "Oui, ça génère bien des appels", next: "q4", style: "green" }
-    ],
-    progress: [2,2,2,1,0]
+  q2_site: {
+    tag: '🎯 Q2 — SITE EXISTANT',
+    dot: 3,
+    say: () => `Super — et ça vous génère combien d'appels par mois environ, via Google ?`,
+    tip: "S'ils ne savent pas → ne dis rien. Ce silence est le meilleur moment du call. Laisse-le réaliser.",
+    choices: [
+      { text: '📈 Plusieurs appels / ça marche bien', next: 'closing_bien', style: 'green' },
+      { text: '🤔 Pas beaucoup / je sais pas', next: 'closing_invisible', style: 'orange' },
+      { text: '📉 Quasi rien', next: 'closing_invisible', style: 'red' },
+    ]
   },
 
-  q4: {
-    tag: "CAPACITÉ", tagClass: "tag-blue",
-    phrase: "«\u00a0Et si vous en aviez plus — vous avez la capacité pour les prendre\u00a0?\u00a0»",
-    tip: "Simple. Oui = tu avances. Non = tu raccroches proprement, c'est une piste à recontacter dans 3 mois.",
-    answers: [
-      { text: "Oui, j'en veux plus", next: "closing", style: "green" },
-      { text: "Non, je suis à fond", next: "end_full", style: "gray" }
-    ],
-    progress: [2,2,2,2,1]
+  q3_conversion: {
+    tag: '📊 Q3 — CONVERSION',
+    dot: 3,
+    say: () => `Et sur ces appels Google — vous en perdez beaucoup parce que vous étiez pas disponible au moment où ça sonnait ?`,
+    tip: "Ouvre la question de la disponibilité et des appels manqués. Prépare le terrain pour l'IA.",
+    choices: [
+      { text: '😓 Oui ça arrive', next: 'closing_ia', style: 'orange' },
+      { text: '✅ Non j\'ai quelqu\'un', next: 'closing_bien', style: 'green' },
+    ]
   },
 
-  closing: {
-    tag: "LA VISITE", tagClass: "tag-green",
-    phrase: "«\u00a0Je suis par chez vous [jour]. Je passe vous montrer en 20 minutes chrono exactement où vous en êtes sur Google par rapport aux autres [plombiers] de la zone. Pas de blabla — juste les chiffres. Mardi ou mercredi, c'est quoi le mieux pour vous\u00a0?\u00a0»",
-    tip: "Tu annonces la visite — tu ne la demandes pas. Choix entre deux jours, jamais oui/non. Ton comme si tu passais de toute façon dans le coin.",
-    answers: [
-      { text: "✅ Oui / quel jour ?", next: "end_rdv", style: "green" },
-      { text: "⏱ J'ai pas le temps", next: "obj_temps", style: "orange" },
-      { text: "📧 Envoyez par email", next: "obj_email", style: "orange" },
-      { text: "👤 J'ai déjà quelqu'un", next: "obj_deja", style: "orange" }
-    ],
-    progress: [2,2,2,2,2]
+  closing_invisible: {
+    tag: '🚀 CLOSING — INVISIBLE',
+    dot: 4,
+    say: () => `C'est exactement ce sur quoi je travaille. Je suis dans le coin ${contact.ville ? 'côté ' + contact.ville : 'dans la région'} — je passe vous montrer votre situation en 20 minutes chrono. Pas de présentation, juste les chiffres concrets de votre zone. Vous êtes là plutôt le matin ou l'après-midi ?`,
+    tip: "Pas 'je vous propose' — tu annonces une visite. Le 'plutôt matin ou après-midi' présuppose qu'il dit oui.",
+    choices: [
+      { text: '✅ RDV confirmé', next: '__rdv__', style: 'green' },
+      { text: '🤔 Il hésite', next: 'objection_temps', style: 'orange' },
+      { text: '❌ Non catégorique', next: 'objection_non', style: 'red' },
+    ]
   },
 
-  obj_temps: {
-    tag: "OBJECTION — TEMPS", tagClass: "tag-orange",
-    phrase: "«\u00a020 minutes — je me déplace chez vous, vous bougez pas. [Jour] matin ou après-midi\u00a0?\u00a0»",
-    tip: "Court. Pas de justification. La facilité suffit. Si encore non → note et rappelle dans 2 semaines.",
-    answers: [
-      { text: "✅ Ok d'accord", next: "end_rdv", style: "green" },
-      { text: "Non vraiment pas", next: "end_later", style: "gray" }
-    ],
-    progress: [2,2,2,2,2]
+  closing_bobex: {
+    tag: '🚀 CLOSING — BOBEX',
+    dot: 4,
+    say: () => `Le problème avec Bobex c'est que si demain ils augmentent leurs prix ou ferment — vous avez rien. Je passe vous montrer comment avoir votre propre visibilité Google en 20 minutes. Vous êtes là plutôt le matin ou l'après-midi ?`,
+    tip: "Ne dénigre pas Bobex — pose juste la question de la dépendance. Il l'a senti lui-même.",
+    choices: [
+      { text: '✅ RDV confirmé', next: '__rdv__', style: 'green' },
+      { text: '🤔 Il hésite', next: 'objection_temps', style: 'orange' },
+      { text: '❌ Non catégorique', next: 'objection_non', style: 'red' },
+    ]
   },
 
-  obj_email: {
-    tag: "OBJECTION — EMAIL", tagClass: "tag-orange",
-    phrase: "«\u00a0C'est visuel — ça marche pas par email. Faut voir en direct sur Google. 20 minutes chez vous — [jour] ça vous irait\u00a0?\u00a0»",
-    tip: "Ferme mais calme. Pas de ton suppliant. Si il insiste vraiment → envoie 3 lignes max et laisse venir.",
-    answers: [
-      { text: "✅ Ok d'accord", next: "end_rdv", style: "green" },
-      { text: "Non, vraiment par email", next: "end_email", style: "gray" }
-    ],
-    progress: [2,2,2,2,2]
+  closing_ia: {
+    tag: '🚀 CLOSING — IA',
+    dot: 4,
+    say: () => `On travaille justement sur ça — site optimisé Google + agent IA qui répond à votre place quand vous êtes sur chantier. Je passe vous montrer en 20 minutes. Matin ou après-midi ?`,
+    tip: "Il vient de te dire lui-même qu'il perd des appels. Tu ne vends rien — tu proposes une solution à son problème.",
+    choices: [
+      { text: '✅ RDV confirmé', next: '__rdv__', style: 'green' },
+      { text: '🤔 Il hésite', next: 'objection_temps', style: 'orange' },
+      { text: '❌ Non catégorique', next: 'objection_non', style: 'red' },
+    ]
   },
 
-  obj_deja: {
-    tag: "OBJECTION — DÉJÀ QUELQU'UN", tagClass: "tag-orange",
-    phrase: "«\u00a0Ah ok — et ça vous génère des appels depuis Google\u00a0?\u00a0»",
-    tip: "Rebond sur le résultat, pas sur leur prestataire. Tu ne critiques personne. S'il dit oui ça tourne → félicite et raccroche. S'il hésite → tu as ton ouverture.",
-    answers: [
-      { text: "Oui ça marche / satisfait", next: "end_satisfied", style: "gray" },
-      { text: "Bof / pas vraiment / sait pas", next: "closing_v2", style: "orange" }
-    ],
-    progress: [2,2,2,2,2]
+  closing_bien: {
+    tag: '💡 CLOSING — SATISFAIT',
+    dot: 4,
+    say: () => `Super — dans ce cas je vais pas vous faire perdre du temps. Une dernière chose : est-ce que vous savez combien de recherches Google ont été faites pour votre métier à ${contact.ville || '[ville]'} le mois dernier ?`,
+    tip: "S'il dit non → 'C'est ça que je viens vous montrer.' Même les satisfaits sont curieux des chiffres.",
+    choices: [
+      { text: '😮 Non, dites-moi', next: 'closing_invisible', style: 'orange' },
+      { text: '✅ RDV confirmé', next: '__rdv__', style: 'green' },
+      { text: '❌ Vraiment pas intéressé', next: '__non__', style: 'red' },
+    ]
   },
 
-  closing_v2: {
-    tag: "RELANCE", tagClass: "tag-orange",
-    phrase: "«\u00a0C'est exactement pour ça que ça vaut le coup de comparer. 20 minutes chez vous — je vous montre ce qui se passe concrètement. [Jour] ça vous irait\u00a0?\u00a0»",
-    tip: "Pas de dénigrement. Tu proposes juste un point de comparaison neutre.",
-    answers: [
-      { text: "✅ Ok pourquoi pas", next: "end_rdv", style: "green" },
-      { text: "Non je reste avec eux", next: "end_satisfied", style: "gray" }
-    ],
-    progress: [2,2,2,2,2]
+  objection_temps: {
+    tag: '🛡️ OBJECTION — PAS LE TEMPS',
+    dot: 4,
+    say: () => `Je comprends — c'est pour ça que je dis 20 minutes chrono. Pas de présentation, pas de vente. Juste les chiffres de votre zone. Si ça vous intéresse pas après 20 minutes, on s'arrête là. Vous avez 20 minutes cette semaine ?`,
+    tip: "Ne défends pas ton offre — défends juste le temps. 20 minutes c'est une pause café.",
+    choices: [
+      { text: '✅ OK pour 20 minutes', next: '__rdv__', style: 'green' },
+      { text: '❌ Non vraiment pas', next: 'objection_non', style: 'red' },
+    ]
   },
 
-  /* === FINS === */
-
-  end_rdv: {
-    type: "final", icon: "🎯", finalClass: "green",
-    title: "RDV DÉCROCHÉ",
-    body: "<strong>«\u00a0Parfait — [jour] à [heure] ça vous va\u00a0? Je note. C'est à quelle adresse\u00a0?»</strong>\n\nConfirme par SMS dans la foulée.\nNote dans le CRM.",
-    progress: [2,2,2,2,2]
+  objection_non: {
+    tag: '🛡️ OBJECTION — NON CATÉGORIQUE',
+    dot: 4,
+    say: () => `Pas de souci — je note quand même votre contact. Si vous cherchez à développer votre visibilité dans les prochains mois, vous saurez où me trouver. Bonne continuation.`,
+    tip: "Ne force jamais. Un non aujourd'hui peut devenir un oui dans 3 mois. Reste pro et sympathique.",
+    choices: [
+      { text: '📞 Prévoir un rappel dans quelques semaines', next: '__rappel__', style: 'blue' },
+      { text: '❌ Clôturer sans suite', next: '__non__', style: 'red' },
+    ]
   },
 
-  end_full: {
-    type: "final", icon: "👋", finalClass: "gray",
-    title: "COMPLET — RACCROCHER",
-    body: "<strong>«\u00a0Pas de problème. Si un jour ça se libère, n'hésitez pas.\u00a0»</strong>\n\nNote pour rappeler dans 3 mois.",
-    progress: [2,2,2,2,2]
+  fin_dispo: {
+    tag: '⏰ PAS DISPONIBLE',
+    dot: 0,
+    say: () => `D'accord — je rappelle quand ?`,
+    tip: "Note l'heure et rappelle exactement à l'heure dite. C'est ce qui te différencie.",
+    choices: [
+      { text: '📞 Prévoir un rappel', next: '__rappel__', style: 'blue' },
+      { text: '❌ Pas de suite', next: '__non__', style: 'red' },
+    ]
   },
-
-  end_wrong: {
-    type: "final", icon: "📵", finalClass: "gray",
-    title: "MAUVAISE PERSONNE",
-    body: "<strong>«\u00a0C'est qui la bonne personne pour ça\u00a0? Je peux le joindre comment\u00a0?»</strong>\n\nNote le nom et rappelle directement.",
-    progress: [1,0,0,0,0]
-  },
-
-  end_later: {
-    type: "final", icon: "🔄", finalClass: "gray",
-    title: "RAPPELER PLUS TARD",
-    body: "<strong>«\u00a0Pas de souci — je vous rappelle. Bonne journée\u00a0!»</strong>\n\nRappelle dans 10-15 jours.",
-    progress: [1,0,0,0,0]
-  },
-
-  end_email: {
-    type: "final", icon: "📧", finalClass: "gray",
-    title: "EMAIL — 3 LIGNES MAX",
-    body: "• Qui tu es\n• Ce que tu pouvais lui montrer\n• Lien seolia.be\n\nPas de pitch. Laisse venir.",
-    progress: [2,2,2,2,2]
-  },
-
-  end_satisfied: {
-    type: "final", icon: "✌️", finalClass: "gray",
-    title: "SATISFAIT — RACCROCHER",
-    body: "<strong>«\u00a0Très bien, tant mieux. Si un jour ça évolue, pensez à nous.\u00a0»</strong>\n\nRelation positive. Rappelle dans 6 mois.",
-    progress: [2,2,2,2,2]
-  }
 
 };
 
-let history = [];
-let current = 'intro';
-let tipVisible = false;
+// ── INIT ─────────────────────────────────────────────────────────────────────
+function startCall() {
+  const ent = document.getElementById('f-entreprise').value.trim();
+  const tel = document.getElementById('f-telephone').value.trim();
+  if (!ent || !tel) { alert('Remplis au moins l\'entreprise et le téléphone'); return; }
 
-function dots(prog) {
-  return prog.map(v => {
-    if (v === 2) return '<div class="dot done"></div>';
-    if (v === 1) return '<div class="dot active"></div>';
-    return '<div class="dot"></div>';
-  }).join('');
+  contact.entreprise = ent;
+  contact.telephone  = tel;
+  contact.secteur    = document.getElementById('f-secteur').value;
+  contact.ville      = document.getElementById('f-ville').value.trim();
+
+  updateBar();
+  document.getElementById('precall').style.display = 'none';
+  document.getElementById('script-view').style.display = 'flex';
+  showStep('intro');
 }
 
-function render(id) {
-  const s = steps[id];
-  tipVisible = false;
-  document.getElementById('progress').innerHTML = dots(s.progress);
-  const card = document.getElementById('card');
-  card.innerHTML = '';
+function updateBar() {
+  document.getElementById('bar-name').textContent = contact.entreprise || '—';
+  const parts = [contact.prenom, contact.secteur, contact.ville].filter(Boolean);
+  document.getElementById('bar-detail').textContent = parts.join(' · ') || '—';
+}
 
-  if (s.type === 'final') {
-    card.innerHTML = `
-      <div class="final">
-        <div class="final-icon">${s.icon}</div>
-        <div class="final-title ${s.finalClass}">${s.title}</div>
-        <div class="final-body">${s.body.replace(/\n/g,'<br>')}</div>
-        <button class="restart-btn" onclick="restart()">↩ Recommencer</button>
-      </div>
-    `;
-    return;
+// ── STEP RENDERING ───────────────────────────────────────────────────────────
+function showStep(id) {
+  // Handle special terminal steps
+  if (id === '__rdv__')    { showOutcome('rdv');    return; }
+  if (id === '__rappel__') { showOutcome('rappel'); return; }
+  if (id === '__non__')    { showOutcome('non');    return; }
+
+  // Save collect field before switching
+  saveCollect();
+
+  if (currentStep !== id) history.push(currentStep);
+  currentStep = id;
+
+  const step = steps[id];
+  if (!step) return;
+
+  // Update dots
+  const dotIdx = step.dot ?? 0;
+  document.querySelectorAll('.dot').forEach((d, i) => {
+    d.className = 'dot' + (i < dotIdx ? ' done' : i === dotIdx ? ' active' : '');
+  });
+
+  // Tag & say
+  document.getElementById('step-tag').textContent = step.tag || '';
+  document.getElementById('step-say').innerHTML = typeof step.say === 'function' ? step.say() : step.say;
+
+  // Collect field
+  const collectWrap = document.getElementById('collect-wrap');
+  if (step.collect) {
+    collectWrap.style.display = 'block';
+    document.getElementById('collect-label').textContent = step.collect.label;
+    document.getElementById('collect-input').placeholder = step.collect.placeholder || '';
+    document.getElementById('collect-input').value = contact[step.collect.field] || '';
+    document.getElementById('collect-input')._field = step.collect.field;
+  } else {
+    collectWrap.style.display = 'none';
   }
 
-  const phraseClass = s.tagClass.includes('orange') ? 'orange' : s.tagClass.includes('green') ? 'green' : s.tagClass.includes('gray') ? 'gray' : '';
-  const btns = s.answers.map(a =>
-    `<button class="btn btn-${a.style}" onclick="goTo('${a.next}')">${a.text}</button>`
-  ).join('');
-  const backBtn = history.length > 0 ? `<button class="back-btn" onclick="goBack()">← Retour</button>` : '';
-  const tipBtn = s.tip ? `<button class="tip-toggle" onclick="toggleTip()">💡 Conseil</button><div class="tip-box" id="tip">${s.tip}</div>` : '';
+  // Tip
+  const tipContent = document.getElementById('tip-content');
+  tipContent.textContent = step.tip || '';
+  tipContent.classList.remove('open');
+  document.getElementById('tip-toggle').style.display = step.tip ? 'flex' : 'none';
 
-  card.innerHTML = `
-    <div class="tag ${s.tagClass}">${s.tag}</div>
-    <div class="phrase ${phraseClass}">
-      <div class="phrase-label">DIS\u00a0:</div>
-      <div class="phrase-text">${s.phrase.replace(/\n/g,'<br>')}</div>
-    </div>
-    ${tipBtn}
-    <div class="answers">${btns}</div>
-    ${backBtn}
-  `;
+  // Choices
+  const choicesEl = document.getElementById('choices');
+  choicesEl.innerHTML = '';
+  (step.choices || []).forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn ' + (c.style || 'blue');
+    btn.textContent = c.text;
+    btn.onclick = () => { saveCollect(); showStep(c.next); };
+    choicesEl.appendChild(btn);
+  });
+
+  // Back button
+  document.getElementById('btn-back').style.display = history.length > 0 ? 'flex' : 'none';
+}
+
+function saveCollect() {
+  const input = document.getElementById('collect-input');
+  if (input._field && input.value) {
+    contact[input._field] = input.value;
+    updateBar();
+  }
 }
 
 function toggleTip() {
-  tipVisible = !tipVisible;
-  document.getElementById('tip').classList.toggle('visible', tipVisible);
-}
-
-function goTo(id) {
-  history.push(current);
-  current = id;
-  render(current);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('tip-content').classList.toggle('open');
 }
 
 function goBack() {
-  current = history.pop();
-  render(current);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (history.length > 0) {
+    currentStep = history.pop();
+    showStep(currentStep);
+  }
 }
 
-function restart() {
+// ── OUTCOME SCREEN ───────────────────────────────────────────────────────────
+function showOutcome(type) {
+  saveCollect();
+  outcomeType = type;
+
+  document.getElementById('script-view').style.display = 'none';
+  const os = document.getElementById('outcome-screen');
+  os.style.display = 'flex';
+
+  // Set tomorrow as default date
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+  const dateStr = tomorrow.toISOString().split('T')[0];
+  document.getElementById('rdv-date').value = dateStr;
+  document.getElementById('rappel-date').value = dateStr;
+
+  // Pre-fill prenom if collected
+  if (contact.prenom) {
+    document.getElementById('rdv-prenom').value = contact.prenom;
+    document.getElementById('rappel-prenom').value = contact.prenom;
+  }
+
+  selectOutcome(type);
+}
+
+function selectOutcome(type) {
+  outcomeType = type;
+  ['rdv','rappel','non'].forEach(t => {
+    document.getElementById('tab-' + t).className = 'outcome-tab ' + t + (t === type ? ' active' : '');
+    document.getElementById('form-' + t).style.display = t === type ? 'block' : 'none';
+  });
+}
+
+// ── CREATE CONTACT ────────────────────────────────────────────────────────────
+async function createContact(type) {
+  if (type === 'non') {
+    showSuccess('non');
+    return;
+  }
+
+  const prenom = document.getElementById(type + '-prenom').value.trim();
+  const note   = document.getElementById(type + '-note').value.trim();
+  const date   = document.getElementById(type + '-date').value;
+  const time   = document.getElementById(type + '-time').value;
+
+  const datetime = date && time ? date + 'T' + time + ':00' : date || null;
+
+  const payload = {
+    entreprise:     contact.entreprise,
+    nom:            contact.entreprise,
+    prenom:         prenom || '',
+    telephone:      contact.telephone,
+    secteur:        contact.secteur,
+    ville:          contact.ville,
+    source:         'script-appel',
+    statut_contact: type === 'rdv' ? 'rdv' : 'prospect',
+    notes:          note || null,
+  };
+
+  if (type === 'rdv') {
+    payload.date_rdv    = datetime;
+    payload.date_prevue = datetime;
+    payload.type_rdv    = 'Visite terrain';
+  } else {
+    payload.date_prevue = datetime;
+  }
+
+  try {
+    const btn = document.querySelector('.btn-create.' + type);
+    btn.disabled = true;
+    btn.textContent = 'Création...';
+
+    const res = await fetch(WORKER_URL + '/create-contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (data.success || data.contact_id) {
+      showSuccess(type, date, time);
+    } else {
+      btn.disabled = false;
+      btn.textContent = type === 'rdv' ? '✅ Créer la fiche CRM' : '📞 Créer la fiche CRM';
+      alert('Erreur : ' + JSON.stringify(data));
+    }
+  } catch(e) {
+    alert('Erreur réseau : ' + e.message);
+  }
+}
+
+function showSuccess(type, date, time) {
+  document.getElementById('outcome-screen').style.display = 'none';
+  const ss = document.getElementById('success-screen');
+  ss.style.display = 'flex';
+
+  if (type === 'rdv') {
+    document.getElementById('success-icon').textContent = '✅';
+    document.getElementById('success-title').textContent = 'RDV créé dans le CRM !';
+    document.getElementById('success-sub').textContent = `Rendez-vous planifié pour ${contact.entreprise}${date ? ' le ' + formatDate(date) : ''}${time ? ' à ' + time : ''}.`;
+  } else if (type === 'rappel') {
+    document.getElementById('success-icon').textContent = '📞';
+    document.getElementById('success-title').textContent = 'Rappel créé dans le CRM !';
+    document.getElementById('success-sub').textContent = `${contact.entreprise} ajouté en prospect avec rappel${date ? ' le ' + formatDate(date) : ''}.`;
+  } else {
+    document.getElementById('success-icon').textContent = '👋';
+    document.getElementById('success-title').textContent = 'Call terminé';
+    document.getElementById('success-sub').textContent = 'Pas de suite. Prochain appel !';
+    document.querySelector('.btn-crm').style.display = 'none';
+  }
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('fr-BE', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+function resetAll() {
+  // Reset contact
+  Object.keys(contact).forEach(k => contact[k] = '');
   history = [];
-  current = 'intro';
-  render(current);
-}
+  currentStep = 'intro';
+  outcomeType = null;
 
-render('intro');
+  // Reset forms
+  ['entreprise','telephone','ville'].forEach(f => document.getElementById('f-' + f).value = '');
+  document.getElementById('f-secteur').value = '';
+  document.querySelector('.btn-crm').style.display = 'block';
+
+  // Show precall
+  document.getElementById('success-screen').style.display = 'none';
+  document.getElementById('outcome-screen').style.display = 'none';
+  document.getElementById('script-view').style.display = 'none';
+  document.getElementById('precall').style.display = 'flex';
+}
 </script>
 </body>
 </html>

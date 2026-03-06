@@ -120,6 +120,18 @@ export default {
       return handleSignContract(request, env);
     }
 
+    if (url.pathname === '/sophie-search-contact' && request.method === 'POST') {
+      return handleSophieSearchContact(request, env);
+    }
+
+    if (url.pathname === '/sophie-add-note' && request.method === 'POST') {
+      return handleSophieAddNote(request, env);
+    }
+
+    if (url.pathname === '/sophie-creer-recap' && request.method === 'POST') {
+      return handleSophieCreerRecap(request, env);
+    }
+
     return new Response('Seolia API v6', { status: 200 });
   }
 };
@@ -175,24 +187,36 @@ async function handleChat(request, env) {
 async function handleCreateContact(request, env) {
   try {
     const body = await request.json();
-    const { nom, prenom, telephone, secteur, disponibilites, source, type_rdv, email } = body;
+    const {
+      nom, prenom, telephone, secteur, email,
+      entreprise, ville, statut_contact, date_rdv,
+      date_prevue, notes, source, type_rdv
+    } = body;
 
-    const fullName = [nom, prenom].filter(Boolean).join(' ') || 'Inconnu';
+    const fullName = [prenom, nom].filter(Boolean).join(' ') || entreprise || 'Inconnu';
+    const contactStatut = statut_contact || 'prospect';
 
-    // Create contact
+    // Build contact object
+    const contactData = {
+      nom: fullName,
+      entreprise: entreprise || null,
+      telephone: telephone || null,
+      secteur: secteur || null,
+      email: email || null,
+      ville: ville || null,
+      source: source || 'script-appel',
+      statut: contactStatut,
+      notes_generales: notes || null,
+      created_by: 'script-appel',
+    };
+
+    // Add date_rdv if RDV confirmed
+    if (date_rdv) contactData.date_rdv = date_rdv;
+
     const contactRes = await fetch(`${SUPABASE_URL}/rest/v1/contacts`, {
       method: 'POST',
       headers: supabaseHeaders(),
-      body: JSON.stringify({
-        nom: fullName,
-        telephone: telephone || null,
-        secteur: secteur || null,
-        email: email || null,
-        source: source || 'chatbot',
-        statut: 'prospect',
-        notes_generales: disponibilites ? `Disponibilités : ${disponibilites}` : null,
-        created_by: 'chatbot',
-      }),
+      body: JSON.stringify(contactData),
     });
 
     if (!contactRes.ok) {
@@ -203,17 +227,23 @@ async function handleCreateContact(request, env) {
     const contacts = await contactRes.json();
     const contact = contacts[0];
 
-    // Create follow-up
+    // Create follow-up with correct date and type
     if (contact?.id) {
+      const followupDate = date_prevue || date_rdv || new Date(Date.now() + 86400000).toISOString().split('T')[0];
+      const followupType = contactStatut === 'rdv' ? 'rdv' : 'rappel';
+      const followupDesc = contactStatut === 'rdv'
+        ? `✅ RDV confirmé — ${type_rdv || 'Rendez-vous'} | ${secteur || ''} | ${ville || ''}`
+        : `📞 Rappel suite appel — ${notes || ''} | ${secteur || ''} | ${ville || ''}`;
+
       await fetch(`${SUPABASE_URL}/rest/v1/followups`, {
         method: 'POST',
         headers: supabaseHeaders(),
         body: JSON.stringify({
           contact_id: contact.id,
           contact_nom: fullName,
-          description: `RDV via ${source || 'chatbot'} — ${type_rdv || 'Rendez-vous'} | Secteur: ${secteur || '?'} | Dispo: ${disponibilites || '?'}`,
-          date_prevue: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-          type: 'rappel',
+          description: followupDesc,
+          date_prevue: followupDate,
+          type: followupType,
           statut: 'à faire',
           fait: false,
         }),
@@ -1141,4 +1171,94 @@ function jsonResponse(data, status = 200) {
     status,
     headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
   });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SOPHIE — SEARCH CONTACT
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleSophieSearchContact(request, env) {
+  const { prenom, nom } = await request.json();
+  if (!prenom && !nom) return jsonResponse({ error: 'Prénom ou nom requis' }, 400);
+
+  let query = `${env.SUPABASE_URL}/rest/v1/contacts?select=id,prenom,nom,email,telephone,formule,statut&order=created_at.desc&limit=5`;
+  if (prenom && nom) {
+    query += `&prenom=ilike.*${prenom}*&nom=ilike.*${nom}*`;
+  } else if (prenom) {
+    query += `&prenom=ilike.*${prenom}*`;
+  } else {
+    query += `&nom=ilike.*${nom}*`;
+  }
+
+  const res = await fetch(query, {
+    headers: {
+      'apikey': env.SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+    },
+  });
+  const contacts = await res.json();
+  if (!contacts || contacts.length === 0) {
+    return jsonResponse({ found: false, message: 'Aucun client trouvé avec ce nom.' });
+  }
+  return jsonResponse({ found: true, contacts: contacts.map(c => ({ id: c.id, nom: `${c.prenom} ${c.nom}`, formule: c.formule, statut: c.statut })) });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SOPHIE — ADD NOTE
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleSophieAddNote(request, env) {
+  const { contact_id, texte } = await request.json();
+  if (!contact_id || !texte) return jsonResponse({ error: 'contact_id et texte requis' }, 400);
+
+  const res = await fetch(`${env.SUPABASE_URL}/rest/v1/commentaires`, {
+    method: 'POST',
+    headers: {
+      'apikey': env.SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal',
+    },
+    body: JSON.stringify({
+      contact_id,
+      prenom_commercial: 'Sophie (IA)',
+      texte,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    return jsonResponse({ success: false, error: err }, 500);
+  }
+  return jsonResponse({ success: true, message: 'Note ajoutée dans le CRM.' });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SOPHIE — CRÉER RÉCAP APPEL
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleSophieCreerRecap(request, env) {
+  let body;
+  try { body = await request.json(); } catch { return jsonResponse({ success: false, error: 'JSON invalide' }, 400); }
+
+  const { categorie, nom_appelant, telephone, entreprise, secteur, ville, resume, besoin, disponibilites } = body;
+
+  if (!categorie || !resume) {
+    return jsonResponse({ success: false, error: 'categorie et resume sont requis' }, 400);
+  }
+
+  const res = await fetch(`${env.SUPABASE_URL}/rest/v1/sophie_appels`, {
+    method: 'POST',
+    headers: {
+      'apikey': env.SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify({ categorie, nom_appelant, telephone, entreprise, secteur, ville, resume, besoin, disponibilites })
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    return jsonResponse({ success: false, error: err }, 500);
+  }
+
+  return jsonResponse({ success: true, message: 'Récap enregistré dans le CRM Sophie.' });
 }

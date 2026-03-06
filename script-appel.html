@@ -358,73 +358,53 @@ let outcomeType = null;
 const WORKER_URL = 'https://seolia-ai-chat.florian-seolia.workers.dev';
 
 // Step dots mapping
-const STEP_ORDER = ['intro','transition','q1','q2','closing'];
+const STEP_ORDER = ['intro','test_google','appels','closing'];
 
 const steps = {
 
   intro: {
-    tag: '📞 INTRODUCTION',
+    tag: '📞 OUVERTURE',
     dot: 0,
-    say: () => `Bonjour — c'est bien <strong>${contact.entreprise || '[Entreprise]'}</strong> ? ... Vous gérez la partie clients ?`,
-    tip: "Ton seul but ici : confirmer que t'as le bon numéro et le bon interlocuteur. Rien d'autre.",
+    say: () => `Bonjour — c'est bien <strong>${contact.entreprise || '[Entreprise]'}</strong> ? ... Je vous appelle car je viens de faire une petite étude de votre visibilité sur internet, et je me demandais — vos nouveaux clients, ils vous trouvent comment actuellement ?`,
+    tip: "La 'petite étude' crée de la curiosité et justifie ton appel. Pose la question et écoute. Ne remplis pas le silence — laisse-les répondre. Note le prénom dès qu'il se présente.",
+    collect: { label: '✏️ Prénom du contact', field: 'prenom', placeholder: 'Note le prénom...' },
     choices: [
-      { text: '✅ Oui, c\'est moi', next: 'transition', style: 'green' },
-      { text: '👤 Non, je le passe', next: 'intro', style: 'orange', note: 'Attends le décideur' },
+      { text: '🗣️ Bouche-à-oreille / réseau', next: 'test_google_bao', style: 'orange' },
+      { text: '📋 Bobex / Trustup / plateforme', next: 'test_google_bobex', style: 'orange' },
+      { text: '🌐 Google / site web', next: 'q_appels_site', style: 'green' },
+      { text: '📊 Plusieurs canaux', next: 'test_google_bao', style: 'orange' },
+      { text: '👤 Mauvais interlocuteur', next: 'intro', style: 'gray', note: 'Attends le décideur' },
       { text: '📵 Pas disponible', next: 'fin_dispo', style: 'red' },
     ]
   },
 
-  transition: {
-    tag: '💬 TRANSITION',
+  test_google_bao: {
+    tag: '🎯 TEST GOOGLE',
     dot: 1,
-    say: () => `Je travaille avec des ${contact.secteur || '[secteur]'} dans la région — avant d'expliquer pourquoi j'appelle, c'est quoi votre activité principale ?`,
-    tip: "Écoute pour de vrai. Rebondis sur ce qu'il dit avant de poser Q1. Le 'Et' qui suit doit sonner naturel.",
-    collect: { label: '✏️ Prénom du contact', field: 'prenom', placeholder: 'Note le prénom...' },
+    say: () => `C'est bien ça. Et si quelqu'un cherche un ${contact.secteur?.toLowerCase() || '[métier]'} à ${contact.ville || '[ville]'} sur Google ce soir... il tombe sur vous ?`,
+    tip: "Pause. Laisse le silence travailler. La plupart ne savent pas répondre — c'est déjà la vente. Ne propose pas de réponse.",
     choices: [
-      { text: 'Il a répondu → continuer', next: 'q1', style: 'green' },
-    ]
-  },
-
-  q1: {
-    tag: '❓ Q1 — SOURCE CLIENTS',
-    dot: 2,
-    say: () => `Et vos nouveaux clients, ils vous trouvent comment en ce moment ?`,
-    tip: "Silence après la question. Laisse-le répondre. Ne propose pas de réponse. S'il hésite, attends encore.",
-    choices: [
-      { text: '🗣️ Bouche-à-oreille / réseau', next: 'q2_bao', style: 'orange' },
-      { text: '📋 Bobex / Trustup / plateforme', next: 'q2_bobex', style: 'orange' },
-      { text: '🌐 Google / site web', next: 'q2_site', style: 'green' },
-      { text: '📊 Plusieurs canaux', next: 'q2_bao', style: 'orange' },
-    ]
-  },
-
-  q2_bao: {
-    tag: '🎯 Q2 — TEST GOOGLE',
-    dot: 3,
-    say: () => `Si quelqu'un cherche un ${contact.secteur?.toLowerCase() || '[métier]'} à ${contact.ville || '[ville]'} sur Google ce soir... il tombe sur vous ?`,
-    tip: "Pause. Laisse le silence travailler. La plupart ne savent pas répondre — c'est déjà la vente.",
-    choices: [
-      { text: '✅ Oui, j\'ai un site / je suis visible', next: 'q3_conversion', style: 'green' },
+      { text: '✅ Oui, je suis visible', next: 'q_appels', style: 'green' },
       { text: '❓ Je sais pas trop', next: 'closing_invisible', style: 'orange' },
       { text: '❌ Non / pas de site', next: 'closing_invisible', style: 'red' },
     ]
   },
 
-  q2_bobex: {
-    tag: '🎯 Q2 — BOBEX / PLATEFORME',
-    dot: 3,
-    say: () => `Et en dehors de Bobex — si quelqu'un cherche directement sur Google, il vous trouve ?`,
-    tip: "Leur faire réaliser qu'ils dépendent d'une plateforme payante qu'ils ne contrôlent pas.",
+  test_google_bobex: {
+    tag: '🎯 TEST GOOGLE — BOBEX',
+    dot: 1,
+    say: () => `Je vois. Et en dehors de Bobex — si quelqu'un cherche directement sur Google ce soir, il vous trouve ?`,
+    tip: "Leur faire réaliser qu'ils dépendent d'une plateforme qu'ils ne contrôlent pas. Ne dénigre pas Bobex — pose juste la question.",
     choices: [
-      { text: '✅ Oui, j\'ai aussi un site', next: 'q3_conversion', style: 'green' },
+      { text: '✅ Oui, j\'ai aussi un site', next: 'q_appels', style: 'green' },
       { text: '❌ Non, juste Bobex', next: 'closing_bobex', style: 'orange' },
     ]
   },
 
-  q2_site: {
-    tag: '🎯 Q2 — SITE EXISTANT',
-    dot: 3,
-    say: () => `Super — et ça vous génère combien d'appels par mois environ, via Google ?`,
+  q_appels_site: {
+    tag: '📊 SITE EXISTANT — APPELS',
+    dot: 2,
+    say: () => `Ah super. Et ça vous génère combien d'appels par mois environ, via Google ?`,
     tip: "S'ils ne savent pas → ne dis rien. Ce silence est le meilleur moment du call. Laisse-le réaliser.",
     choices: [
       { text: '📈 Plusieurs appels / ça marche bien', next: 'closing_bien', style: 'green' },
@@ -433,11 +413,11 @@ const steps = {
     ]
   },
 
-  q3_conversion: {
-    tag: '📊 Q3 — CONVERSION',
-    dot: 3,
-    say: () => `Et sur ces appels Google — vous en perdez beaucoup parce que vous étiez pas disponible au moment où ça sonnait ?`,
-    tip: "Ouvre la question de la disponibilité et des appels manqués. Prépare le terrain pour l'IA.",
+  q_appels: {
+    tag: '📊 APPELS MANQUÉS',
+    dot: 2,
+    say: () => `Et vous en perdez beaucoup, des appels — parce que vous étiez sur chantier au moment où ça sonnait ?`,
+    tip: "Ouvre la question des appels manqués. Prépare le terrain pour l'IA. Laisse-le quantifier lui-même sa perte.",
     choices: [
       { text: '😓 Oui ça arrive', next: 'closing_ia', style: 'orange' },
       { text: '✅ Non j\'ai quelqu\'un', next: 'closing_bien', style: 'green' },

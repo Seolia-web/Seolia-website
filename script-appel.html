@@ -250,66 +250,40 @@ const steps = {
   },
 
   q2: {
-    label: "QUESTION 2",
+    label: "QUESTION 2 — TEST GOOGLE",
     labelClass: "",
-    question: "Est-ce qu'il apparaît sur Google ?",
+    question: "Est-ce qu'il est visible sur Google ?",
     script: "«\u00a0C'est souvent le cas. Et sur Google — si quelqu'un cherche un [plombier] à [ville] ce soir, il tombe sur vous\u00a0?\u00a0»",
     context: "Silence après la question. Ne remplis pas le vide.",
     answers: [
-      { text: "Non / pas vraiment / je sais pas", next: "q3_non", style: "orange" },
-      { text: "Oui, j'ai un site", next: "q3_site", style: "green" }
+      { text: "Non / pas vraiment / je sais pas", next: "closing_direct", style: "orange" },
+      { text: "Oui, j'ai un site / j'apparais", next: "q3_convertit", style: "green" }
     ],
     progress: [2,2,1,0,0]
   },
 
   q2b: {
-    label: "QUESTION 2",
+    label: "QUESTION 2 — VOLUME",
     labelClass: "",
-    question: "Google fonctionne bien pour lui ?",
-    script: "«\u00a0Google ça fonctionne bien pour vous — vous avez des appels réguliers depuis là\u00a0?\u00a0»",
+    question: "Ces appels Google, c'est régulier ?",
+    script: "«\u00a0Et ces clients qui viennent de Google — c'est régulier ou c'est irrégulier\u00a0?\u00a0»",
     context: "",
     answers: [
-      { text: "Oui, c'est régulier", next: "q3_google", style: "green" },
-      { text: "Pas vraiment / irrégulier", next: "q3_non", style: "orange" }
+      { text: "Régulier, ça tourne bien", next: "q4", style: "green" },
+      { text: "Irrégulier / ça pourrait être mieux", next: "closing_direct", style: "orange" }
     ],
     progress: [2,2,1,0,0]
   },
 
-  q3_non: {
-    label: "QUESTION 3",
+  q3_convertit: {
+    label: "QUESTION 3 — CONVERSION",
     labelClass: "",
-    question: "Des appels via Google ?",
-    script: "«\u00a0Ça vous arrive d'avoir des appels de gens qui vous ont trouvé sur Google\u00a0?\u00a0»",
-    context: "",
+    question: "Le site génère des appels concrets ?",
+    script: "«\u00a0Et concrètement, ça vous génère combien d'appels par mois depuis le site — vous avez une idée\u00a0?\u00a0»",
+    context: "Question très différente de la précédente : pas la visibilité, mais le résultat concret.",
     answers: [
-      { text: "Non / rarement", next: "closing_direct", style: "orange" },
-      { text: "Oui, parfois", next: "q4", style: "green" }
-    ],
-    progress: [2,2,2,1,0]
-  },
-
-  q3_site: {
-    label: "QUESTION 3",
-    labelClass: "",
-    question: "Des appels réguliers depuis le site ?",
-    script: "«\u00a0Et vous avez des appels réguliers qui viennent de là\u00a0?\u00a0»",
-    context: "",
-    answers: [
-      { text: "Non / rarement", next: "closing_direct", style: "orange" },
-      { text: "Oui, ça tourne", next: "q4", style: "green" }
-    ],
-    progress: [2,2,2,1,0]
-  },
-
-  q3_google: {
-    label: "QUESTION 3",
-    labelClass: "",
-    question: "Il veut plus d'appels ?",
-    script: "«\u00a0Ces appels-là, c'est régulier ou c'est irrégulier\u00a0?\u00a0»",
-    context: "",
-    answers: [
-      { text: "Irrégulier / ça manque", next: "closing_direct", style: "orange" },
-      { text: "Régulier, ça va", next: "q4", style: "green" }
+      { text: "Peu / pas vraiment / je sais pas", next: "closing_direct", style: "orange" },
+      { text: "Oui, ça génère des appels", next: "q4", style: "green" }
     ],
     progress: [2,2,2,1,0]
   },

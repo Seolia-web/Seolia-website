@@ -1507,16 +1507,9 @@ function renderDetailInfoForm(contact) {
         <div class="form-group" style="margin:0;grid-column:1/-1"><label>Formule</label>
           <select id="dif-formule" onchange="autoFillFormule(this.value)">
             <option value="">-- Choisir --</option>
-            <optgroup label="Bundles Web + IA">
-              <option value="Bundle Essentiel IA" ${contact.formule==='Bundle Essentiel IA'?'selected':''}>Bundle Essentiel IA — 109€/mois</option>
-              <option value="Bundle Business IA" ${contact.formule==='Bundle Business IA'?'selected':''}>Bundle Business IA — 249€/mois ⭐</option>
-              <option value="Bundle Premium IA" ${contact.formule==='Bundle Premium IA'?'selected':''}>Bundle Premium IA — 449€/mois</option>
-            </optgroup>
-            <optgroup label="Web seul">
-              <option value="Web Essentiel" ${contact.formule==='Web Essentiel'?'selected':''}>Web Essentiel — 69€/mois</option>
-              <option value="Web Business" ${contact.formule==='Web Business'?'selected':''}>Web Business — 119€/mois</option>
-              <option value="Web Premium" ${contact.formule==='Web Premium'?'selected':''}>Web Premium — 199€/mois</option>
-            </optgroup>
+              <option value="Bundle Essentiel IA" ${contact.formule==='Bundle Essentiel IA'?'selected':''}>Bundle Essentiel IA — 499€ setup + 109€/mois</option>
+              <option value="Bundle Business IA" ${contact.formule==='Bundle Business IA'?'selected':''}>Bundle Business IA — 949€ setup + 249€/mois ⭐</option>
+              <option value="Bundle Premium IA" ${contact.formule==='Bundle Premium IA'?'selected':''}>Bundle Premium IA — 1499€ setup + 449€/mois</option>
             <option value="Sur mesure" ${contact.formule==='Sur mesure'?'selected':''}>Sur mesure</option>
           </select>
         </div>
@@ -1656,16 +1649,9 @@ function renderContactForm(contact) {
       <div class="form-group"><label>Formule</label>
         <select id="cf-formule" onchange="autoFillFormule(this.value)">
           <option value="">-- Choisir une formule --</option>
-          <optgroup label="Web seul">
-            <option value="Web Essentiel" ${contact?.formule==='Web Essentiel'?'selected':''}>Web Essentiel (199€ setup + 69€/mois)</option>
-            <option value="Web Business" ${contact?.formule==='Web Business'?'selected':''}>Web Business (349€ setup + 119€/mois) ⭐</option>
-            <option value="Web Premium" ${contact?.formule==='Web Premium'?'selected':''}>Web Premium (499€ setup + 199€/mois)</option>
-          </optgroup>
-          <optgroup label="Bundles Web + IA">
             <option value="Bundle Essentiel IA" ${contact?.formule==='Bundle Essentiel IA'?'selected':''}>Bundle Essentiel IA (499€ setup + 109€/mois)</option>
             <option value="Bundle Business IA" ${contact?.formule==='Bundle Business IA'?'selected':''}>Bundle Business IA (949€ setup + 249€/mois) ⭐</option>
             <option value="Bundle Premium IA" ${contact?.formule==='Bundle Premium IA'?'selected':''}>Bundle Premium IA (1499€ setup + 449€/mois)</option>
-          </optgroup>
           <option value="Sur mesure" ${contact?.formule==='Sur mesure'?'selected':''}>Sur mesure</option>
         </select>
       </div>

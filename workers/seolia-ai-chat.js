@@ -22,14 +22,14 @@ const CORS_HEADERS = {
 
 const SYSTEM_PROMPT = `Tu es l'assistant IA de Seolia, une agence web belge spécialisée dans la création de sites web et d'agents IA pour les artisans et PME.
 
-NOS FORMULES (prix TVAC) :
-1. Essentiel IA — 499€ de mise en place + 109€/mois
+NOS FORMULES BUNDLE WEB + IA (prix TVAC) :
+1. Bundle Essentiel IA — 499€ de mise en place + 109€/mois
    Inclus : site vitrine une page, chatbot IA, FAQ automatisée, gestion avis Google, hébergement + domaine + SSL
 
-2. Business IA (la plus populaire ⭐) — 949€ de mise en place + 249€/mois
+2. Bundle Business IA (la plus populaire ⭐) — 949€ de mise en place + 249€/mois
    Inclus : site multi-pages optimisé SEO, automation prise de RDV, gestion commandes, notifications clients, hébergement + domaine + SSL
 
-3. Premium IA — 1 499€ de mise en place + 449€/mois
+3. Bundle Premium IA — 1 499€ de mise en place + 449€/mois
    Inclus : site premium haute qualité, agent téléphonique IA (200 min/mois), WhatsApp business, tableau de bord analytique, rapports hebdomadaires, hébergement + domaine + SSL
 
 OFFRE LANCEMENT : frais de mise en place offerts pour les 3 premiers clients !
@@ -475,12 +475,9 @@ async function handleSaveModification(request, env) {
 // MOLLIE — PRICING MAP
 // ═══════════════════════════════════════════════════════════════════════════
 const SEOLIA_PRICING = {
-  'Essentiel IA': { setup: '499.00', mensuel: '109.00' },
-  'Business IA':  { setup: '949.00', mensuel: '249.00' },
-  'Premium IA':   { setup: '1499.00', mensuel: '449.00' },
-  'Web Essentiel':{ setup: '149.00', mensuel: '69.00' },
-  'Web Business': { setup: '299.00', mensuel: '119.00' },
-  'Web Premium':  { setup: '499.00', mensuel: '199.00' },
+  'Bundle Essentiel IA': { setup: '499.00', mensuel: '109.00' },
+  'Bundle Business IA':  { setup: '949.00', mensuel: '249.00' },
+  'Bundle Premium IA':   { setup: '1499.00', mensuel: '449.00' },
 };
 
 // ═══════════════════════════════════════════════════════════════════════════

@@ -250,7 +250,7 @@ async function handleCreateContact(request, env) {
       });
     }
 
-    return jsonResponse({ success: true, contact_id: contact?.id });
+    return jsonResponse({ success: true });
   } catch (err) {
     return jsonResponse({ error: err.message }, 500);
   }
@@ -302,7 +302,7 @@ async function handleVapiWebhook(request, env) {
       }
     }
 
-    return jsonResponse({ success: true, contact_id: contact?.id });
+    return jsonResponse({ success: true });
   } catch (err) {
     console.error('Vapi webhook error:', err);
     return jsonResponse({ error: err.message }, 500);

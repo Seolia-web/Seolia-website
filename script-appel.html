@@ -4,581 +4,510 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>Script Prospection — Seolia</title>
+<title>Script Appel — Seolia</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: #f0f2f5;
-    color: #1a1a2e;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f172a;
+    color: #f1f5f9;
     min-height: 100vh;
-    padding: 30px 20px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
   }
 
-  header {
-    text-align: center;
+  .logo {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #64748b;
+    text-transform: uppercase;
     margin-bottom: 40px;
   }
 
-  header .logo {
-    font-size: 22px;
-    font-weight: 800;
-    color: #1a1a2e;
-    letter-spacing: -0.5px;
+  .card {
+    background: #1e293b;
+    border-radius: 20px;
+    padding: 40px 36px;
+    max-width: 540px;
+    width: 100%;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+    animation: fadeIn 0.3s ease;
   }
 
-  header .logo span { color: #3b82f6; }
-
-  header h1 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #64748b;
-    margin-top: 4px;
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  .tree {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  /* === NODES === */
-  .node {
-    position: relative;
-    border-radius: 12px;
-    padding: 14px 20px;
-    font-size: 14px;
-    line-height: 1.5;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-    z-index: 2;
-  }
-
-  .node-intro {
-    background: #1a1a2e;
-    color: white;
-    width: 420px;
-    font-size: 13px;
-  }
-
-  .node-question {
-    background: #3b82f6;
-    color: white;
-    width: 420px;
-    font-weight: 600;
-  }
-
-  .node-answer {
-    background: white;
-    border: 2px solid #e2e8f0;
-    color: #1a1a2e;
-    font-size: 13px;
-    font-style: italic;
-    min-width: 200px;
-    max-width: 280px;
-  }
-
-  .node-action {
-    background: #f8fafc;
-    border: 2px solid #3b82f6;
-    color: #1a1a2e;
-    font-size: 13px;
-    min-width: 240px;
-    max-width: 320px;
-  }
-
-  .node-rdv {
-    background: #16a34a;
-    color: white;
-    width: 420px;
-    font-weight: 600;
-  }
-
-  .node-stop {
-    background: #94a3b8;
-    color: white;
-    min-width: 200px;
-    max-width: 260px;
-    font-size: 12px;
-  }
-
-  .node-objection {
-    background: #fff7ed;
-    border: 2px solid #f97316;
-    color: #1a1a2e;
-    font-size: 12px;
-    min-width: 200px;
-    max-width: 280px;
-  }
-
-  .node-reponse {
-    background: #f0fdf4;
-    border: 2px solid #16a34a;
-    color: #1a1a2e;
-    font-size: 12px;
-    min-width: 200px;
-    max-width: 280px;
-  }
-
-  .node-label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    opacity: 0.65;
-    margin-bottom: 4px;
-  }
-
-  .node-text { font-size: 13px; line-height: 1.5; }
-  .node-question .node-text { font-size: 14px; font-style: italic; }
-
-  /* === ARROWS === */
-  .arrow-down {
-    width: 2px;
-    background: #cbd5e1;
-    height: 28px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 1;
-  }
-
-  .arrow-down::after {
-    content: '';
-    position: absolute;
-    bottom: -6px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 8px solid #cbd5e1;
-  }
-
-  .arrow-label {
+  .step-label {
     font-size: 11px;
     font-weight: 700;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    text-align: center;
-    margin: 2px 0;
-  }
-
-  .arrow-label.yes { color: #16a34a; }
-  .arrow-label.no  { color: #f97316; }
-  .arrow-label.neutral { color: #64748b; }
-
-  /* === BRANCHES === */
-  .branch-row {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 24px;
-    width: 100%;
-    max-width: 1100px;
-    position: relative;
-  }
-
-  .branch-col {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
-    max-width: 340px;
-  }
-
-  .branch-connector {
-    width: 100%;
-    height: 28px;
-    position: relative;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-  }
-
-  /* horizontal line spanning branches */
-  .hline {
-    height: 2px;
-    background: #cbd5e1;
-    position: absolute;
-    top: 0;
-  }
-
-  .vline-down {
-    width: 2px;
-    background: #cbd5e1;
-    position: absolute;
-    top: 0;
-  }
-
-  /* === SECTION HEADERS === */
-  .section-header {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #94a3b8;
-    text-align: center;
-    margin: 8px 0 4px;
-  }
-
-  /* === BADGES === */
-  .badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 99px;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .badge-oui { background: #dcfce7; color: #16a34a; }
-  .badge-non { background: #fff7ed; color: #f97316; }
-  .badge-ok  { background: #dbeafe; color: #2563eb; }
-
-  /* === OBJECTIONS SECTION === */
-  .objections-section {
-    margin-top: 50px;
-    width: 100%;
-    max-width: 900px;
-  }
-
-  .objections-title {
-    text-align: center;
-    font-size: 14px;
-    font-weight: 700;
-    color: #1a1a2e;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #e2e8f0;
-  }
-
-  .objection-row {
-    display: flex;
-    gap: 16px;
+    color: #3b82f6;
     margin-bottom: 16px;
-    align-items: stretch;
   }
 
-  .obj-box {
-    flex: 1;
-    border-radius: 10px;
-    padding: 14px 16px;
-    font-size: 13px;
-    line-height: 1.5;
+  .step-label.green { color: #22c55e; }
+  .step-label.orange { color: #f97316; }
+  .step-label.gray { color: #64748b; }
+
+  .question {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #f1f5f9;
+    margin-bottom: 12px;
   }
 
-  .obj-trigger {
-    background: #fff7ed;
-    border-left: 4px solid #f97316;
-    color: #7c2d12;
+  .context {
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 32px;
+    line-height: 1.6;
   }
 
-  .obj-arrow {
-    display: flex;
-    align-items: center;
-    font-size: 20px;
+  .context em {
     color: #cbd5e1;
-    flex-shrink: 0;
+    font-style: italic;
   }
 
-  .obj-response {
-    flex: 2;
-    background: #f0fdf4;
-    border-left: 4px solid #16a34a;
-    color: #14532d;
+  .script-line {
+    background: #0f172a;
+    border-left: 3px solid #3b82f6;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 15px;
+    color: #e2e8f0;
+    line-height: 1.6;
+    margin-bottom: 28px;
+    font-style: italic;
   }
 
-  .obj-box strong {
-    display: block;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    opacity: 0.65;
-    margin-bottom: 4px;
-  }
+  .script-line.green { border-color: #22c55e; }
+  .script-line.orange { border-color: #f97316; }
 
-  /* === LEGEND === */
-  .legend {
+  .answers {
     display: flex;
-    gap: 20px;
-    justify-content: center;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 12px;
   }
 
-  .legend-item {
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: none;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s ease;
+    line-height: 1.4;
+  }
+
+  .btn:hover { transform: translateX(4px); }
+
+  .btn-green {
+    background: #16a34a22;
+    color: #4ade80;
+    border: 1px solid #16a34a55;
+  }
+  .btn-green:hover { background: #16a34a44; }
+
+  .btn-orange {
+    background: #ea580c22;
+    color: #fb923c;
+    border: 1px solid #ea580c55;
+  }
+  .btn-orange:hover { background: #ea580c44; }
+
+  .btn-gray {
+    background: #33415522;
+    color: #94a3b8;
+    border: 1px solid #33415555;
+  }
+  .btn-gray:hover { background: #33415544; }
+
+  .btn-blue {
+    background: #1d4ed822;
+    color: #60a5fa;
+    border: 1px solid #1d4ed855;
+  }
+  .btn-blue:hover { background: #1d4ed844; }
+
+  .progress {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 32px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #334155;
+    transition: background 0.3s;
+  }
+  .dot.active { background: #3b82f6; }
+  .dot.done { background: #22c55e; }
+
+  .back-btn {
+    margin-top: 24px;
+    background: none;
+    border: none;
+    color: #475569;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 8px 0;
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: #64748b;
+    gap: 6px;
+    transition: color 0.15s;
+  }
+  .back-btn:hover { color: #94a3b8; }
+
+  .final-card {
+    text-align: center;
   }
 
-  .legend-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 4px;
-    flex-shrink: 0;
+  .final-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
   }
 
-  /* DIVIDER */
-  .divider {
-    width: 2px;
-    background: linear-gradient(to bottom, #cbd5e1, transparent);
-    height: 30px;
-    margin: 0 auto;
+  .final-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 12px;
   }
 
-  /* QUOTE STYLE */
-  .quote {
-    font-style: italic;
-    color: inherit;
+  .final-title.green { color: #4ade80; }
+  .final-title.gray { color: #64748b; }
+
+  .final-text {
+    font-size: 15px;
+    color: #94a3b8;
+    line-height: 1.7;
+    margin-bottom: 32px;
   }
 
-  /* responsive */
-  @media (max-width: 700px) {
-    .branch-row { flex-direction: column; align-items: center; }
-    .node-intro, .node-question, .node-rdv { width: 90vw; max-width: 420px; }
-    .objection-row { flex-direction: column; }
-    .obj-arrow { display: none; }
+  .restart-btn {
+    background: #1e40af;
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
   }
+  .restart-btn:hover { background: #1d4ed8; }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">Seo<span>lia</span></div>
-  <h1>Script Prospection — Arbre de décision</h1>
-</header>
+<div class="logo">Seolia — Script Appel</div>
 
-<!-- LEGEND -->
-<div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> Question à poser</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div> RDV décroché / Réponse positive</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#f97316;"></div> Objection / Réponse négative</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#94a3b8"></div> Raccrocher proprement</div>
+<div class="card" id="card">
+  <!-- Content injected by JS -->
 </div>
 
-<div class="tree">
+<script>
+const steps = {
+  intro: {
+    label: "INTRODUCTION",
+    labelClass: "",
+    question: "Prêt à appeler ?",
+    context: "Confirme d'abord que tu as la bonne personne.",
+    script: "«\u00a0Bonjour, c'est bien [Nom société]\u00a0? / C'est vous qui gérez la partie clients\u00a0?\u00a0»\n«\u00a0Parfait — Florian, de Seolia à Liège.\u00a0»",
+    answers: [
+      { text: "✅ Oui, c'est la bonne personne", next: "q1", style: "green" },
+      { text: "❌ Non / mauvais numéro", next: "end_wrong", style: "gray" }
+    ],
+    progress: [1,0,0,0,0]
+  },
 
-  <!-- ═══ INTRO ═══ -->
-  <div class="node node-intro">
-    <div class="node-label">Introduction</div>
-    <div class="node-text">
-      <span class="quote">"Bonjour, c'est bien [Nom société] ?"</span><br>
-      <span class="quote">"C'est vous qui gérez la partie clients ?"</span><br>
-      <span class="quote">"Parfait — Florian, de Seolia à Liège."</span>
-    </div>
-  </div>
+  q1: {
+    label: "QUESTION 1",
+    labelClass: "",
+    question: "Comment ils trouvent vos clients ?",
+    script: "«\u00a0Vos nouveaux clients, ils vous trouvent comment en ce moment\u00a0?\u00a0»",
+    context: "Laisse-le parler. Ne coupe pas. Note mentalement.",
+    answers: [
+      { text: "Bouche-à-oreille / réseau", next: "q2", style: "orange" },
+      { text: "Google + bouche-à-oreille", next: "q2b", style: "green" },
+      { text: "Google uniquement", next: "q3_google", style: "green" }
+    ],
+    progress: [2,1,0,0,0]
+  },
 
-  <div class="arrow-down"></div>
+  q2: {
+    label: "QUESTION 2",
+    labelClass: "",
+    question: "Est-ce qu'il apparaît sur Google ?",
+    script: "«\u00a0C'est souvent le cas. Et sur Google — si quelqu'un cherche un [plombier] à [ville] ce soir, il tombe sur vous\u00a0?\u00a0»",
+    context: "Silence après la question. Ne remplis pas le vide.",
+    answers: [
+      { text: "Non / pas vraiment / je sais pas", next: "q3_non", style: "orange" },
+      { text: "Oui, j'ai un site", next: "q3_site", style: "green" }
+    ],
+    progress: [2,2,1,0,0]
+  },
 
-  <!-- ═══ Q1 ═══ -->
-  <div class="node node-question">
-    <div class="node-label">Question 1</div>
-    <div class="node-text">"Vos nouveaux clients, ils vous trouvent comment en ce moment ?"</div>
-  </div>
+  q2b: {
+    label: "QUESTION 2",
+    labelClass: "",
+    question: "Google fonctionne bien pour lui ?",
+    script: "«\u00a0Google ça fonctionne bien pour vous — vous avez des appels réguliers depuis là\u00a0?\u00a0»",
+    context: "",
+    answers: [
+      { text: "Oui, c'est régulier", next: "q3_google", style: "green" },
+      { text: "Pas vraiment / irrégulier", next: "q3_non", style: "orange" }
+    ],
+    progress: [2,2,1,0,0]
+  },
 
-  <div class="arrow-down"></div>
+  q3_non: {
+    label: "QUESTION 3",
+    labelClass: "",
+    question: "Des appels via Google ?",
+    script: "«\u00a0Ça vous arrive d'avoir des appels de gens qui vous ont trouvé sur Google\u00a0?\u00a0»",
+    context: "",
+    answers: [
+      { text: "Non / rarement", next: "closing_direct", style: "orange" },
+      { text: "Oui, parfois", next: "q4", style: "green" }
+    ],
+    progress: [2,2,2,1,0]
+  },
 
-  <!-- BRANCHES Q1 -->
-  <div class="branch-row">
+  q3_site: {
+    label: "QUESTION 3",
+    labelClass: "",
+    question: "Des appels réguliers depuis le site ?",
+    script: "«\u00a0Et vous avez des appels réguliers qui viennent de là\u00a0?\u00a0»",
+    context: "",
+    answers: [
+      { text: "Non / rarement", next: "closing_direct", style: "orange" },
+      { text: "Oui, ça tourne", next: "q4", style: "green" }
+    ],
+    progress: [2,2,2,1,0]
+  },
 
-    <!-- Branche A : Bouche à oreille -->
-    <div class="branch-col">
-      <div class="node node-answer">
-        <div class="badge badge-non">Réponse</div>
-        <div class="node-text">"Bouche-à-oreille / réseau"</div>
+  q3_google: {
+    label: "QUESTION 3",
+    labelClass: "",
+    question: "Il veut plus d'appels ?",
+    script: "«\u00a0Ces appels-là, c'est régulier ou c'est irrégulier\u00a0?\u00a0»",
+    context: "",
+    answers: [
+      { text: "Irrégulier / ça manque", next: "closing_direct", style: "orange" },
+      { text: "Régulier, ça va", next: "q4", style: "green" }
+    ],
+    progress: [2,2,2,1,0]
+  },
+
+  q4: {
+    label: "QUESTION 4",
+    labelClass: "",
+    question: "Il pourrait en accepter plus ?",
+    script: "«\u00a0Et vous seriez ok pour en avoir plus — ou vous êtes déjà à fond\u00a0?\u00a0»",
+    context: "",
+    answers: [
+      { text: "Oui, j'en veux plus", next: "closing_direct", style: "green" },
+      { text: "Je suis à fond / trop de travail", next: "end_full", style: "gray" }
+    ],
+    progress: [2,2,2,2,1]
+  },
+
+  closing_direct: {
+    label: "CLOSING — RDV",
+    labelClass: "green",
+    question: "Propose la visite",
+    script: "«\u00a0Je suis dans le coin [jour]. Je passe vous montrer en 20 minutes chrono où vous en êtes par rapport aux autres [plombiers] de la zone — juste pour que vous ayez une image claire. Mardi ou mercredi ça vous va\u00a0?\u00a0»",
+    context: "Ce n'est pas une demande. C'est une visite annoncée.",
+    answers: [
+      { text: "Oui / quel jour ?", next: "end_rdv", style: "green" },
+      { text: "J'ai pas le temps", next: "obj_temps", style: "orange" },
+      { text: "Envoyez par email", next: "obj_email", style: "orange" },
+      { text: "J'ai déjà quelqu'un", next: "obj_deja", style: "orange" }
+    ],
+    progress: [2,2,2,2,2]
+  },
+
+  obj_temps: {
+    label: "OBJECTION — TEMPS",
+    labelClass: "orange",
+    question: "\"J'ai pas le temps\"",
+    script: "«\u00a0C'est 20 minutes chrono, je me déplace chez vous — vous bougez pas. [Jour] en fin de matinée ou début d'après-midi\u00a0?\u00a0»",
+    context: "Ne négocie pas sur le fond. Répète juste la facilité.",
+    answers: [
+      { text: "Ok, d'accord", next: "end_rdv", style: "green" },
+      { text: "Toujours pas convaincu", next: "end_later", style: "gray" }
+    ],
+    progress: [2,2,2,2,2]
+  },
+
+  obj_email: {
+    label: "OBJECTION — EMAIL",
+    labelClass: "orange",
+    question: "\"Envoyez par email\"",
+    script: "«\u00a0Ce que je vais vous montrer c'est visuel — une analyse de votre positionnement en direct sur Google. Par email ça perd tout son sens. 20 minutes chez vous, c'est vraiment plus parlant. [Jour] ça vous irait\u00a0?\u00a0»",
+    context: "",
+    answers: [
+      { text: "Ok, d'accord", next: "end_rdv", style: "green" },
+      { text: "Non, vraiment par email", next: "end_email", style: "gray" }
+    ],
+    progress: [2,2,2,2,2]
+  },
+
+  obj_deja: {
+    label: "OBJECTION — DÉJÀ QUELQU'UN",
+    labelClass: "orange",
+    question: "\"J'ai déjà quelqu'un\"",
+    script: "«\u00a0C'est bien. Et ça vous génère des appels réguliers depuis Google\u00a0? Je vous pose la question parce que souvent les artisans qui ont déjà un site nous disent justement que ça tourne pas terrible. Si chez vous ça tourne, tant mieux — mais 20 minutes pour comparer, ça coûte rien.\u00a0»",
+    context: "Ne dénigre pas le prestataire actuel.",
+    answers: [
+      { text: "Ok, pourquoi pas", next: "end_rdv", style: "green" },
+      { text: "Non, je suis satisfait", next: "end_satisfied", style: "gray" }
+    ],
+    progress: [2,2,2,2,2]
+  },
+
+  end_rdv: {
+    type: "final",
+    icon: "🎯",
+    finalClass: "green",
+    title: "RDV DÉCROCHÉ",
+    text: "«\u00a0Parfait — [jour] à [heure] ça vous va\u00a0? Je note ça. C'est à quelle adresse\u00a0?\u00a0»\n\nNote l'adresse, confirme par SMS dans la foulée.",
+    progress: [2,2,2,2,2]
+  },
+
+  end_full: {
+    type: "final",
+    icon: "👋",
+    finalClass: "gray",
+    title: "À FOND — RACCROCHER",
+    text: "«\u00a0Ok, pas de problème — si ça change ou si vous cherchez à déléguer une partie du travail à quelqu'un de qualifié, n'hésitez pas à me rappeler. Bonne journée\u00a0!\u00a0»",
+    progress: [2,2,2,2,2]
+  },
+
+  end_wrong: {
+    type: "final",
+    icon: "📵",
+    finalClass: "gray",
+    title: "MAUVAIS CONTACT",
+    text: "Demande le nom de la bonne personne et rappelle.",
+    progress: [1,0,0,0,0]
+  },
+
+  end_later: {
+    type: "final",
+    icon: "🔄",
+    finalClass: "gray",
+    title: "RAPPELER PLUS TARD",
+    text: "«\u00a0Pas de souci — je vous rappelle [semaine prochaine / dans quelques jours]. Bonne journée\u00a0!\u00a0»\n\nNote dans ton suivi pour relancer.",
+    progress: [2,2,2,2,2]
+  },
+
+  end_email: {
+    type: "final",
+    icon: "📧",
+    finalClass: "gray",
+    title: "ENVOYER PAR EMAIL",
+    text: "Envoie un email court avec 3 lignes max + lien site. Ne dis rien de plus — laisse venir.",
+    progress: [2,2,2,2,2]
+  },
+
+  end_satisfied: {
+    type: "final",
+    icon: "✌️",
+    finalClass: "gray",
+    title: "SATISFAIT — RACCROCHER",
+    text: "«\u00a0Très bien, c'est parfait alors. Si un jour vous voulez comparer ou que ça évolue, pensez à nous. Bonne journée\u00a0!\u00a0»",
+    progress: [2,2,2,2,2]
+  }
+};
+
+let history = [];
+let current = 'intro';
+
+function getProgressDots(prog) {
+  return prog.map(v => {
+    if (v === 2) return '<div class="dot done"></div>';
+    if (v === 1) return '<div class="dot active"></div>';
+    return '<div class="dot"></div>';
+  }).join('');
+}
+
+function render(stepId) {
+  const step = steps[stepId];
+  const card = document.getElementById('card');
+  card.innerHTML = '';
+
+  if (step.type === 'final') {
+    card.innerHTML = `
+      <div class="progress">${getProgressDots(step.progress)}</div>
+      <div class="final-card">
+        <div class="final-icon">${step.icon}</div>
+        <div class="final-title ${step.finalClass}">${step.title}</div>
+        <div class="final-text">${step.text.replace(/\n/g, '<br>')}</div>
+        <button class="restart-btn" onclick="restart()">↩ Recommencer</button>
       </div>
-      <div class="arrow-down"></div>
-      <div class="node node-action">
-        <div class="node-text"><span class="quote">"C'est souvent le cas. Et sur Google — si quelqu'un cherche un [métier] à [ville] ce soir, il tombe sur vous ?"</span></div>
-      </div>
-      <div class="arrow-down"></div>
-      <div class="arrow-label neutral">→ Question 2</div>
-    </div>
+    `;
+    return;
+  }
 
-    <!-- Branche B : Google + BAO -->
-    <div class="branch-col">
-      <div class="node node-answer">
-        <div class="badge badge-ok">Réponse</div>
-        <div class="node-text">"Google + bouche-à-oreille"</div>
-      </div>
-      <div class="arrow-down"></div>
-      <div class="node node-action">
-        <div class="node-text"><span class="quote">"Super. Et ces appels depuis Google, c'est régulier ?"</span></div>
-      </div>
-      <div class="arrow-down"></div>
-      <div class="arrow-label neutral">→ Question 3</div>
-    </div>
+  const scriptLines = step.script.split('\n').map(l =>
+    `<div class="script-line ${step.labelClass || ''}">${l}</div>`
+  ).join('');
 
-    <!-- Branche C : Google only -->
-    <div class="branch-col">
-      <div class="node node-answer">
-        <div class="badge badge-oui">Réponse</div>
-        <div class="node-text">"Google uniquement"</div>
-      </div>
-      <div class="arrow-down"></div>
-      <div class="node node-action">
-        <div class="node-text"><span class="quote">"Super. Et ces appels, c'est régulier ou irrégulier ?"</span></div>
-      </div>
-      <div class="arrow-down"></div>
-      <div class="arrow-label neutral">→ Question 3</div>
-    </div>
+  const answersHtml = step.answers.map(a =>
+    `<button class="btn btn-${a.style}" onclick="goTo('${a.next}')">${a.text}</button>`
+  ).join('');
 
-  </div>
+  const backBtn = history.length > 0
+    ? `<button class="back-btn" onclick="goBack()">← Retour</button>`
+    : '';
 
-  <div class="arrow-down" style="height:40px"></div>
-  <div class="section-header">↓ Question 2</div>
-  <div class="arrow-down"></div>
+  card.innerHTML = `
+    <div class="progress">${getProgressDots(step.progress)}</div>
+    <div class="step-label ${step.labelClass || ''}">${step.label}</div>
+    <div class="question">${step.question}</div>
+    ${step.context ? `<div class="context">${step.context}</div>` : ''}
+    ${scriptLines}
+    <div class="answers">${answersHtml}</div>
+    ${backBtn}
+  `;
+}
 
-  <!-- ═══ Q2 ═══ -->
-  <div class="node node-question">
-    <div class="node-label">Question 2</div>
-    <div class="node-text">"Si quelqu'un cherche un [métier] à [ville] ce soir sur Google, il tombe sur vous ?"</div>
-  </div>
+function goTo(stepId) {
+  history.push(current);
+  current = stepId;
+  render(current);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-  <div class="arrow-down"></div>
+function goBack() {
+  current = history.pop();
+  render(current);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-  <!-- BRANCHES Q2 -->
-  <div class="branch-row">
+function restart() {
+  history = [];
+  current = 'intro';
+  render(current);
+}
 
-    <div class="branch-col">
-      <div class="node node-answer">
-        <div class="badge badge-non">Non / pas vraiment / je sais pas</div>
-        <div class="node-text"><em>Silence. Laisse-le répondre.</em></div>
-      </div>
-      <div class="arrow-down"></div>
-      <div class="arrow-label neutral">→ Question 3</div>
-    </div>
-
-    <div class="branch-col">
-      <div class="node node-answer">
-        <div class="badge badge-ok">Oui j'ai un site</div>
-        <div class="node-text" style="font-style:italic">"Et vous avez des appels réguliers qui viennent de là ?"</div>
-      </div>
-      <div class="arrow-down"></div>
-      <div class="arrow-label neutral">→ Question 3</div>
-    </div>
-
-  </div>
-
-  <div class="arrow-down" style="height:40px"></div>
-  <div class="section-header">↓ Question 3</div>
-  <div class="arrow-down"></div>
-
-  <!-- ═══ Q3 ═══ -->
-  <div class="node node-question">
-    <div class="node-label">Question 3</div>
-    <div class="node-text">"Ça vous arrive d'avoir des appels de gens qui vous ont trouvé sur Google ?"</div>
-  </div>
-
-  <div class="arrow-down"></div>
-
-  <!-- BRANCHES Q3 -->
-  <div class="branch-row">
-
-    <div class="branch-col">
-      <div class="node node-answer">
-        <div class="badge badge-non">Non / rarement</div>
-      </div>
-      <div class="arrow-down"></div>
-      <div class="node node-rdv" style="width:100%;max-width:300px;font-size:13px;">
-        <div class="node-label">→ Transition RDV</div>
-        <div class="node-text"><span class="quote">"C'est exactement ce qu'on règle. Je suis dans le coin [jour] — je passe vous montrer en 20 minutes chrono où vous en êtes. Mardi ou mercredi ça vous va ?"</span></div>
-      </div>
-    </div>
-
-    <div class="branch-col">
-      <div class="node node-answer">
-        <div class="badge badge-oui">Oui ça arrive</div>
-      </div>
-      <div class="arrow-down"></div>
-      <div class="node node-action" style="max-width:300px">
-        <div class="node-text"><span class="quote">"Et vous seriez ok pour en avoir plus — ou vous êtes déjà à fond ?"</span></div>
-      </div>
-      <div class="arrow-down"></div>
-
-      <!-- sous-branches -->
-      <div class="branch-row" style="gap:12px">
-        <div class="branch-col">
-          <div class="node node-stop" style="font-size:12px">
-            <div class="badge badge-non" style="background:rgba(255,255,255,0.2);color:white">À fond / surchargé</div>
-            <div class="node-text">"Ok, pas de problème. Si ça change, n'hésitez pas. Bonne journée !"</div>
-          </div>
-        </div>
-        <div class="branch-col">
-          <div class="node node-rdv" style="font-size:13px">
-            <div class="badge badge-oui">Oui j'en veux plus</div>
-            <div class="node-text"><span class="quote">"Je suis dans le coin [jour] — je passe vous montrer ça en 20 minutes chrono. Mardi ou mercredi ?"</span></div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-
-  <div class="arrow-down" style="height:40px"></div>
-  <div class="section-header">↓ Closing RDV</div>
-  <div class="arrow-down"></div>
-
-  <!-- ═══ CLOSING ═══ -->
-  <div class="node node-question">
-    <div class="node-label">Closing RDV</div>
-    <div class="node-text">"Mardi ou mercredi ça vous va ?"</div>
-  </div>
-
-  <div class="arrow-down"></div>
-
-  <div class="branch-row">
-    <div class="branch-col">
-      <div class="node node-rdv" style="max-width:300px;font-size:13px">
-        <div class="badge badge-oui">Oui / quel jour ?</div>
-        <div class="node-text"><span class="quote">"[Jour] à [heure] ça vous va ? Je note ça — c'est à quelle adresse ?"</span></div>
-      </div>
-    </div>
-    <div class="branch-col">
-      <div class="node node-objection" style="max-width:300px">
-        <div class="badge badge-non">J'ai pas le temps</div>
-        <div class="node-text"><span class="quote">"C'est 20 minutes chrono, je me déplace chez vous — vous bougez pas. [Jour] fin de matinée ou début d'après-midi ?"</span></div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- ═══ OBJECTIONS SECTION ═══ -->
-<div class="objections-section" style="margin: 50px auto 0; max-width: 900px;">
-  <div class="objections-title">⚡ Autres objections courantes — réponses immédiates</div>
-
-  <div class="objection-row">
-    <div class="obj-box obj-trigger"><strong>Objection</strong>"Envoyez-moi ça par email"</div>
-    <div class="obj-arrow">→</div>
-    <div class="obj-box obj-response"><strong>Réponse</strong>"Ce que je vous montre ça se voit en direct sur votre zone — pas possible par email. C'est pour ça que je me déplace. [Jour] ça vous irait ?"</div>
-  </div>
-
-  <div class="objection-row">
-    <div class="obj-box obj-trigger"><strong>Objection</strong>"J'ai déjà quelqu'un qui s'occupe de ça"</div>
-    <div class="obj-arrow">→</div>
-    <div class="obj-box obj-response"><strong>Réponse</strong>"Tant mieux. Je vous montre juste où vous en êtes par rapport à vos concurrents dans la zone — vous jugerez vous-même si c'est suffisant. 20 minutes, sans engagement."</div>
-  </div>
-
-  <div class="objection-row">
-    <div class="obj-box obj-trigger"><strong>Objection</strong>"C'est combien ?"</div>
-    <div class="obj-arrow">→</div>
-    <div class="obj-box obj-response"><strong>Réponse</strong>"Ça dépend de ce dont vous avez besoin — c'est justement pour ça qu'on se voit. Les formules commencent à 109€/mois. Mais d'abord je vous montre ce qu'on peut faire pour vous spécifiquement."</div>
-  </div>
-
-</div>
-
-<div style="text-align:center; margin-top: 40px; font-size: 12px; color: #94a3b8;">
-  Seolia — Usage interne uniquement &nbsp;·&nbsp; seolia.be
-</div>
-
+render('intro');
+</script>
 </body>
 </html>

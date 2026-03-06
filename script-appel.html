@@ -229,18 +229,31 @@ const steps = {
     context: "Ton décontracté, pas commercial. Tu n'es pas en train de vendre — tu appelles pour voir si il a un problème que tu peux régler.",
     script: "«\u00a0Bonjour, c'est bien [Nom société]\u00a0?\u00a0»\n«\u00a0C'est vous qui gérez les clients\u00a0?\u00a0»\n«\u00a0Parfait — Florian de Seolia. On travaille avec des [plombiers / électriciens / ...] dans la région, j'aurais juste une petite question si vous avez 2 minutes.\u00a0»",
     answers: [
-      { text: "✅ Oui, je l'ai", next: "q1", style: "green" },
+      { text: "✅ Oui, je l'ai", next: "transition", style: "green" },
       { text: "❌ Mauvaise personne / pas dispo", next: "end_wrong", style: "gray" }
     ],
     progress: [1,0,0,0,0]
+  },
+
+  transition: {
+    label: "TRANSITION",
+    labelClass: "",
+    question: "Il accepte de t'écouter 2 minutes ?",
+    script: "«\u00a0Avec plaisir\u00a0/ Bien sûr\u00a0/ Allez-y\u00a0»\n\n→ «\u00a0C'est quoi votre activité exactement\u00a0?\u00a0»",
+    context: "Laisse-le parler 15-20 secondes. Tu veux qu'il sente que tu t'intéresses à lui avant de poser la vraie question. Écoute, rebondis si besoin (\"Ah oui, et vous couvrez quelle zone ?\"), puis enchaîne naturellement.",
+    answers: [
+      { text: "Il a expliqué son activité → continuer", next: "q1", style: "green" },
+      { text: "Pas intéressé / trop occupé", next: "end_wrong", style: "gray" }
+    ],
+    progress: [1,1,0,0,0]
   },
 
   q1: {
     label: "QUESTION 1 — SOURCE CLIENTS",
     labelClass: "",
     question: "D'où viennent ses clients ?",
-    script: "«\u00a0Vos nouveaux clients en ce moment — ils vous trouvent comment\u00a0?\u00a0»",
-    context: "Vraie curiosité. Écoute pour de vrai. Ne prépare pas ta prochaine phrase pendant qu'il parle — ça s'entend.",
+    script: "«\u00a0Et vos nouveaux clients en ce moment — ils vous trouvent comment\u00a0?\u00a0»",
+    context: "Le \"Et\" au début fait la liaison naturelle avec ce qu'il vient de dire. Vraie curiosité. Écoute pour de vrai. Ne prépare pas ta prochaine phrase pendant qu'il parle — ça s'entend.",
     answers: [
       { text: "Bouche-à-oreille / réseau uniquement", next: "q2", style: "orange" },
       { text: "Google + bouche-à-oreille", next: "q2b", style: "green" },

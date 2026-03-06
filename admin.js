@@ -4652,15 +4652,13 @@ let sophieCurrentFilter = 'all';
 
 async function loadSophieAppels() {
   try {
-    const { data, error } = await supabase
-      .from('sophie_appels')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    sophieAppelsData = data || [];
+    const data = await sbFetch('/rest/v1/sophie_appels?select=*&order=created_at.desc');
+    sophieAppelsData = Array.isArray(data) ? data : [];
     renderSophieAppels();
   } catch(e) {
     console.error('Erreur chargement Sophie appels:', e);
+    document.getElementById('sophie-prospects-list').innerHTML = '<div style="color:#ef4444;font-size:14px;padding:12px 0;">Erreur de chargement. Vérifiez votre connexion.</div>';
+    document.getElementById('sophie-clients-list').innerHTML = '';
   }
 }
 
@@ -4721,8 +4719,15 @@ function renderSophieCard(a) {
 }
 
 async function sophieMarquerStatut(id, statut) {
-  const { error } = await supabase.from('sophie_appels').update({ statut }).eq('id', id);
-  if (!error) await loadSophieAppels();
+  try {
+    await sbFetch('/rest/v1/sophie_appels?id=eq.' + id, {
+      method: 'PATCH',
+      body: JSON.stringify({ statut })
+    });
+    await loadSophieAppels();
+  } catch(e) {
+    console.error('Erreur update statut Sophie:', e);
+  }
 }
 
 async function sophieCreerContact(appelId) {

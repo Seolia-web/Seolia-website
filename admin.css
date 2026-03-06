@@ -369,6 +369,9 @@
     @media (max-width: 640px) {
       .table-wrap { display: none; }
       .contact-cards { display: block; }
+      /* Commerciaux : afficher quand même avec scroll horizontal */
+      #view-commerciaux .table-wrap { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      #view-revenus .table-wrap { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     }
 
     /* ── STATUS SELECT ── */

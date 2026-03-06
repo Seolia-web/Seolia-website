@@ -226,35 +226,35 @@ const steps = {
     label: "INTRODUCTION",
     labelClass: "",
     question: "Prêt à appeler ?",
-    context: "Confirme d'abord que tu as la bonne personne.",
-    script: "«\u00a0Bonjour, c'est bien [Nom société]\u00a0? / C'est vous qui gérez la partie clients\u00a0?\u00a0»\n«\u00a0Parfait — Florian, de Seolia à Liège.\u00a0»",
+    context: "Ton décontracté, pas commercial. Tu n'es pas en train de vendre — tu appelles pour voir si il a un problème que tu peux régler.",
+    script: "«\u00a0Bonjour, c'est bien [Nom société]\u00a0?\u00a0»\n«\u00a0C'est vous qui gérez les clients\u00a0?\u00a0»\n«\u00a0Parfait — Florian de Seolia. On travaille avec des [plombiers / électriciens / ...] dans la région, j'aurais juste une petite question si vous avez 2 minutes.\u00a0»",
     answers: [
-      { text: "✅ Oui, c'est la bonne personne", next: "q1", style: "green" },
-      { text: "❌ Non / mauvais numéro", next: "end_wrong", style: "gray" }
+      { text: "✅ Oui, je l'ai", next: "q1", style: "green" },
+      { text: "❌ Mauvaise personne / pas dispo", next: "end_wrong", style: "gray" }
     ],
     progress: [1,0,0,0,0]
   },
 
   q1: {
-    label: "QUESTION 1",
+    label: "QUESTION 1 — SOURCE CLIENTS",
     labelClass: "",
-    question: "Comment ils trouvent vos clients ?",
-    script: "«\u00a0Vos nouveaux clients, ils vous trouvent comment en ce moment\u00a0?\u00a0»",
-    context: "Laisse-le parler. Ne coupe pas. Note mentalement.",
+    question: "D'où viennent ses clients ?",
+    script: "«\u00a0Vos nouveaux clients en ce moment — ils vous trouvent comment\u00a0?\u00a0»",
+    context: "Vraie curiosité. Écoute pour de vrai. Ne prépare pas ta prochaine phrase pendant qu'il parle — ça s'entend.",
     answers: [
-      { text: "Bouche-à-oreille / réseau", next: "q2", style: "orange" },
+      { text: "Bouche-à-oreille / réseau uniquement", next: "q2", style: "orange" },
       { text: "Google + bouche-à-oreille", next: "q2b", style: "green" },
-      { text: "Google uniquement", next: "q2b", style: "green" }
+      { text: "Google principalement", next: "q2b", style: "green" }
     ],
     progress: [2,1,0,0,0]
   },
 
   q2: {
-    label: "QUESTION 2 — TEST GOOGLE",
+    label: "TEST GOOGLE",
     labelClass: "",
-    question: "Est-ce qu'il est visible sur Google ?",
-    script: "«\u00a0C'est souvent le cas. Et sur Google — si quelqu'un cherche un [plombier] à [ville] ce soir, il tombe sur vous\u00a0?\u00a0»",
-    context: "Silence après la question. Ne remplis pas le vide.",
+    question: "Est-il visible sur Google ?",
+    script: "«\u00a0Et sur Google — si quelqu'un cherche un [plombier] à [ville] ce soir, il tombe sur vous\u00a0?\u00a0»",
+    context: "Pose la question. Ferme ta gueule. Le silence qui suit EST la vente — il se rend compte lui-même qu'il sait pas.",
     answers: [
       { text: "Non / pas vraiment / je sais pas", next: "closing_direct", style: "orange" },
       { text: "Oui, j'ai un site / j'apparais", next: "q3_convertit", style: "green" }
@@ -263,50 +263,50 @@ const steps = {
   },
 
   q2b: {
-    label: "QUESTION 2 — VOLUME",
+    label: "VOLUME APPELS",
     labelClass: "",
-    question: "Ces appels Google, c'est régulier ?",
-    script: "«\u00a0Et ces clients qui viennent de Google — c'est régulier ou c'est irrégulier\u00a0?\u00a0»",
-    context: "",
+    question: "Est-ce que Google lui génère des appels réguliers ?",
+    script: "«\u00a0Et ça vous génère des appels réguliers depuis Google — ou c'est variable\u00a0?\u00a0»",
+    context: "Pas de jugement dans la voix. Tu veux juste comprendre la situation.",
     answers: [
       { text: "Régulier, ça tourne bien", next: "q4", style: "green" },
-      { text: "Irrégulier / ça pourrait être mieux", next: "closing_direct", style: "orange" }
+      { text: "Variable / ça pourrait être mieux", next: "closing_direct", style: "orange" }
     ],
     progress: [2,2,1,0,0]
   },
 
   q3_convertit: {
-    label: "QUESTION 3 — CONVERSION",
+    label: "CONVERSION CONCRÈTE",
     labelClass: "",
-    question: "Le site génère des appels concrets ?",
-    script: "«\u00a0Et concrètement, ça vous génère combien d'appels par mois depuis le site — vous avez une idée\u00a0?\u00a0»",
-    context: "Question très différente de la précédente : pas la visibilité, mais le résultat concret.",
+    question: "Combien d'appels par mois depuis le site ?",
+    script: "«\u00a0Vous avez une idée du nombre d'appels que ça vous génère par mois depuis le site\u00a0?\u00a0»",
+    context: "S'il ne sait pas → ne dis rien. Ce silence là, c'est lui qui réalise qu'il ne mesure même pas ses résultats. C'est le meilleur moment du call.",
     answers: [
       { text: "Peu / pas vraiment / je sais pas", next: "closing_direct", style: "orange" },
-      { text: "Oui, ça génère des appels", next: "q4", style: "green" }
+      { text: "Oui, ça génère bien des appels", next: "q4", style: "green" }
     ],
     progress: [2,2,2,1,0]
   },
 
   q4: {
-    label: "QUESTION 4",
+    label: "CAPACITÉ",
     labelClass: "",
-    question: "Il pourrait en accepter plus ?",
-    script: "«\u00a0Et vous seriez ok pour en avoir plus — ou vous êtes déjà à fond\u00a0?\u00a0»",
-    context: "",
+    question: "Il peut accepter plus de clients ?",
+    script: "«\u00a0Et si vous en aviez plus — vous avez la capacité pour les gérer\u00a0?\u00a0»",
+    context: "Question simple. Oui = tu avances vers la visite. Non = tu raccroches proprement sans insister.",
     answers: [
       { text: "Oui, j'en veux plus", next: "closing_direct", style: "green" },
-      { text: "Je suis à fond / trop de travail", next: "end_full", style: "gray" }
+      { text: "Non, je suis à fond", next: "end_full", style: "gray" }
     ],
     progress: [2,2,2,2,1]
   },
 
   closing_direct: {
-    label: "CLOSING — RDV",
+    label: "LA VISITE",
     labelClass: "green",
-    question: "Propose la visite",
-    script: "«\u00a0Je suis dans le coin [jour]. Je passe vous montrer en 20 minutes chrono où vous en êtes par rapport aux autres [plombiers] de la zone — juste pour que vous ayez une image claire. Mardi ou mercredi ça vous va\u00a0?\u00a0»",
-    context: "Ce n'est pas une demande. C'est une visite annoncée.",
+    question: "Annonce la visite — ne la demande pas",
+    script: "«\u00a0Je suis par chez vous [jour]. Je passe vous montrer en 20 minutes chrono exactement où vous en êtes sur Google par rapport aux autres [plombiers] de votre zone. Pas de pitch — juste des chiffres concrets. Mardi ou mercredi\u00a0?\u00a0»",
+    context: "Choix entre deux jours — jamais oui/non. Ton naturel, comme si tu passais de toute façon dans le coin.",
     answers: [
       { text: "Oui / quel jour ?", next: "end_rdv", style: "green" },
       { text: "J'ai pas le temps", next: "obj_temps", style: "orange" },
@@ -320,11 +320,11 @@ const steps = {
     label: "OBJECTION — TEMPS",
     labelClass: "orange",
     question: "\"J'ai pas le temps\"",
-    script: "«\u00a0C'est 20 minutes chrono, je me déplace chez vous — vous bougez pas. [Jour] en fin de matinée ou début d'après-midi\u00a0?\u00a0»",
-    context: "Ne négocie pas sur le fond. Répète juste la facilité.",
+    script: "«\u00a020 minutes — je me déplace chez vous, vous bougez pas. [Jour] matin ou après-midi\u00a0?\u00a0»",
+    context: "Court. Pas de justification. La facilité suffit. S'il dit encore non → rappelle dans 2 semaines, sans rancune.",
     answers: [
       { text: "Ok, d'accord", next: "end_rdv", style: "green" },
-      { text: "Toujours pas convaincu", next: "end_later", style: "gray" }
+      { text: "Vraiment pas", next: "end_later", style: "gray" }
     ],
     progress: [2,2,2,2,2]
   },
@@ -333,8 +333,8 @@ const steps = {
     label: "OBJECTION — EMAIL",
     labelClass: "orange",
     question: "\"Envoyez par email\"",
-    script: "«\u00a0Ce que je vais vous montrer c'est visuel — une analyse de votre positionnement en direct sur Google. Par email ça perd tout son sens. 20 minutes chez vous, c'est vraiment plus parlant. [Jour] ça vous irait\u00a0?\u00a0»",
-    context: "",
+    script: "«\u00a0C'est visuel — ça marche pas par email. Faut voir en direct sur Google. 20 minutes chez vous, [jour] ça vous irait\u00a0?\u00a0»",
+    context: "Ferme mais calme. Pas de ton suppliant. Si il insiste → envoie un email minimaliste et laisse venir.",
     answers: [
       { text: "Ok, d'accord", next: "end_rdv", style: "green" },
       { text: "Non, vraiment par email", next: "end_email", style: "gray" }
@@ -346,11 +346,24 @@ const steps = {
     label: "OBJECTION — DÉJÀ QUELQU'UN",
     labelClass: "orange",
     question: "\"J'ai déjà quelqu'un\"",
-    script: "«\u00a0C'est bien. Et ça vous génère des appels réguliers depuis Google\u00a0? Je vous pose la question parce que souvent les artisans qui ont déjà un site nous disent justement que ça tourne pas terrible. Si chez vous ça tourne, tant mieux — mais 20 minutes pour comparer, ça coûte rien.\u00a0»",
-    context: "Ne dénigre pas le prestataire actuel.",
+    script: "«\u00a0Ah ok — et ça vous génère des appels depuis Google\u00a0?\u00a0»",
+    context: "Rebond direct sur le résultat, pas sur leur prestataire. Tu ne critiques personne. S'il dit oui ça marche bien → félicite et raccroche. S'il hésite → tu as ton ouverture.",
+    answers: [
+      { text: "Oui ça génère des appels / je suis satisfait", next: "end_satisfied", style: "gray" },
+      { text: "Bof / pas vraiment / je sais pas", next: "closing_v2", style: "orange" }
+    ],
+    progress: [2,2,2,2,2]
+  },
+
+  closing_v2: {
+    label: "RELANCE — DÉJÀ QUELQU'UN",
+    labelClass: "orange",
+    question: "Propose quand même la visite",
+    script: "«\u00a0C'est pour ça que ça vaut le coup de comparer. 20 minutes chez vous — je vous montre ce qui se passe concrètement. [Jour] ça vous irait\u00a0?\u00a0»",
+    context: "Pas de dénigrement du prestataire actuel. Tu proposes juste un point de comparaison neutre.",
     answers: [
       { text: "Ok, pourquoi pas", next: "end_rdv", style: "green" },
-      { text: "Non, je suis satisfait", next: "end_satisfied", style: "gray" }
+      { text: "Non, je reste avec eux", next: "end_satisfied", style: "gray" }
     ],
     progress: [2,2,2,2,2]
   },
@@ -360,7 +373,7 @@ const steps = {
     icon: "🎯",
     finalClass: "green",
     title: "RDV DÉCROCHÉ",
-    text: "«\u00a0Parfait — [jour] à [heure] ça vous va\u00a0? Je note ça. C'est à quelle adresse\u00a0?\u00a0»\n\nNote l'adresse, confirme par SMS dans la foulée.",
+    text: "«\u00a0Parfait — [jour] à [heure] ça vous va\u00a0? Je note ça. C'est à quelle adresse\u00a0?\u00a0»\n\nConfirme par SMS dans la foulée. Note dans ton suivi.",
     progress: [2,2,2,2,2]
   },
 
@@ -369,7 +382,7 @@ const steps = {
     icon: "👋",
     finalClass: "gray",
     title: "À FOND — RACCROCHER",
-    text: "«\u00a0Ok, pas de problème — si ça change ou si vous cherchez à déléguer une partie du travail à quelqu'un de qualifié, n'hésitez pas à me rappeler. Bonne journée\u00a0!\u00a0»",
+    text: "«\u00a0Ok, pas de problème — si ça change ou si vous cherchez à passer du boulot à quelqu'un de qualifié, n'hésitez pas. Bonne journée\u00a0!\u00a0»\n\nNote pour rappeler dans 3 mois.",
     progress: [2,2,2,2,2]
   },
 
@@ -377,8 +390,8 @@ const steps = {
     type: "final",
     icon: "📵",
     finalClass: "gray",
-    title: "MAUVAIS CONTACT",
-    text: "Demande le nom de la bonne personne et rappelle.",
+    title: "MAUVAISE PERSONNE",
+    text: "«\u00a0Ah, c'est qui la bonne personne pour ça\u00a0? Je peux le joindre comment\u00a0?\u00a0»\n\nNote le nom et rappelle directement.",
     progress: [1,0,0,0,0]
   },
 
@@ -387,7 +400,7 @@ const steps = {
     icon: "🔄",
     finalClass: "gray",
     title: "RAPPELER PLUS TARD",
-    text: "«\u00a0Pas de souci — je vous rappelle [semaine prochaine / dans quelques jours]. Bonne journée\u00a0!\u00a0»\n\nNote dans ton suivi pour relancer.",
+    text: "«\u00a0Pas de souci — je vous rappelle dans quelques jours. Bonne journée\u00a0!\u00a0»\n\nNote dans ton suivi. Rappelle dans 10-15 jours.",
     progress: [2,2,2,2,2]
   },
 
@@ -396,7 +409,7 @@ const steps = {
     icon: "📧",
     finalClass: "gray",
     title: "ENVOYER PAR EMAIL",
-    text: "Envoie un email court avec 3 lignes max + lien site. Ne dis rien de plus — laisse venir.",
+    text: "Email ultra court — 3 lignes max :\n• Qui tu es\n• Ce que tu pouvais lui montrer\n• Lien site\n\nPas de pitch. Laisse venir.",
     progress: [2,2,2,2,2]
   },
 
@@ -405,7 +418,7 @@ const steps = {
     icon: "✌️",
     finalClass: "gray",
     title: "SATISFAIT — RACCROCHER",
-    text: "«\u00a0Très bien, c'est parfait alors. Si un jour vous voulez comparer ou que ça évolue, pensez à nous. Bonne journée\u00a0!\u00a0»",
+    text: "«\u00a0Très bien, tant mieux. Si un jour ça évolue ou vous voulez comparer, pensez à nous. Bonne journée\u00a0!\u00a0»\n\nRaccrocher sans insister. La relation reste positive.",
     progress: [2,2,2,2,2]
   }
 };
